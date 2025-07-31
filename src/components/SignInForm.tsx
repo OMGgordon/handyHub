@@ -20,6 +20,10 @@ function SignInForm() {
   const [password, setPassword] = useState("");
   const router = useRouter();
 
+  const handleNavigateToSignUp = () => {
+    router.push('/signup');
+  };
+
   const handleSignIn = async () => {
     setLoading(true);
 
@@ -136,7 +140,10 @@ function SignInForm() {
         <div>
           <p className="text-sm">
             New to HandyHive?{" "}
-            <span className="text-primary font-semibold cursor-pointer">
+            <span 
+              className="text-primary font-semibold cursor-pointer hover:underline"
+              onClick={handleNavigateToSignUp}
+            >
               Create Account
             </span>
           </p>

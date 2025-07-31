@@ -29,6 +29,10 @@ function SignUpForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  const handleNavigateToSignIn = () => {
+    router.push('/auth');
+  };
+
   const [session, setSession] = useState<any>(null);
 
   const fetchSession = async () => {
@@ -166,7 +170,10 @@ function SignUpForm() {
         <div>
           <p className="text-sm">
             Already have an account?.
-            <span className=" text-primary font-bold cursor-pointer">
+            <span 
+              className=" text-primary font-bold cursor-pointer hover:underline"
+              onClick={handleNavigateToSignIn}
+            >
               Sign In
             </span>
           </p>
