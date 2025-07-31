@@ -7,27 +7,6 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 function SignUpPage() {
-  const [session, setSession] = useState<any>(null);
-  const router = useRouter();
-
-  const fetchSession = async () => {
-    const currentSession = await supabase.auth.getSession();
-    setSession(currentSession.data.session);
-  };
-
-  useEffect(() => {
-    fetchSession();
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        router.push("/dashboard");
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
   return (
     <div className="min-h-screen flex items-center justify-center font-segoe p-4">
       <div className="flex flex-col lg:flex-row items-center justify-center space-y-8 lg:space-y-0 lg:space-x-8">

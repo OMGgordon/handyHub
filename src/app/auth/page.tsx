@@ -5,28 +5,37 @@ import React, { useEffect, useState } from "react";
 import SignInForm from "@/components/SignInForm";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { useSession } from "@/context/SessionProvider";
 
 function AuthPage() {
-  const [session, setSession] = useState<any>(null);
+  //   const [session, setSession] = useState<any>(null);
+  //   const router = useRouter();
+
+  //   const fetchSession = async () => {
+  //     const currentSession = await supabase.auth.getSession();
+  //     setSession(currentSession.data.session);
+  //   };
+
+  //   useEffect(() => {
+  //     fetchSession();
+  //     const {
+  //       data: { subscription },
+  //     } = supabase.auth.onAuthStateChange((event, session) => {
+  //       if (session) {
+  //         router.push("/landing-page");
+  //       }
+  //     });
+
+  //     return () => subscription.unsubscribe();
+  //   }, []);
+  const { session } = useSession();
   const router = useRouter();
 
-  const fetchSession = async () => {
-    const currentSession = await supabase.auth.getSession();
-    setSession(currentSession.data.session);
-  };
-
   useEffect(() => {
-    fetchSession();
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        router.push("/dashboard");
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+    if (session) {
+      router.push("/landing-page");
+    }
+  }, [session, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center font-segoe p-4">

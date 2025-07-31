@@ -21,7 +21,7 @@ function SignInForm() {
   const router = useRouter();
 
   const handleNavigateToSignUp = () => {
-    router.push('/signup');
+    router.push("/signup");
   };
 
   const handleSignIn = async () => {
@@ -46,7 +46,7 @@ function SignInForm() {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: "http://localhost:3000/dashboard",
+        redirectTo: "http://localhost:3000/landing-page",
       },
     });
 
@@ -73,11 +73,11 @@ function SignInForm() {
     setLoading(false);
   };
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) router.push("/dashboard");
-    });
-  }, []);
+  // useEffect(() => {
+  //   supabase.auth.getSession().then(({ data }) => {
+  //     if (data.session) router.push("/dashboard");
+  //   });
+  // }, []);
 
   //   const [session, setSession] = useState<any>(null)
   //     useEffect(() => {
@@ -120,13 +120,13 @@ function SignInForm() {
             type="email"
             placeholder="Email Adress*"
             value={email}
-            onChange={(e) => e.target.value}
+            onChange={(e) => setEmail(e.target.value)}
           />
           <Input
             type="password"
             placeholder="Password*"
             value={password}
-            onChange={(e) => e.target.value}
+            onChange={(e) => setPassword(e.target.value)}
           />
           <Button
             variant="default"
@@ -140,7 +140,7 @@ function SignInForm() {
         <div>
           <p className="text-sm">
             New to HandyHive?{" "}
-            <span 
+            <span
               className="text-primary font-semibold cursor-pointer hover:underline"
               onClick={handleNavigateToSignUp}
             >

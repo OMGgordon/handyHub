@@ -30,28 +30,28 @@ function SignUpForm() {
   const router = useRouter();
 
   const handleNavigateToSignIn = () => {
-    router.push('/auth');
+    router.push("/auth");
   };
 
-  const [session, setSession] = useState<any>(null);
+  //   const [session, setSession] = useState<any>(null);
 
-  const fetchSession = async () => {
-    const currentSession = await supabase.auth.getSession();
-    setSession(currentSession.data.session);
-  };
+  //   const fetchSession = async () => {
+  //     const currentSession = await supabase.auth.getSession();
+  //     setSession(currentSession.data.session);
+  //   };
 
-  useEffect(() => {
-    fetchSession();
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        router.push("/dashboard");
-      }
-    });
+  //   useEffect(() => {
+  //     fetchSession();
+  //     const {
+  //       data: { subscription },
+  //     } = supabase.auth.onAuthStateChange((event, session) => {
+  //       if (session) {
+  //         router.push("/landing-page");
+  //       }
+  //     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+  //     return () => subscription.unsubscribe();
+  //   }, []);
 
   const handleSignUp = async () => {
     setLoading(true);
@@ -76,9 +76,9 @@ function SignUpForm() {
 
     setLoading(false);
 
-    {
-      session && router.push("/dashboard");
-    }
+    // {
+    //   session && router.push("/dashboard");
+    // }
   };
   return (
     <Card className="w-full max-w-sm p-3 flex-shrink-0">
@@ -170,7 +170,7 @@ function SignUpForm() {
         <div>
           <p className="text-sm">
             Already have an account?.
-            <span 
+            <span
               className=" text-primary font-bold cursor-pointer hover:underline"
               onClick={handleNavigateToSignIn}
             >
