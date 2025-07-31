@@ -2,11 +2,11 @@
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 
-import SignInForm from "@/components/SignInForm";
+import SignUpForm from "@/components/SignUpForm";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
-function AuthPage() {
+function SignUpPage() {
   const [session, setSession] = useState<any>(null);
   const router = useRouter();
 
@@ -31,8 +31,8 @@ function AuthPage() {
   return (
     <div className="min-h-screen flex items-center justify-center font-segoe p-4">
       <div className="flex flex-col lg:flex-row items-center justify-center space-y-8 lg:space-y-0 lg:space-x-8">
-        {/* Sign In Form */}
-        <SignInForm />
+        {/* Sign Up Form */}
+        <SignUpForm />
 
         {/* Image Section */}
         <div className="hidden lg:block">
@@ -49,4 +49,4 @@ function AuthPage() {
   );
 }
 
-export default AuthPage;
+export default SignUpPage;

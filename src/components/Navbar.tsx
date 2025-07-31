@@ -9,11 +9,11 @@ export function Navbar({ onNavigateToSignIn }: NavbarProps) {
   const router = useRouter();
 
   const handleLogin = () => {
-    router.push('/auth?mode=signin');
+    router.push('/auth');
   };
 
   const handleSignUp = () => {
-    router.push('/auth?mode=signup');
+    router.push('/signup');
   };
 
   return (
