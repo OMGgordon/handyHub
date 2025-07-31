@@ -116,13 +116,13 @@ function SignInForm() {
             type="email"
             placeholder="Email Adress*"
             value={email}
-            onChange={(e) => e.target.value}
+            onChange={(e) => setEmail(e.target.value)}
           />
           <Input
             type="password"
             placeholder="Password*"
             value={password}
-            onChange={(e) => e.target.value}
+            onChange={(e) => setPassword(e.target.value)}
           />
           <Button
             variant="default"
