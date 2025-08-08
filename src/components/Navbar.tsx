@@ -25,7 +25,7 @@ export function Navbar({ onNavigateToSignIn }: NavbarProps) {
     : "U";
 
   return (
-    <nav className="sticky top-0 z-50 bg-white h-[94px] flex items-center justify-between px-6 lg:px-8 shadow-sm">
+    <nav className="sticky top-0 z-50  h-[94px] flex items-center justify-between px-6 lg:px-8">
       <div className="flex items-center">
         <img src="/images/logo.png" alt="HandyHive" className="h-16 w-auto" />
       </div>

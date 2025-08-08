@@ -25,7 +25,7 @@ import { Toaster } from "./ui/sonner";
 function SignUpForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [userType, setUserType] = useState("client");
+  const [userType, setUserType] = useState<'client' | 'provider'>("client");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
