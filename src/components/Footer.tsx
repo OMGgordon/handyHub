@@ -9,7 +9,7 @@ export function Footer() {
               <img 
                 src="/images/logo.png"
                 alt="HandyHive Logo"
-                className="w-30 h-16"
+                className="w-35 h-16"
               />
             </div>
             <h3 className="text-[12px] font-bold text-[#282827] mb-4">Coming Soon</h3>

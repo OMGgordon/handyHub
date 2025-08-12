@@ -1,8 +1,6 @@
-import { Button } from "./ui/button";
-import { useRouter } from "next/navigation";
 import { useSession } from "@/context/SessionProvider";
-import Image from "next/image";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { LandingNavbar } from "./LandingNavbar";
+import { AuthenticatedNavbar } from "./AuthenticatedNavbar";
 
 interface NavbarProps {
   onNavigateToSignIn?: () => void;
@@ -10,75 +8,20 @@ interface NavbarProps {
 
 export function Navbar({ onNavigateToSignIn }: NavbarProps) {
   const { session, loading } = useSession();
-  const router = useRouter();
 
-  const handleLogin = () => {
-    router.push("/auth");
-  };
+  if (loading) {
+    return (
+      <nav className="sticky top-0 z-50 bg-white h-[94px] flex items-center justify-between px-6 lg:px-8 shadow-sm">
+        <div className="flex items-center">
+          <img src="/images/logo.png" alt="HandyHive" className="h-16 w-auto" />
+        </div>
+        <div className="animate-pulse flex space-x-4">
+          <div className="rounded-md bg-gray-200 h-10 w-20"></div>
+          <div className="rounded-md bg-gray-200 h-10 w-20"></div>
+        </div>
+      </nav>
+    );
+  }
 
-  const handleSignUp = () => {
-    router.push("/signup");
-  };
-
-  const fallbackLetter = session?.user?.email
-    ? session.user.email.charAt(0).toUpperCase()
-    : "U";
-
-  return (
-    <nav className="sticky top-0 z-50 bg-white h-[94px] flex items-center justify-between px-6 lg:px-8 shadow-sm">
-      <div className="flex items-center">
-        <img src="/images/logo.png" alt="HandyHive" className="h-16 w-auto" />
-      </div>
-
-      {!loading &&
-        (session ? (
-          <div className="font-extrabold flex flex-row items-center justify-around gap-6">
-            <div className="space-x-4">
-              <span>My projects</span>
-              <span>Inbox</span>
-            </div>
-            <div className="flex flex-row items-center justify-between gap-2">
-              <span>Good day</span>
-              <Avatar>
-                <AvatarImage
-                  src={session?.user?.user_metadata?.profilePic}
-                  alt="User Avatar"
-                />
-                <AvatarFallback>{fallbackLetter}</AvatarFallback>
-              </Avatar>
-            </div>
-          </div>
-        ) : (
-          <div>
-            <div className="hidden md:flex items-center space-x-6">
-              <span className="text-[16px] font-semibold text-black">
-                Join as a Service Provider
-              </span>
-
-              <Button
-                variant="outline"
-                className="border-[#867f7f] text-black font-semibold px-6 h-11 rounded-[10px]"
-                onClick={handleLogin}
-              >
-                Login
-              </Button>
-
-              <Button
-                className="bg-[#fe9f2b] hover:bg-[#e8891a] text-white font-semibold px-6 h-11 rounded-[10px]"
-                onClick={handleSignUp}
-              >
-                Sign Up
-              </Button>
-
-              {/* Mobile menu button */}
-            </div>
-            <div className="md:hidden">
-              <Button variant="outline" size="sm" onClick={handleLogin}>
-                Login
-              </Button>
-            </div>
-          </div>
-        ))}
-    </nav>
-  );
+  return session ? <AuthenticatedNavbar /> : <LandingNavbar />;
 }
