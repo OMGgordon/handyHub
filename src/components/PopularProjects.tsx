@@ -48,7 +48,7 @@ const projects = [
 
 export function PopularProjects() {
   return (
-    <section className="py-16 px-6">
+    <section className="py-8 px-6">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-[23.25px] font-bold text-[#282827] mb-8">
           Popular home projects

@@ -6,11 +6,13 @@ import { supabase } from "@/lib/supabase";
 type SessionContextType = {
   session: any;
   loading: boolean;
+  signOut: () => Promise<void>;
 };
 
 const SessionContext = createContext<SessionContextType>({
   session: null,
   loading: true,
+  signOut: async () => {},
 });
 
 export const SessionProvider = ({
@@ -20,6 +22,11 @@ export const SessionProvider = ({
 }) => {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    setSession(null);
+  };
 
   useEffect(() => {
     // Get session on initial load
@@ -39,7 +46,7 @@ export const SessionProvider = ({
   }, []);
 
   return (
-    <SessionContext.Provider value={{ session, loading }}>
+    <SessionContext.Provider value={{ session, loading, signOut }}>
       {children}
     </SessionContext.Provider>
   );
