@@ -5,7 +5,7 @@ import { Input } from "./ui/input";
 import UploadDropzone from "./UploadDropzone";
 import { supabase } from "@/lib/supabase";
 
-type FormData = {
+type FormData  = {
   fullName: string;
   email: string;
   phone: string;
@@ -61,7 +61,7 @@ const OnboardingModal = () => {
 
       const { data, error } = await supabase.auth.updateUser({
         data: {
-          fullName: formData.fullName,
+          full_name: formData.fullName,
           email: formData.email,
           phone: formData.phone,
 
@@ -74,7 +74,7 @@ const OnboardingModal = () => {
           workRadius: formData.workRadius,
 
           //TODO: upload files to Supabase Storage
-          uploadedFiles: formData.uploadedFiles,
+          uploaded_files: formData.uploadedFiles,
         },
       });
 

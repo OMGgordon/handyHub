@@ -63,7 +63,7 @@ function SignInForm() {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "apple",
       options: {
-        redirectTo: "http://localhost:3000/dashboard",
+        redirectTo: "http://localhost:3000/landing-page",
       },
     });
 

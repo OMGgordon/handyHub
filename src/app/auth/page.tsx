@@ -28,22 +28,8 @@ function AuthPage() {
 
   //     return () => subscription.unsubscribe();
   //   }, []);
-  const { isLoading, session } = useSession();
 
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isLoading && session) {
-      if (session?.user?.user_metadata?.userType === "provider") {
-        router.push("/onboarding-page");
-      } else {
-        console.log("signing up as client");
-      }
-    }
-  }, [session, isLoading, router]);
-
-
-  console.log("session.user", session?.user);
+  //   console.log("session.user", session?.user);
 
   return (
     <div className="min-h-screen flex items-center justify-center font-segoe p-4">

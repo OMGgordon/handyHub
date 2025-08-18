@@ -1,5 +1,6 @@
+"use client"
 import { Button } from "./ui/button";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useSession } from "@/context/SessionProvider";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -11,6 +12,7 @@ interface NavbarProps {
 export function Navbar({ onNavigateToSignIn }: NavbarProps) {
   const { session, loading } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleLogin = () => {
     router.push("/auth");
@@ -25,7 +27,7 @@ export function Navbar({ onNavigateToSignIn }: NavbarProps) {
     : "U";
 
   return (
-    <nav className="sticky top-0 z-50  h-[94px] flex items-center justify-between px-6 lg:px-8">
+    <nav className="sticky top-0 z-50  h-[94px] flex  items-center justify-between px-6 lg:px-8">
       <div className="flex items-center">
         <img src="/images/logo.png" alt="HandyHive" className="h-16 w-auto" />
       </div>
@@ -33,12 +35,26 @@ export function Navbar({ onNavigateToSignIn }: NavbarProps) {
       {!loading &&
         (session ? (
           <div className="font-extrabold flex flex-row items-center justify-around gap-6">
-            <div className="space-x-4">
-              <span>My projects</span>
-              <span>Inbox</span>
+            <div className="hidden md:flex space-x-4">
+              <span
+                onClick={() => router.push("/projects")}
+                className={`cursor-pointer ${
+                  pathname === "/projects" ? "text-primary font-semibold" : ""
+                }`}
+              >
+                My projects
+              </span>
+              <span
+                onClick={() => router.push("/inbox")}
+                className={`cursor-pointer ${
+                  pathname === "/inbox" ? "text-primary font-semibold" : ""
+                }`}
+              >
+                Inbox
+              </span>
             </div>
             <div className="flex flex-row items-center justify-between gap-2">
-              <span>Good day</span>
+              <span className="">Good day</span>
               <Avatar>
                 <AvatarImage
                   src={session?.user?.user_metadata?.profilePic}
