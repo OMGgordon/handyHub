@@ -113,7 +113,7 @@ function SignUpForm() {
               height={500}
             />
           </CardTitle>
-          <CardDescription>Create your account</CardDescription>
+          <CardDescription className="text-black">Create your account</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-3">
@@ -215,7 +215,7 @@ function SignUpForm() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Almost there!</AlertDialogTitle>
-            <AlertDialogDescription>{message}</AlertDialogDescription>
+            <AlertDialogDescription className="text-black">{message}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogAction onClick={() => setShowDialog(false)}>

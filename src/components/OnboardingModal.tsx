@@ -75,6 +75,8 @@ const OnboardingModal = () => {
 
           //TODO: upload files to Supabase Storage
           uploaded_files: formData.uploadedFiles,
+
+          firstLogin: false,
         },
       });
 

@@ -27,30 +27,37 @@ export default function AuthCallbackPage() {
   const { session } = useSession();
 
   useEffect(() => {
-    if (session) {
-      const { userType, firstLogin } = session.user.user_metadata;
+    const handleRedirect = async () => {
+      if (!session) return;
+
+      // 👀 Debug log
+      console.log("user_metadata:", session.user.user_metadata);
+
+      const userType = session.user.user_metadata.userType;
+      const firstLogin = session.user.user_metadata.firstLogin;
 
       if (userType === "provider") {
-        //if its provider and first time, so only after sign up
-        if (firstLogin) {
+        if (firstLogin === true || firstLogin === "true") {
+          // go to onboarding first
           router.replace("/onboarding-page");
-
-          // clear the flag so next time they don’t go to onboarding
-          supabase.auth.updateUser({
-            data: { firstLogin: false },
-          });
-        } else {
-          console.log("redirecting provider to onboarding");
-          router.replace("/landing-page");
+          return;
         }
-      } else if (userType === "client") {
-        console.log("redirecting client to dashboard");
+
+        // Not first login → landing page
         router.replace("/landing-page");
-      } else {
-        console.log("no userType found, redirecting to fallback");
-        router.replace("/");
+        return;
       }
-    } else return;
+
+      if (userType === "client") {
+        router.replace("/landing-page");
+        return;
+      }
+
+      // fallback
+      router.replace("/");
+    };
+
+    handleRedirect();
   }, [session, router]);
 
   return (

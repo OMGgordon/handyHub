@@ -13,7 +13,7 @@ export function LandingNavbar() {
   };
 
   const handleJoinAsServiceProvider = () => {
-    router.push("/ServiceProviderProfile");
+    router.push("/signup");
   };
 
   return (
