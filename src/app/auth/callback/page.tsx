@@ -28,11 +28,21 @@ export default function AuthCallbackPage() {
 
   useEffect(() => {
     if (session) {
-      const userType = session?.user?.user_metadata?.userType;
+      const { userType, firstLogin } = session.user.user_metadata;
 
       if (userType === "provider") {
-        console.log("redirecting provider to onboarding");
-        router.replace("/onboarding-page");
+        //if its provider and first time, so only after sign up
+        if (firstLogin) {
+          router.replace("/onboarding-page");
+
+          // clear the flag so next time they don’t go to onboarding
+          supabase.auth.updateUser({
+            data: { firstLogin: false },
+          });
+        } else {
+          console.log("redirecting provider to onboarding");
+          router.replace("/landing-page");
+        }
       } else if (userType === "client") {
         console.log("redirecting client to dashboard");
         router.replace("/landing-page");

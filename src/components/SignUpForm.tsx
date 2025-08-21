@@ -70,7 +70,7 @@ function SignUpForm() {
       email,
       password,
       options: {
-        data: { userType },
+        data: { userType, firstLogin: true },
         emailRedirectTo: "http://localhost:3000/auth/callback",
       },
     });

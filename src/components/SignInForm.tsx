@@ -36,6 +36,7 @@ function SignInForm() {
       console.error(error.message);
     } else {
       console.log("Sign In successful");
+      router.push("/auth/callback");
     }
 
     setLoading(false);
