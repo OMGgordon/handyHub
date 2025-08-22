@@ -74,6 +74,8 @@ function SignUpForm() {
         emailRedirectTo: "http://localhost:3000/auth/callback",
       },
     });
+    
+    console.log(data.user, "data.user")
 
     if (error) {
       toast.error(error.message);
@@ -81,6 +83,12 @@ function SignUpForm() {
       setShowDialog(true);
 
       console.log(error.message);
+    } else if (!data.user) {
+      // This happens if email already exists or signup didn't succeed
+      console.log("user already exists");
+      toast.error("This email is already registered. Please sign in instead.");
+      setMessage("This email is already registered. Please sign in instead.");
+      setShowDialog(true);
     } else {
       toast.success("Check your email to confirm your account.");
       setMessage("Check your email to confirm your account.");
@@ -113,7 +121,9 @@ function SignUpForm() {
               height={500}
             />
           </CardTitle>
-          <CardDescription className="text-black">Create your account</CardDescription>
+          <CardDescription className="text-black">
+            Create your account
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-3">
@@ -215,7 +225,9 @@ function SignUpForm() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Almost there!</AlertDialogTitle>
-            <AlertDialogDescription className="text-black">{message}</AlertDialogDescription>
+            <AlertDialogDescription className="text-black">
+              {message}
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogAction onClick={() => setShowDialog(false)}>
