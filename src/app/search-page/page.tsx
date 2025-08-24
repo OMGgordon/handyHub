@@ -184,9 +184,7 @@ const ServiceProviderSearch: React.FC = () => {
   return (
     <div className="min-h-screen bg-orange-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <Navbar />
-      </header>
+      <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Search Bar */}
