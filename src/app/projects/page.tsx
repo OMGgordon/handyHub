@@ -2,11 +2,12 @@
 import { Navbar } from "@/components/Navbar";
 import React, { useEffect, useState } from "react";
 import { useSession } from "@/context/SessionProvider";
+import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
-import Project from "@/components/Project";
+import ProjectComponent from "@/components/Project";
 
 type Project = {
   id: string;
@@ -20,10 +21,15 @@ type Project = {
 
 function ProjectPage() {
   const { session } = useSession();
+  const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
   const firstName = session?.user?.user_metadata?.fullName?.split(" ")[0];
+
+  const handleStartProject = () => {
+    router.push("/Post-project");
+  };
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -69,12 +75,12 @@ function ProjectPage() {
           />
           <span className="font-semibold">You dont have any projects yet</span>
           <span>When you do you will find them here</span>
-          <Button>Start a project</Button>
+          <Button onClick={handleStartProject}>Start a project</Button>
         </div>
       ) : (
         <div className="space-y-4">
           {projects.map((project) => (
-            <Project key={project.id} {...project} />
+            <ProjectComponent key={project.id} project={project} />
           ))}
         </div>
       )}

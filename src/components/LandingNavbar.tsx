@@ -1,8 +1,13 @@
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export function LandingNavbar() {
   const router = useRouter();
+
+  const handleJoinAsServiceProvider = () => {
+    router.push('/ServiceProviderProfile');
+  };
 
   const handleLogin = () => {
     router.push("/auth");
@@ -12,37 +17,41 @@ export function LandingNavbar() {
     router.push("/signup");
   };
 
-  const handleJoinAsServiceProvider = () => {
-    router.push("/signup");
-  };
-
   return (
-    <nav className="sticky top-0 z-50 bg-white h-[94px] flex items-center justify-between px-6 lg:px-8 shadow-sm">
-      <div className="flex items-center">
-        <img src="/images/logo.png" alt="HandyHive" className="h-16 w-auto" />
-      </div>
+    <nav className="bg-white shadow-sm py-2 px-4 sm:px-6 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto flex items-center justify-between h-12">
+        {/* Logo */}
+        <div className="flex items-center">
+          <Image
+            src="/images/Logo.png"
+            alt="HandyHive Logo"
+            width={120}
+            height={32}
+            className="h-12 w-auto"
+          />
+        </div>
 
-      <div>
-        <div className="hidden md:flex items-center space-x-6">
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center space-x-4">
           <Button
             variant="ghost"
-            className="text-[16px] font-semibold text-black hover:text-[#fe9f2b] hover:bg-transparent"
             onClick={handleJoinAsServiceProvider}
+            className="text-gray-700 hover:text-[#fe9f2b] hover:bg-transparent text-sm"
           >
             Join as a Service Provider
           </Button>
-
-          <Button
-            variant="outline"
-            className="border-[#867f7f] text-black font-semibold px-6 h-11 rounded-[10px]"
+          
+          <Button 
+            variant="outline" 
             onClick={handleLogin}
+            className="border-gray-300 text-gray-700 hover:bg-gray-50 text-sm px-4 py-1.5"
           >
             Login
           </Button>
-
-          <Button
-            className="bg-[#fe9f2b] hover:bg-[#e8891a] text-white font-semibold px-6 h-11 rounded-[10px]"
+          
+          <Button 
             onClick={handleSignUp}
+            className="bg-[#fe9f2b] hover:bg-[#e8891a] text-white text-sm px-4 py-1.5"
           >
             Sign Up
           </Button>
