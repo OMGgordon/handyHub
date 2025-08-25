@@ -1,3 +1,5 @@
+import { useRouter } from "next/navigation";
+
 const categories = [
   { name: "Handyperson", icon: "/images/handyperson.png" },
   { name: "Landscaping", icon: "/images/landscaping.png" },
@@ -13,17 +15,19 @@ const categories = [
 ];
 
 export function ServiceCategories() {
+  const router = useRouter();
   return (
     <section className="py-6 px-6">
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-11 gap-4 max-w-7xl mx-auto">
         {categories.map((category, index) => (
-          <div 
+          <div
             key={index}
             className="flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+            onClick={() => router.push("/search-page")}
           >
             <div className="w-12 h-12 mb-3 flex items-center justify-center">
-              <img 
-                src={category.icon} 
+              <img
+                src={category.icon}
                 alt={category.name}
                 className="w-full h-full object-contain"
               />

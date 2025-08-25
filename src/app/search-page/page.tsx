@@ -20,6 +20,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Slider } from "@/components/ui/slider";
 import { supabase } from "@/lib/supabase";
 import { Navbar } from "@/components/Navbar";
+import { useRouter } from "next/navigation";
 
 // Types
 interface ServiceProvider {
@@ -105,7 +106,6 @@ const ServiceProviderSearch: React.FC = () => {
     } finally {
       setLoading(false);
     }
-    
   };
 
   // Filter and search logic
@@ -119,7 +119,9 @@ const ServiceProviderSearch: React.FC = () => {
           provider.full_name
             .toLowerCase()
             .includes(searchQuery.toLowerCase()) ||
-          provider.services.map((service)=> service.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          provider.services.map((service) =>
+            service.toLowerCase().includes(searchQuery.toLowerCase())
+          ) ||
           provider.bio.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
@@ -180,6 +182,7 @@ const ServiceProviderSearch: React.FC = () => {
   useEffect(() => {
     fetchProviders();
   }, []);
+  const router = useRouter();
 
   return (
     <div className="min-h-screen bg-orange-50">
@@ -320,16 +323,33 @@ const ServiceProviderSearch: React.FC = () => {
             ) : (
               <div className="space-y-6">
                 {filteredProviders?.map((provider) => (
-                    // console.log(provider)
+                  // console.log(provider)
                   <Card key={provider.id} className="bg-white">
                     <CardContent className="p-6">
                       <div className="flex gap-4">
-                        {/* Avatar */}
-                        <div className="flex-shrink-0">
-                          <div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-full flex items-center justify-center">
-                            <span className="text-white font-bold text-lg">
-                              {provider.full_name.charAt(0)}
-                            </span>
+                        <div className="flex flex-col justify-between items-center space-y-3">
+                          {/* Avatar */}
+                          <div className="flex-shrink-0">
+                            <div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-full flex items-center justify-center">
+                              <span className="text-white font-bold text-lg">
+                                {provider.full_name.charAt(0)}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-center justify-between space-y-2">
+                            <div className="text-sm text-gray-500 font-segoe text-primary">
+                              View profile & past reviews
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                className="bg-orange-500 hover:bg-orange-600 text-white px-6 rounded-3xl"
+                                onClick={() => {
+                                  router.push("/ServiceProviderProfile");
+                                }}
+                              >
+                                Select & Continue
+                              </Button>
+                            </div>
                           </div>
                         </div>
 
@@ -370,29 +390,13 @@ const ServiceProviderSearch: React.FC = () => {
                             </div>
                           </div>
 
-                          <div className="mb-4">
+                          <div className="mb-4 bg-primary rounded-2xl p-6">
                             <h4 className="font-medium text-sm mb-1">
                               How I can help:
                             </h4>
                             <p className="text-sm text-gray-600">
                               {provider.bio}
                             </p>
-                          </div>
-
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <Button
-                                className="bg-orange-500 hover:bg-orange-600 text-white px-6"
-                                onClick={() => {
-                                  /* Handle contact */
-                                }}
-                              >
-                                Select & Continue
-                              </Button>
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              View profile & past reviews
-                            </div>
                           </div>
                         </div>
                       </div>
