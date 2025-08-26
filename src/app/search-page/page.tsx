@@ -189,32 +189,48 @@ const ServiceProviderSearch: React.FC = () => {
       {/* Header */}
       <Navbar />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Search Bar */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <div className="relative max-w-2xl mx-auto">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 sm:h-5 sm:w-5" />
             <Input
               type="text"
               placeholder="Search for services provider or services"
-              className="pl-10 pr-4 py-3 w-full rounded-full border-gray-200"
+              className="pl-9 sm:pl-10 pr-4 py-2 sm:py-3 w-full rounded-full border-gray-200 text-sm sm:text-base"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <Button className="absolute right-1 top-1/2 transform -translate-y-1/2 rounded-full bg-orange-500 hover:bg-orange-600">
-              <Search className="h-4 w-4" />
+            <Button className="absolute right-1 top-1/2 transform -translate-y-1/2 rounded-full bg-orange-500 hover:bg-orange-600 h-8 w-8 sm:h-auto sm:w-auto sm:px-3">
+              <Search className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
           </div>
         </div>
 
-        <div className="flex gap-8">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           {/* Sidebar Filters */}
-          <div className="w-80 space-y-6">
+          <div className="w-full lg:w-80 space-y-4 sm:space-y-6">
+            {/* Mobile Filter Button */}
+            <div className="lg:hidden">
+              <Button
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2"
+                onClick={() => {
+                  // You can implement a mobile filter modal here
+                }}
+              >
+                <Filter className="h-4 w-4" />
+                Filters
+              </Button>
+            </div>
+
+            {/* Desktop Filters */}
+            <div className="hidden lg:block space-y-6">
             {/* Sort */}
             <Card>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-semibold">Sorted by:</h3>
+                  <h3 className="font-semibold text-sm sm:text-base">Sorted by:</h3>
                 </div>
               </CardHeader>
               <CardContent>
@@ -240,7 +256,7 @@ const ServiceProviderSearch: React.FC = () => {
             {/* Time of Day */}
             <Card>
               <CardHeader className="pb-3">
-                <h3 className="font-semibold">Time of day</h3>
+                <h3 className="font-semibold text-sm sm:text-base">Time of day</h3>
               </CardHeader>
               <CardContent>
                 <RadioGroup
@@ -249,19 +265,19 @@ const ServiceProviderSearch: React.FC = () => {
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="morning" id="morning" />
-                    <Label htmlFor="morning" className="text-sm">
+                    <Label htmlFor="morning" className="text-xs sm:text-sm">
                       Morning (6am - 12pm)
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="afternoon" id="afternoon" />
-                    <Label htmlFor="afternoon" className="text-sm">
+                    <Label htmlFor="afternoon" className="text-xs sm:text-sm">
                       Afternoon (12pm - 6pm)
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="evening" id="evening" />
-                    <Label htmlFor="evening" className="text-sm">
+                    <Label htmlFor="evening" className="text-xs sm:text-sm">
                       Evening (6pm - 12am)
                     </Label>
                   </div>
@@ -269,7 +285,7 @@ const ServiceProviderSearch: React.FC = () => {
                 <div className="mt-3">
                   <Button
                     variant="link"
-                    className="p-0 text-sm text-orange-600"
+                    className="p-0 text-xs sm:text-sm text-orange-600"
                   >
                     Choose a specific time
                   </Button>
@@ -280,10 +296,10 @@ const ServiceProviderSearch: React.FC = () => {
             {/* Price Range */}
             <Card>
               <CardHeader className="pb-3">
-                <h3 className="font-semibold">Price</h3>
+                <h3 className="font-semibold text-sm sm:text-base">Price</h3>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex justify-between text-sm text-gray-600">
+                <div className="flex justify-between text-xs sm:text-sm text-gray-600">
                   <span>GH₵ {priceRange[0]}</span>
                   <span>GH₵ {priceRange[1]}</span>
                 </div>
@@ -295,7 +311,7 @@ const ServiceProviderSearch: React.FC = () => {
                   step={50}
                   className="w-full"
                 />
-                <div className="flex justify-between text-sm text-gray-600">
+                <div className="flex justify-between text-xs sm:text-sm text-gray-600">
                   <span>GH₵ 0</span>
                   <span>GH₵ 2000+</span>
                 </div>
@@ -305,15 +321,16 @@ const ServiceProviderSearch: React.FC = () => {
                 </div>
               </CardContent>
             </Card>
+            </div>
           </div>
 
           {/* Main Content */}
           <div className="flex-1">
             <div className="mb-4">
-              <h1 className="text-2xl font-bold mb-2">
+              <h1 className="text-xl sm:text-2xl font-bold mb-2">
                 Browse Service Providers and Prices
               </h1>
-              <p className="text-gray-600">
+              <p className="text-sm sm:text-base text-gray-600">
                 {filteredProviders?.length} providers found
               </p>
             </div>
@@ -321,28 +338,28 @@ const ServiceProviderSearch: React.FC = () => {
             {loading ? (
               <div className="text-center py-8">Loading...</div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {filteredProviders?.map((provider) => (
                   // console.log(provider)
                   <Card key={provider.id} className="bg-white">
-                    <CardContent className="p-6">
-                      <div className="flex gap-4">
-                        <div className="flex flex-col justify-between items-center space-y-3">
+                    <CardContent className="p-4 sm:p-6">
+                      <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="flex sm:flex-col justify-between sm:justify-between items-center sm:items-center space-y-0 sm:space-y-3">
                           {/* Avatar */}
                           <div className="flex-shrink-0">
-                            <div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-full flex items-center justify-center">
-                              <span className="text-white font-bold text-lg">
+                            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-full flex items-center justify-center">
+                              <span className="text-white font-bold text-sm sm:text-lg">
                                 {provider.full_name.charAt(0)}
                               </span>
                             </div>
                           </div>
                           <div className="flex flex-col items-center justify-between space-y-2">
-                            <div className="text-sm text-gray-500 font-segoe text-primary">
+                            <div className="text-xs sm:text-sm text-gray-500 font-segoe text-primary text-center">
                               View profile & past reviews
                             </div>
                             <div className="flex items-center gap-2">
                               <Button
-                                className="bg-orange-500 hover:bg-orange-600 text-white px-6 rounded-3xl"
+                                className="bg-orange-500 hover:bg-orange-600 text-white px-4 sm:px-6 py-2 text-sm rounded-3xl"
                                 onClick={() => {
                                   router.push("/ServiceProviderProfile");
                                 }}
@@ -355,12 +372,12 @@ const ServiceProviderSearch: React.FC = () => {
 
                         {/* Content */}
                         <div className="flex-1">
-                          <div className="flex items-start justify-between mb-2">
-                            <div>
-                              <h3 className="font-semibold text-lg">
+                          <div className="flex flex-col sm:flex-row items-start justify-between mb-2">
+                            <div className="flex-1 mb-2 sm:mb-0">
+                              <h3 className="font-semibold text-base sm:text-lg">
                                 {provider.full_name}
                               </h3>
-                              <div className="flex items-center gap-2 mt-1">
+                              <div className="flex flex-wrap items-center gap-2 mt-1">
                                 {provider.verified && (
                                   <Badge
                                     variant="secondary"
@@ -370,31 +387,31 @@ const ServiceProviderSearch: React.FC = () => {
                                   </Badge>
                                 )}
                                 <div className="flex items-center gap-1">
-                                  <Star className="h-4 w-4 fill-orange-400 text-orange-400" />
-                                  <span className="text-sm font-medium">
+                                  <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-orange-400 text-orange-400" />
+                                  <span className="text-xs sm:text-sm font-medium">
                                     {provider.rating}
                                   </span>
-                                  <span className="text-sm text-gray-500">
+                                  <span className="text-xs sm:text-sm text-gray-500">
                                     ({provider.review_count})
                                   </span>
                                 </div>
                               </div>
-                              <p className="text-sm text-gray-600 mt-1">
+                              <p className="text-xs sm:text-sm text-gray-600 mt-1">
                                 {provider.completed_projects} completed projects
                               </p>
                             </div>
-                            <div className="text-right">
-                              <div className="text-2xl font-bold">
+                            <div className="text-left sm:text-right">
+                              <div className="text-xl sm:text-2xl font-bold">
                                 GH₵{provider.price}
                               </div>
                             </div>
                           </div>
 
-                          <div className="mb-4 bg-primary rounded-2xl p-6">
-                            <h4 className="font-medium text-sm mb-1">
+                          <div className="mb-4 bg-primary rounded-2xl p-4 sm:p-6">
+                            <h4 className="font-medium text-xs sm:text-sm mb-1">
                               How I can help:
                             </h4>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-xs sm:text-sm text-gray-600">
                               {provider.bio}
                             </p>
                           </div>
