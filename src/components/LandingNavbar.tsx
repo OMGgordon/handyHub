@@ -6,7 +6,7 @@ export function LandingNavbar() {
   const router = useRouter();
 
   const handleJoinAsServiceProvider = () => {
-    router.push('/ServiceProviderProfile');
+    router.push("/signup-sp");
   };
 
   const handleLogin = () => {
@@ -38,18 +38,18 @@ export function LandingNavbar() {
             onClick={handleJoinAsServiceProvider}
             className="text-gray-700 hover:text-[#fe9f2b] hover:bg-transparent text-sm"
           >
-            Join as a Service Provider
+            Join as a Handyman
           </Button>
-          
-          <Button 
-            variant="outline" 
+
+          <Button
+            variant="outline"
             onClick={handleLogin}
             className="border-gray-300 text-gray-700 hover:bg-gray-50 text-sm px-4 py-1.5"
           >
             Login
           </Button>
-          
-          <Button 
+
+          <Button
             onClick={handleSignUp}
             className="bg-[#fe9f2b] hover:bg-[#e8891a] text-white text-sm px-4 py-1.5"
           >

@@ -66,7 +66,7 @@ export function AuthenticatedNavbar() {
               onClick={handleMyProjects}
             >
               <FolderOpen className="w-4 h-4" />
-              My Projects
+              My Jobs
             </Button>
 
             <Button

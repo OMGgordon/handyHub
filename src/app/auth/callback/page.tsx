@@ -31,30 +31,26 @@ export default function AuthCallbackPage() {
       if (!session) return;
 
       // 👀 Debug log
-      console.log("user_metadata:", session.user.user_metadata);
+      // console.log("user_metadata:", session.user.user_metadata);
 
-      const userType = session.user.user_metadata.userType;
-      const firstLogin = session.user.user_metadata.firstLogin;
+      // const userType = session.user.user_metadata.userType;
+      // const firstLogin = session.user.user_metadata.firstLogin;
 
-      if (userType === "provider") {
-        if (firstLogin === true || firstLogin === "true") {
-          // go to onboarding first
-          router.replace("/onboarding-page");
-          return;
-        }
+      // if (userType === "provider") {
+      //   // Not first login → landing page
+      //   router.replace("/landing-page");
+      //   return;
+      // }
 
-        // Not first login → landing page
-        router.replace("/landing-page");
-        return;
-      }
+      // if (userType === "client") {
+      //   router.replace("/landing-page");
+      //   return;
+      // }
 
-      if (userType === "client") {
-        router.replace("/landing-page");
-        return;
-      }
+      router.replace("/landing-page");
 
       // fallback
-      router.replace("/");
+      // router.replace("/");
     };
 
     handleRedirect();

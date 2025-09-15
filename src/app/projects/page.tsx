@@ -45,10 +45,13 @@ function ProjectPage() {
         setProjects(data || []);
       }
       setLoading(false);
+      
     };
 
     fetchProjects();
   }, [session, supabase]);
+
+  console.log(projects, loading)
 
   return (
     <div>

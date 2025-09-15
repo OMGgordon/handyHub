@@ -17,7 +17,7 @@ const categories = [
 export function ServiceCategories() {
   const router = useRouter();
   return (
-    <section className="py-6 px-6">
+    <section className="py-6 px-6 mb-20">
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-11 gap-4 max-w-7xl mx-auto">
         {categories.map((category, index) => (
           <div

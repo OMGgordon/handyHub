@@ -27,7 +27,7 @@ interface ServiceProvider {
   id: string;
   user_id: string;
   full_name: string;
-  services: string[];
+  service_category: string[];
   price: number;
   rating: number;
   review_count: number;
@@ -87,7 +87,7 @@ const ServiceProviderSearch: React.FC = () => {
         .select("*")
         .order("rating", { ascending: false });
 
-      console.log(data, "data");
+      // console.log(data, "data Profile");
       if (data) {
         setProviders(data);
         setFilteredProviders(data);
@@ -119,7 +119,7 @@ const ServiceProviderSearch: React.FC = () => {
           provider.full_name
             .toLowerCase()
             .includes(searchQuery.toLowerCase()) ||
-          provider.services.map((service) =>
+          provider.service_category.map((service) =>
             service.toLowerCase().includes(searchQuery.toLowerCase())
           ) ||
           provider.bio.toLowerCase().includes(searchQuery.toLowerCase())
@@ -226,101 +226,105 @@ const ServiceProviderSearch: React.FC = () => {
 
             {/* Desktop Filters */}
             <div className="hidden lg:block space-y-6">
-            {/* Sort */}
-            <Card>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-sm sm:text-base">Sorted by:</h3>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="recommended">Recommended</SelectItem>
-                    <SelectItem value="rating">Highest Rated</SelectItem>
-                    <SelectItem value="reviews">Most Reviews</SelectItem>
-                    <SelectItem value="price-low">
-                      Price: Low to High
-                    </SelectItem>
-                    <SelectItem value="price-high">
-                      Price: High to Low
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </CardContent>
-            </Card>
+              {/* Sort */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-sm sm:text-base">
+                      Sorted by:
+                    </h3>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="recommended">Recommended</SelectItem>
+                      <SelectItem value="rating">Highest Rated</SelectItem>
+                      <SelectItem value="reviews">Most Reviews</SelectItem>
+                      <SelectItem value="price-low">
+                        Price: Low to High
+                      </SelectItem>
+                      <SelectItem value="price-high">
+                        Price: High to Low
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </CardContent>
+              </Card>
 
-            {/* Time of Day */}
-            <Card>
-              <CardHeader className="pb-3">
-                <h3 className="font-semibold text-sm sm:text-base">Time of day</h3>
-              </CardHeader>
-              <CardContent>
-                <RadioGroup
-                  value={selectedTimeSlot}
-                  onValueChange={setSelectedTimeSlot}
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="morning" id="morning" />
-                    <Label htmlFor="morning" className="text-xs sm:text-sm">
-                      Morning (6am - 12pm)
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="afternoon" id="afternoon" />
-                    <Label htmlFor="afternoon" className="text-xs sm:text-sm">
-                      Afternoon (12pm - 6pm)
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="evening" id="evening" />
-                    <Label htmlFor="evening" className="text-xs sm:text-sm">
-                      Evening (6pm - 12am)
-                    </Label>
-                  </div>
-                </RadioGroup>
-                <div className="mt-3">
-                  <Button
-                    variant="link"
-                    className="p-0 text-xs sm:text-sm text-orange-600"
+              {/* Time of Day */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <h3 className="font-semibold text-sm sm:text-base">
+                    Time of day
+                  </h3>
+                </CardHeader>
+                <CardContent>
+                  <RadioGroup
+                    value={selectedTimeSlot}
+                    onValueChange={setSelectedTimeSlot}
                   >
-                    Choose a specific time
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="morning" id="morning" />
+                      <Label htmlFor="morning" className="text-xs sm:text-sm">
+                        Morning (6am - 12pm)
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="afternoon" id="afternoon" />
+                      <Label htmlFor="afternoon" className="text-xs sm:text-sm">
+                        Afternoon (12pm - 6pm)
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="evening" id="evening" />
+                      <Label htmlFor="evening" className="text-xs sm:text-sm">
+                        Evening (6pm - 12am)
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                  <div className="mt-3">
+                    <Button
+                      variant="link"
+                      className="p-0 text-xs sm:text-sm text-orange-600"
+                    >
+                      Choose a specific time
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
 
-            {/* Price Range */}
-            <Card>
-              <CardHeader className="pb-3">
-                <h3 className="font-semibold text-sm sm:text-base">Price</h3>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-between text-xs sm:text-sm text-gray-600">
-                  <span>GH₵ {priceRange[0]}</span>
-                  <span>GH₵ {priceRange[1]}</span>
-                </div>
-                <Slider
-                  value={priceRange}
-                  onValueChange={setPriceRange}
-                  max={2000}
-                  min={0}
-                  step={50}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-xs sm:text-sm text-gray-600">
-                  <span>GH₵ 0</span>
-                  <span>GH₵ 2000+</span>
-                </div>
-                <div className="text-xs text-gray-500 mt-2">
-                  Above fees cover all that offered services. Provided webdings
-                  do deal external fees beyond handyhive.
-                </div>
-              </CardContent>
-            </Card>
+              {/* Price Range */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <h3 className="font-semibold text-sm sm:text-base">Price</h3>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex justify-between text-xs sm:text-sm text-gray-600">
+                    <span>GH₵ {priceRange[0]}</span>
+                    <span>GH₵ {priceRange[1]}</span>
+                  </div>
+                  <Slider
+                    value={priceRange}
+                    onValueChange={setPriceRange}
+                    max={2000}
+                    min={0}
+                    step={50}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs sm:text-sm text-gray-600">
+                    <span>GH₵ 0</span>
+                    <span>GH₵ 2000+</span>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-2">
+                    Above fees cover all that offered services. Provided
+                    webdings do deal external fees beyond handyhive.
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
 
@@ -328,10 +332,12 @@ const ServiceProviderSearch: React.FC = () => {
           <div className="flex-1">
             <div className="mb-4">
               <h1 className="text-xl sm:text-2xl font-bold mb-2">
-                Browse Service Providers and Prices
+                Browse Handymen and Prices
               </h1>
               <p className="text-sm sm:text-base text-gray-600">
-                {filteredProviders?.length} providers found
+                {providers?.length > 1
+                  ? `${providers.length} providers found`
+                  : "1 provider found"}{" "}
               </p>
             </div>
 
@@ -339,7 +345,7 @@ const ServiceProviderSearch: React.FC = () => {
               <div className="text-center py-8">Loading...</div>
             ) : (
               <div className="space-y-4 sm:space-y-6">
-                {filteredProviders?.map((provider) => (
+                {providers?.map((provider) => (
                   // console.log(provider)
                   <Card key={provider.id} className="bg-white">
                     <CardContent className="p-4 sm:p-6">
@@ -347,26 +353,34 @@ const ServiceProviderSearch: React.FC = () => {
                         <div className="flex sm:flex-col justify-between sm:justify-between items-center sm:items-center space-y-0 sm:space-y-3">
                           {/* Avatar */}
                           <div className="flex-shrink-0">
-                            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-full flex items-center justify-center">
+                            <div className="w-16 mb-0 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-full flex items-center justify-center">
                               <span className="text-white font-bold text-sm sm:text-lg">
                                 {provider.full_name.charAt(0)}
                               </span>
                             </div>
                           </div>
-                          <div className="flex flex-col items-center justify-between space-y-2">
-                            <div className="text-xs sm:text-sm text-gray-500 font-segoe text-primary text-center">
+                          <div className="flex flex-col items-center justify-between space-y-2 ">
+                            <div
+                              className="text-xs sm:text-sm text-gray-500 font-segoe text-primary text-center cursor-pointer"
+                              onClick={() => {
+                                router.push(
+                                  `/ServiceProviderProfile/${provider.id}`
+                                );
+                              }}
+                            >
                               View profile & past reviews
                             </div>
-                            <div className="flex items-center gap-2">
-                              <Button
-                                className="bg-orange-500 hover:bg-orange-600 text-white px-4 sm:px-6 py-2 text-sm rounded-3xl"
-                                onClick={() => {
-                                  router.push("/ServiceProviderProfile");
-                                }}
-                              >
+                            <div className="flex flex-col items-center gap-2">
+                              <Button className="bg-[#FE9F2B] text-center text-white px-4 sm:px-6 py-2 text-sm rounded-3xl">
                                 Select & Continue
                               </Button>
                             </div>
+                            {/* <div>
+                              <span className="text-center">
+                                You can chat with your Service Provider, adjust
+                                task details, or change task time after booking.
+                              </span>
+                            </div> */}
                           </div>
                         </div>
 
@@ -400,14 +414,14 @@ const ServiceProviderSearch: React.FC = () => {
                                 {provider.completed_projects} completed projects
                               </p>
                             </div>
-                            <div className="text-left sm:text-right">
+                            {/* <div className="text-left sm:text-right">
                               <div className="text-xl sm:text-2xl font-bold">
                                 GH₵{provider.price}
                               </div>
-                            </div>
+                            </div> */}
                           </div>
 
-                          <div className="mb-4 bg-primary rounded-2xl p-4 sm:p-6">
+                          <div className="mb-4 bg-[#FFF7E7] rounded-2xl p-4 sm:p-6">
                             <h4 className="font-medium text-xs sm:text-sm mb-1">
                               How I can help:
                             </h4>
@@ -421,10 +435,10 @@ const ServiceProviderSearch: React.FC = () => {
                   </Card>
                 ))}
 
-                {filteredProviders?.length === 0 && (
+                {providers?.length === 0 && (
                   <div className="text-center py-12">
                     <p className="text-gray-500">
-                      No services providers found matching your criteria.
+                      No handymen found matching your criteria.
                     </p>
                   </div>
                 )}

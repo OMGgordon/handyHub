@@ -12,7 +12,7 @@ export default function HomePage() {
       <Navbar />
       <HeroSection />
       <ServiceCategories />
-      <PopularProjects />
+      {/* <PopularProjects /> */}
       <Footer />
     </div>
   );

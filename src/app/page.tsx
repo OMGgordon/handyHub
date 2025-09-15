@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { Navbar } from "../components/Navbar";
 import { HeroSection } from "../components/HeroSection";
@@ -12,7 +12,7 @@ export default function Home() {
       <Navbar />
       <HeroSection />
       <ServiceCategories />
-      <PopularProjects />
+      {/* <PopularProjects /> */}
       <Footer />
     </div>
   );

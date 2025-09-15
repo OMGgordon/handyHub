@@ -1,19 +1,59 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { AuthenticatedNavbar } from "@/components/AuthenticatedNavbar";
-import { Star, Phone, CheckCircle, Clock, MapPin, ArrowLeft } from "lucide-react";
+import {
+  Star,
+  Phone,
+  CheckCircle,
+  Clock,
+  MapPin,
+  ArrowLeft,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useParams } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function ServiceProviderProfile() {
   const [showFullAbout, setShowFullAbout] = useState(false);
   const [activeTab, setActiveTab] = useState("about");
   const router = useRouter();
+  const params = useParams();
+  const providerId = params.id as string;
 
+  const [provider, setProvider] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProvider = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("service_providers")
+        .select("*")
+        .eq("id", providerId)
+        .single();
+
+      if (error) {
+        setError(error.message);
+      } else {
+        setProvider(data);
+      }
+      setLoading(false);
+    };
+
+    if (providerId) fetchProvider();
+  }, [providerId]);
+
+  if (loading) return <p>Loading provider profile...</p>;
+  if (error) return <p>Error: {error}</p>;
+  if (!provider) return <p>No provider found</p>;
+
+  console.log(provider);
   const reviews = [
     {
       id: 1,
@@ -26,7 +66,7 @@ export default function ServiceProviderProfile() {
     {
       id: 2,
       name: "james G.",
-      date: "11/2024", 
+      date: "11/2024",
       rating: 1,
       category: "plumbing",
       text: "i was visiting my wife in boston and noticed she had a small leak under bathroom cabinet when i looked it was a plastic fitting on the drain line leaking i had no tools and was leaving the next day and didnt want to leave her with the problem i called super service and they were here the next day quoted me a…",
@@ -36,7 +76,7 @@ export default function ServiceProviderProfile() {
       name: "Sharon B.",
       date: "10/2024",
       rating: 5,
-      category: "plumbing", 
+      category: "plumbing",
       text: "We had a toilet that was running and requested service. C.J. called in advance to let me know he was on his way and arrived right on time. He noticed that in addition to the toilet running, it also had a small leak. It was very apparent once he pointed it out. He gave me two options with pricing. He did a GREAT…",
     },
     {
@@ -49,12 +89,12 @@ export default function ServiceProviderProfile() {
     },
     {
       id: 5,
-      name: "Patricia M.", 
+      name: "Patricia M.",
       date: "03/2024",
       rating: 5,
       category: "water heater repair",
       text: "We called early afternoon to see if someone could come out to evaluate our water heater which water temperature was hot & cold over the weekend, someone was at the house in an hour, Tom Ripley was excellent had the problem solved and a new water heater installed within a few hours. Tom was pleasa…",
-    }
+    },
   ];
 
   const renderStars = (rating: number, size = "w-4 h-4") => {
@@ -64,7 +104,9 @@ export default function ServiceProviderProfile() {
           <Star
             key={star}
             className={`${size} ${
-              star <= rating ? "fill-[#fe9f2b] text-[#fe9f2b]" : "fill-[#d8d9d4] text-[#d8d9d4]"
+              star <= rating
+                ? "fill-[#fe9f2b] text-[#fe9f2b]"
+                : "fill-[#d8d9d4] text-[#d8d9d4]"
             }`}
           />
         ))}
@@ -80,22 +122,25 @@ export default function ServiceProviderProfile() {
             {/* About Us */}
             <Card>
               <CardHeader>
-                <CardTitle>About us</CardTitle>
+                <CardTitle>About</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-700 leading-relaxed">
-                  {showFullAbout 
-                    ? "Mensah The Plumber is a full service plumbing and drain cleaning person. He is experienced and fully equipped to solve your problem. He is your regular plumber's drain cleaning professional. Your home or business will be treated as if it were his own! Customer service is his number one priority and you will see first hand when you call! He takes the time to really listen and understand your goals and needs. He will provide you with options and solutions that fit your budget and timeline."
-                    : "Mensah The Plumber is a full service plumbing and drain cleaning person. He is experienced and fully equipped to solve your problem. He is your regular plumber's drain cleaning professional. Your home or business will be treated as if it were his own! Customer service is his number one priority and you will see first hand when you call! He takes the time to really listen and understand your goals and…"
-                  }
+                  {showFullAbout
+                    ? provider.bio
+                    : provider.bio?.length > 180
+                    ? provider.bio.slice(0, 180) + "…"
+                    : provider.bio}
                 </p>
-                <Button
-                  variant="link"
-                  className="px-0 text-gray-700 underline"
-                  onClick={() => setShowFullAbout(!showFullAbout)}
-                >
-                  {showFullAbout ? "Read less" : "Read more"}
-                </Button>
+                {provider.bio && provider.bio.length > 180 && (
+                  <Button
+                    variant="link"
+                    className="px-0 text-gray-700 underline"
+                    onClick={() => setShowFullAbout(!showFullAbout)}
+                  >
+                    {showFullAbout ? "Read less" : "Read more"}
+                  </Button>
+                )}
               </CardContent>
             </Card>
 
@@ -107,80 +152,89 @@ export default function ServiceProviderProfile() {
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-3">
                   <CheckCircle className="w-5 h-5 text-gray-700" />
-                  <span>15 years of trusted experience</span>
+                  <span>{provider.experience} years of trusted experience</span>
                 </div>
-                <div className="flex items-center gap-3">
+                {/* <div className="flex items-center gap-3">
                   <Clock className="w-5 h-5 text-gray-700" />
                   <span>Emergency Services Offered</span>
-                </div>
+                </div> */}
               </CardContent>
             </Card>
 
             {/* Services */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Services offered</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-700">
-                    Emergency Services, High Pressure Water Jetting, Professional Drain Cleaning, Plumbin…
-                  </p>
-                  <Button variant="link" className="px-0 text-gray-700 underline">
-                    Read more
-                  </Button>
-                </CardContent>
-              </Card>
+            <div className=" gap-6">
+              {provider.services && provider.services.length !== 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Services offered</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-700">
+                      {provider.services.join(", ")}
+                    </p>
+                    {provider.services.length > 50 && (
+                      <Button
+                        variant="link"
+                        className="px-0 text-gray-700 underline"
+                      >
+                        Read more
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
 
-              <Card>
+              {/* <Card>
                 <CardHeader>
                   <CardTitle>Services not offered</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-700">
-                    Paving, Landscaping, Sod or Fill, HVAC Services, AC Services, Carpentry, Painting,…
+                    Paving, Landscaping, Sod or Fill, HVAC Services, AC
+                    Services, Carpentry, Painting,…
                   </p>
-                  <Button variant="link" className="px-0 text-gray-700 underline">
+                  <Button
+                    variant="link"
+                    className="px-0 text-gray-700 underline"
+                  >
                     Read more
                   </Button>
                 </CardContent>
-              </Card>
+              </Card> */}
             </div>
 
             {/* Amenities & Payment Methods */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Amenities</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <h4 className="font-medium">Warranties</h4>
-                    <p className="text-gray-600">Yes</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium">Senior Discount</h4>
-                    <p className="text-gray-600">n/a</p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium">Emergency Services</h4>
-                    <p className="text-gray-600">Yes</p>
-                  </div>
-                </CardContent>
-              </Card>
+              {provider.amenities && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Amenities Provided</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {Object.entries(provider.amenities).map(([key, value]) => (
+                      <div key={key} className="">
+                        <h4 className="font-medium capitalize">
+                          {key.replace("_", " ")}
+                        </h4>
+                        <p className="text-gray-600 font-light">{value}</p>
+                      </div>
+                    ))}
+                    {/* {provider.amenities.map((amenity) => {
+                      <div>
+                        <h4 className="font-medium">{amenities[amenity]}</h4>
+                        <p className="text-gray-600">Yes</p>
+                      </div>;
+                    })} */}
+                  </CardContent>
+                </Card>
+              )}
 
               <Card>
                 <CardHeader>
                   <CardTitle>Accepted payment methods</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {[
-                    "MTN Mobile Money",
-                    "Telecel Cash", 
-                    "Bank payment",
-                    "MasterCard",
-                    "Visa"
-                  ].map((method) => (
+                  {provider.payment_methods.map((method) => (
                     <div key={method} className="flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-green-600" />
                       <span className="text-gray-700">{method}</span>
@@ -201,7 +255,10 @@ export default function ServiceProviderProfile() {
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="aspect-square bg-gray-200 rounded-lg overflow-hidden">
+                  <div
+                    key={i}
+                    className="aspect-square bg-gray-200 rounded-lg overflow-hidden"
+                  >
                     <div className="w-full h-full bg-gray-300 flex items-center justify-center">
                       <span className="text-gray-500">Photo {i}</span>
                     </div>
@@ -233,30 +290,35 @@ export default function ServiceProviderProfile() {
                       <h4 className="font-medium">{review.name}</h4>
                       <div className="flex items-center gap-2 mt-1">
                         {renderStars(review.rating)}
-                        <span className="text-sm font-medium">{review.rating}.0</span>
+                        <span className="text-sm font-medium">
+                          {review.rating}.0
+                        </span>
                       </div>
                     </div>
                     <span className="text-sm text-gray-500">{review.date}</span>
                   </div>
-                  
+
                   <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-secondary text-secondary-foreground mb-3 capitalize">
                     {review.category}
                   </div>
-                  
+
                   <div className="bg-white text-gray-700 px-2 py-0.5 rounded-full flex items-center gap-1 text-xs font-semibold border border-gray-400 mb-3 w-fit">
-                    <Image 
-                      src="/images/logoonly.png" 
-                      alt="HandyHive Logo" 
-                      width={12} 
-                      height={12} 
+                    <Image
+                      src="/images/logoonly.png"
+                      alt="HandyHive Logo"
+                      width={12}
+                      height={12}
                       className="w-3 h-3"
                     />
                     Approved Review
                   </div>
-                  
+
                   <p className="text-gray-700 mb-4">{review.text}</p>
-                  
-                  <Button variant="link" className="px-0 text-gray-700 underline">
+
+                  <Button
+                    variant="link"
+                    className="px-0 text-gray-700 underline"
+                  >
                     See full review
                   </Button>
                 </div>
@@ -282,20 +344,29 @@ export default function ServiceProviderProfile() {
                   <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
                     <CheckCircle className="w-5 h-5 text-green-600" />
                     <span>Licensed*</span>
-                    <Button variant="link" className="text-sm underline ml-auto">
+                    <Button
+                      variant="link"
+                      className="text-sm underline ml-auto"
+                    >
                       Show more
                     </Button>
                   </div>
                   <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
                     <CheckCircle className="w-5 h-5 text-green-600" />
                     <span>Eco-friendly Accreditations</span>
-                    <Button variant="link" className="text-sm underline ml-auto">
+                    <Button
+                      variant="link"
+                      className="text-sm underline ml-auto"
+                    >
                       Show more
                     </Button>
                   </div>
                 </div>
                 <p className="text-sm text-gray-600">
-                  All statements concerning insurance, licenses, and bonds are informational only, and are self-reported. Since insurance, licenses and bonds can expire and can be cancelled, homeowners should always check such information for themselves.
+                  All statements concerning insurance, licenses, and bonds are
+                  informational only, and are self-reported. Since insurance,
+                  licenses and bonds can expire and can be cancelled, homeowners
+                  should always check such information for themselves.
                 </p>
               </CardContent>
             </Card>
@@ -307,7 +378,10 @@ export default function ServiceProviderProfile() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-700">
-                  Plumbing, Drain Cleaning, Water Heaters, Heating and Air Conditioning, Natural Gas Lines, Drain Pipe Installation, Wells and Pumps, Water Filtration and Softening, Septic Systems
+                  Plumbing, Drain Cleaning, Water Heaters, Heating and Air
+                  Conditioning, Natural Gas Lines, Drain Pipe Installation,
+                  Wells and Pumps, Water Filtration and Softening, Septic
+                  Systems
                 </p>
               </CardContent>
             </Card>
@@ -332,42 +406,64 @@ export default function ServiceProviderProfile() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
               <div className="flex-1 w-full sm:w-auto">
                 <div className="mb-3">
-                  <div className="bg-white text-gray-700 px-3 py-1 rounded-full flex items-center gap-2 text-sm font-semibold border border-gray-400 w-fit">
-                    <Image 
-                      src="/images/logoonly.png" 
-                      alt="HandyHive Logo" 
-                      width={16} 
-                      height={16} 
-                      className="w-4 h-4"
-                    />
-                    Approved Pro
+                  <div className=" text-gray-700 px-3 py-1 rounded-full flex items-center gap-2 text-sm font-semibold   w-fit">
+                    {/* {provider.avatar ? (
+                      <Image
+                        src={provider.avatar}
+                        alt="HandyHive Logo"
+                        width={16}
+                        height={16}
+                        className="w-4 h-4"
+                      />
+                    ) : (
+                      <div className="w-16 mb-0 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-sm sm:text-lg">
+                          {provider.full_name.charAt(0)}
+                        </span>
+                      </div>
+                    )} */}
+                    {/* Approved Pro */}
                   </div>
                 </div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">Mensah The Plumber</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
+                  {provider.full_name}
+                </h1>
                 <div className="flex items-center gap-2 mb-3">
-                  {renderStars(3.6)}
-                  <span className="font-medium text-gray-800">3.6</span>
-                  <span className="text-gray-600">(39)</span>
+                  {renderStars(provider.rating)}
+                  <span className="font-medium text-gray-800">
+                    {provider.rating}
+                  </span>
+                  <span className="text-gray-600">
+                    ({provider.review_count})
+                  </span>
                 </div>
                 <p className="text-gray-700 mb-3 capitalize text-sm sm:text-base">
-                  Plumbing, Drain Cleaning, Water Heaters
+                  {provider.service_category?.join(", ")}
                 </p>
-                <Button
+                {/* <Button
                   variant="outline"
                   className="flex items-center gap-2 w-full sm:w-auto"
                 >
                   <Phone className="w-4 h-4" />
                   View phone number
-                </Button>
+                </Button> */}
               </div>
               <div className="relative w-full sm:w-auto flex justify-center sm:justify-end sm:-ml-16 sm:pr-25">
-                <Image
-                  src="/images/MensahThePlumber.png"
-                  alt="Mensah The Plumber Profile"
-                  width={300}
-                  height={300}
-                  className="w-32 h-32 sm:w-40 sm:h-40 lg:w-50 lg:h-50 rounded-full object-cover"
-                />
+                {provider.avatar ? (
+                  <Image
+                    src={provider.avatar}
+                    alt="provider picture"
+                    width={16}
+                    height={16}
+                    className="w-16 mb-0 h-16 sm:w-30 sm:h-30"
+                  />
+                ) : (
+                  <div className="w-16 mb-0 h-16 sm:w-30 sm:h-30 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold text-sm sm:text-lg">
+                      {provider.full_name.charAt(0)}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -389,9 +485,7 @@ export default function ServiceProviderProfile() {
                 ))}
               </div>
 
-              <div className="mt-4 sm:mt-6">
-                {renderTabContent()}
-              </div>
+              <div className="mt-4 sm:mt-6">{renderTabContent()}</div>
             </div>
           </div>
 
@@ -400,45 +494,53 @@ export default function ServiceProviderProfile() {
             <Card className="sticky top-2 sm:top-4 lg:top-6">
               <CardContent className="p-3 space-y-3">
                 <Button className="w-full bg-[#fe9f2b] hover:bg-[#e8891a] text-white py-3 sm:py-4 text-sm sm:text-base border-2 border-[#C26E09]">
-                  Request quote
+                  BOOK
                 </Button>
-                
+
                 <Separator />
-                
+
                 <div>
-                  <h3 className="font-semibold mb-2 text-sm sm:text-base">Contact information</h3>
+                  <h3 className="font-semibold mb-2 text-sm sm:text-base">
+                    Contact information
+                  </h3>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <MapPin className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                      <span className="text-xs sm:text-sm break-words">40 Mensah Wood Street, East Legon</span>
+                      <span className="text-xs sm:text-sm break-words">
+                        {provider.location}
+                      </span>
                     </div>
-                    <Button variant="link" className="px-0 text-xs sm:text-sm underline">
-                      +233545400710
+                    <Button
+                      variant="link"
+                      className="px-0 text-xs sm:text-sm underline"
+                    >
+                      {provider.phone_number}
                     </Button>
                   </div>
                 </div>
-                
-                <Separator />
-                
-                <div>
-                  <h3 className="font-semibold mb-2 text-sm sm:text-base">Service hours</h3>
-                  <div className="space-y-1 text-xs">
-                    {[
-                      "Sunday: 12:00 AM - 12:00 AM",
-                      "Monday: 12:00 AM - 12:00 AM", 
-                      "Tuesday: 12:00 AM - 12:00 AM",
-                      "Wednesday: 12:00 AM - 12:00 AM",
-                      "Thursday: 12:00 AM - 12:00 AM",
-                      "Friday: 12:00 AM - 12:00 AM",
-                      "Saturday: 12:00 AM - 12:00 AM"
-                    ].map((hours) => (
-                      <div key={hours} className="flex justify-between text-xs">
-                        <span className="text-gray-700">{hours.split(':')[0]}:</span>
-                        <span className="text-gray-600">{hours.split(': ')[1]}</span>
+
+                {provider?.availability &&
+                  provider.availability.length !== 0 && (
+                    <div>
+                      <Separator />
+
+                      <div>
+                        <h3 className="font-semibold mb-2 text-sm sm:text-base">
+                          Service hours
+                        </h3>
+                        <div className="space-y-1 text-xs">
+                          {provider.availability?.map((day) => (
+                            <span
+                              key={day}
+                              className="text-gray-700 flex font-semibold"
+                            >
+                              {day}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
+                    </div>
+                  )}
               </CardContent>
             </Card>
           </div>
