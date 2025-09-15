@@ -327,7 +327,7 @@ export default function HandyHiveOnboarding() {
       <Button
         onClick={handleNext}
         disabled={
-          !getStepContent().fields.every((field) => formData[field.key]) ||
+          !getStepContent().fields.every((field) => formData[field.key as keyof typeof formData]) ||
           loading
         }
         className="w-full bg-orange-400 hover:bg-orange-500 text-white py-3 rounded-md"
@@ -439,7 +439,7 @@ export default function HandyHiveOnboarding() {
         <Button
           onClick={handleNext}
           disabled={
-            !getStepContent().fields.every((field) => formData[field.key])
+            !getStepContent().fields.every((field) => formData[field.key as keyof typeof formData])
           }
           className="flex-1 bg-orange-400 hover:bg-orange-500 text-white py-3"
         >
@@ -496,7 +496,7 @@ export default function HandyHiveOnboarding() {
         <Button
           className="flex-1 bg-orange-400 hover:bg-orange-500 text-white py-3"
           disabled={
-            !getStepContent().fields.every((field) => formData[field.key])
+            !getStepContent().fields.every((field) => formData[field.key as keyof typeof formData])
           }
           onClick={handleSubmit}
         >
