@@ -145,16 +145,16 @@ export default function PreviewPage() {
               {/* job Description */}
               <div className="bg-[#fff7e7] border border-[#d4caca] rounded-lg p-3 sm:p-4 relative">
                 <button 
-                  className="absolute top-2 sm:top-2 right-3 sm:right-4 text-gray-500 hover:text-gray-700"
+                  className="absolute top-3 sm:top-4 right-3 sm:right-4 text-gray-500 hover:text-gray-700"
                   onClick={() => router.push("/job-details")}
                 >
                   <Edit className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
                 <div className="text-xs sm:text-sm font-medium text-black mb-2 text-left pr-8">Job Description</div>
-                <p className="text-xs sm:text-sm text-gray-500 pr-6 sm:pr-8 text-left leading-relaxed">{projectDetails.description}</p>
+                <p className="text-xs sm:text-sm font-bold text-black pr-6 sm:pr-8 text-left leading-relaxed">{projectDetails.description}</p>
               </div>
 
-              {/* Project Media */}
+              {/* Job Media */}
               <div className="bg-[#fff7e7] border border-[#d4caca] rounded-lg p-3 sm:p-4 relative">
                 <button 
                   className="absolute top-2 sm:top-2 right-3 sm:right-4 text-gray-500 hover:text-gray-700"
@@ -162,13 +162,29 @@ export default function PreviewPage() {
                 >
                   <Edit className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
-                <div className="text-xs sm:text-sm font-medium text-black mb-2 text-left pr-8">Project Media</div>
+                <div className="text-xs sm:text-sm font-medium text-black mb-2 text-left pr-8">Job Media</div>
                 <div className="flex gap-2 flex-wrap">
-                  {Array.from({ length: projectDetails.images }).map((_, index) => (
-                    <div key={index} className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-200 rounded flex items-center justify-center">
-                      <Image className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
-                    </div>
-                  ))}
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded overflow-hidden bg-gray-100">
+                    <img 
+                      src="/images/media2.jpg" 
+                      alt="Water heater issue 1" 
+                      className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
+                    />
+                  </div>
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded overflow-hidden bg-gray-100">
+                    <img 
+                      src="/images/media3.webp" 
+                      alt="Water heater issue 2" 
+                      className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
+                    />
+                  </div>
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded overflow-hidden bg-gray-100">
+                    <img 
+                      src="/images/media4.webp" 
+                      alt="Current setup" 
+                      className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
