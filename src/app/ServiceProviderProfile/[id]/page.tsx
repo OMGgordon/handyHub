@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { AuthenticatedNavbar } from "@/components/AuthenticatedNavbar";
+import { format } from "date-fns";
 import {
   Star,
   Phone,
@@ -24,10 +25,14 @@ export default function ServiceProviderProfile() {
   const router = useRouter();
   const params = useParams();
   const providerId = params.id as string;
+  
 
   const [provider, setProvider] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState(false);
+
+  const [reviews, setReviews] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchProvider = async () => {
@@ -46,7 +51,21 @@ export default function ServiceProviderProfile() {
       setLoading(false);
     };
 
+    const fetchReviews = async () => {
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("reviewer_name, rating, date, category, description")
+        .eq("provider_id", providerId);
+
+      if (error) {
+        console.error("Error fetching reviews:", error.message);
+      } else {
+        setReviews(data || []);
+      }
+    };
+
     if (providerId) fetchProvider();
+    fetchReviews();
   }, [providerId]);
 
   if (loading) return <p>Loading provider profile...</p>;
@@ -54,48 +73,48 @@ export default function ServiceProviderProfile() {
   if (!provider) return <p>No provider found</p>;
 
   console.log(provider);
-  const reviews = [
-    {
-      id: 1,
-      name: "Sheila S.",
-      date: "03/2025",
-      rating: 1,
-      category: "plumbing",
-      text: "Over charged my father for a backwater valve repair gave him an invoice with no specific breakdown on the job that was done. Had to request for a breakdown invoice Charged him $4k for a 4 hour job that was not done properly as the basement re flooded again. Gave me a run around for 3 weeks to get a…",
-    },
-    {
-      id: 2,
-      name: "james G.",
-      date: "11/2024",
-      rating: 1,
-      category: "plumbing",
-      text: "i was visiting my wife in boston and noticed she had a small leak under bathroom cabinet when i looked it was a plastic fitting on the drain line leaking i had no tools and was leaving the next day and didnt want to leave her with the problem i called super service and they were here the next day quoted me a…",
-    },
-    {
-      id: 3,
-      name: "Sharon B.",
-      date: "10/2024",
-      rating: 5,
-      category: "plumbing",
-      text: "We had a toilet that was running and requested service. C.J. called in advance to let me know he was on his way and arrived right on time. He noticed that in addition to the toilet running, it also had a small leak. It was very apparent once he pointed it out. He gave me two options with pricing. He did a GREAT…",
-    },
-    {
-      id: 4,
-      name: "Giovanna P.",
-      date: "05/2024",
-      rating: 5,
-      category: "heating & air conditioning/hvac",
-      text: "Yes ,I am pleased with their work and upfront pricing.",
-    },
-    {
-      id: 5,
-      name: "Patricia M.",
-      date: "03/2024",
-      rating: 5,
-      category: "water heater repair",
-      text: "We called early afternoon to see if someone could come out to evaluate our water heater which water temperature was hot & cold over the weekend, someone was at the house in an hour, Tom Ripley was excellent had the problem solved and a new water heater installed within a few hours. Tom was pleasa…",
-    },
-  ];
+  // const reviews = [
+  //   {
+  //     id: 1,
+  //     reviewer_name: "Sheila S.",
+  //     date: "03/2025",
+  //     rating: 1,
+  //     category: "plumbing",
+  //     desc: "Over charged my father for a backwater valve repair gave him an invoice with no specific breakdown on the job that was done. Had to request for a breakdown invoice Charged him $4k for a 4 hour job that was not done properly as the basement re flooded again. Gave me a run around for 3 weeks to get a…",
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "james G.",
+  //     date: "11/2024",
+  //     rating: 1,
+  //     category: "plumbing",
+  //     text: "i was visiting my wife in boston and noticed she had a small leak under bathroom cabinet when i looked it was a plastic fitting on the drain line leaking i had no tools and was leaving the next day and didnt want to leave her with the problem i called super service and they were here the next day quoted me a…",
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "Sharon B.",
+  //     date: "10/2024",
+  //     rating: 5,
+  //     category: "plumbing",
+  //     text: "We had a toilet that was running and requested service. C.J. called in advance to let me know he was on his way and arrived right on time. He noticed that in addition to the toilet running, it also had a small leak. It was very apparent once he pointed it out. He gave me two options with pricing. He did a GREAT…",
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "Giovanna P.",
+  //     date: "05/2024",
+  //     rating: 5,
+  //     category: "heating & air conditioning/hvac",
+  //     text: "Yes ,I am pleased with their work and upfront pricing.",
+  //   },
+  //   {
+  //     id: 5,
+  //     name: "Patricia M.",
+  //     date: "03/2024",
+  //     rating: 5,
+  //     category: "water heater repair",
+  //     text: "We called early afternoon to see if someone could come out to evaluate our water heater which water temperature was hot & cold over the weekend, someone was at the house in an hour, Tom Ripley was excellent had the problem solved and a new water heater installed within a few hours. Tom was pleasa…",
+  //   },
+  // ];
 
   const renderStars = (rating: number, size = "w-4 h-4") => {
     return (
@@ -273,56 +292,68 @@ export default function ServiceProviderProfile() {
         return (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle className="text-2xl">3.6</CardTitle>
-                {renderStars(3.6)}
-                <p className="text-sm text-gray-600 mt-1">39 Reviews</p>
-              </div>
-              <Button className="bg-[#fe9f2b] hover:bg-[#e8891a] text-white">
-                Write a review
-              </Button>
+              {/* <Button className="bg-[#fe9f2b] hover:bg-[#e8891a] text-white">
+      Write a review
+    </Button> */}
             </CardHeader>
             <CardContent className="space-y-6">
-              {reviews.map((review) => (
-                <div key={review.id} className="border-b pb-6 last:border-b-0">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <h4 className="font-medium">{review.name}</h4>
-                      <div className="flex items-center gap-2 mt-1">
-                        {renderStars(review.rating)}
-                        <span className="text-sm font-medium">
-                          {review.rating}.0
-                        </span>
-                      </div>
-                    </div>
-                    <span className="text-sm text-gray-500">{review.date}</span>
-                  </div>
+              {reviews?.map((review) => {
+                const MAX_LENGTH = 180; // characters before truncating
 
-                  <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-secondary text-secondary-foreground mb-3 capitalize">
-                    {review.category}
-                  </div>
+                const textToShow =
+                  !expanded && review.description.length > MAX_LENGTH
+                    ? review.description.slice(0, MAX_LENGTH) + "…"
+                    : review.description;
 
-                  <div className="bg-white text-gray-700 px-2 py-0.5 rounded-full flex items-center gap-1 text-xs font-semibold border border-gray-400 mb-3 w-fit">
-                    <Image
-                      src="/images/logoonly.png"
-                      alt="HandyHive Logo"
-                      width={12}
-                      height={12}
-                      className="w-3 h-3"
-                    />
-                    Approved Review
-                  </div>
-
-                  <p className="text-gray-700 mb-4">{review.text}</p>
-
-                  <Button
-                    variant="link"
-                    className="px-0 text-gray-700 underline"
+                return (
+                  <div
+                    key={review.id}
+                    className="border-b pb-6 last:border-b-0"
                   >
-                    See full review
-                  </Button>
-                </div>
-              ))}
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <h4 className="font-medium">{review.reviewer_name}</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          {renderStars(review.rating)}
+                          <span className="text-sm font-medium">
+                            {review.rating}.0
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-sm text-gray-500">
+                        {format(new Date(review.date), "MMM d, yyyy")}
+                      </span>
+                    </div>
+
+                    <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-secondary text-secondary-foreground mb-3 capitalize">
+                      {review.category}
+                    </div>
+
+                    <div className="bg-white text-gray-700 px-2 py-0.5 rounded-full flex items-center gap-1 text-xs font-semibold border border-gray-400 mb-3 w-fit">
+                      <Image
+                        src="/images/logoonly.png"
+                        alt="HandyHive Logo"
+                        width={12}
+                        height={12}
+                        className="w-3 h-3"
+                      />
+                      Approved Review
+                    </div>
+
+                    <p className="text-gray-700 mb-4">{textToShow}</p>
+
+                    {review.description.length > MAX_LENGTH && (
+                      <Button
+                        variant="link"
+                        className="px-0 text-gray-700 underline"
+                        onClick={() => setExpanded(!expanded)}
+                      >
+                        {expanded ? "See less" : "See full review"}
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
             </CardContent>
           </Card>
         );
@@ -378,10 +409,8 @@ export default function ServiceProviderProfile() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-700">
-                  Plumbing, Drain Cleaning, Water Heaters, Heating and Air
-                  Conditioning, Natural Gas Lines, Drain Pipe Installation,
-                  Wells and Pumps, Water Filtration and Softening, Septic
-                  Systems
+                  {provider.services?.join(", ") ||
+                    provider.service_category.join(", ")}
                 </p>
               </CardContent>
             </Card>
@@ -493,7 +522,12 @@ export default function ServiceProviderProfile() {
           <div className="lg:col-span-1 order-first lg:order-last">
             <Card className="sticky top-2 sm:top-4 lg:top-6">
               <CardContent className="p-3 space-y-3">
-                <Button className="w-full bg-[#fe9f2b] hover:bg-[#e8891a] text-white py-3 sm:py-4 text-sm sm:text-base border-2 border-[#C26E09]">
+                <Button
+                  onClick={() => {
+                    router.push(`/job-details/${provider.id}`);
+                  }}
+                  className="w-full bg-[#fe9f2b] hover:bg-[#e8891a] text-white py-3 sm:py-4 text-sm sm:text-base border-2 border-[#C26E09]"
+                >
                   BOOK
                 </Button>
 

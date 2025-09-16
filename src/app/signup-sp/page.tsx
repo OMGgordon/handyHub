@@ -463,7 +463,12 @@ export default function HandyHiveOnboarding() {
           </h3>
           <Card className="border-2 border-dashed border-gray-300 hover:border-orange-400 cursor-pointer">
             <CardContent className="p-6 text-center w-full">
-              <UploadDropzone onFilesChange={handleFilesChange} />
+              {/* <UploadDropzone onFilesChange={handleFilesChange} /> */}
+              <UploadDropzone
+                                onFilesChange={(files) =>
+                                  setFormData((prev) => ({ ...prev, uploadedFiles: files }))
+                                }
+                              />
               {/* {files.length > 0 && (
                 <div
                   className="flex justify-end mt-4"
