@@ -371,7 +371,7 @@ const ServiceProviderSearch: React.FC = () => {
                               View profile & past reviews
                             </div>
                             <div className="flex flex-col items-center gap-2">
-                              <Button className="bg-[#FE9F2B] text-center text-white px-4 sm:px-6 py-2 text-sm rounded-3xl">
+                              <Button onClick={()=> router.push(`/job-details/${provider.id}`)} className="bg-[#FE9F2B] text-center text-white px-4 sm:px-6 py-2 text-sm rounded-3xl">
                                 Select & Continue
                               </Button>
                             </div>
