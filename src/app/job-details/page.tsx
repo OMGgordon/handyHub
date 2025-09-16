@@ -145,7 +145,7 @@ export function BookServicePage({
               {/* Address */}
               <div>
                 <label className="block text-[11px] font-bold text-black mb-2">
-                  Address
+                  Job Location
                 </label>
                 <div className="relative">
                   <Input
@@ -153,7 +153,7 @@ export function BookServicePage({
                     value={formData.address}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('address', e.target.value)}
                     className="h-8 text-[11px] border-[#a7a6ab] border-[1.5px] rounded-lg pr-12"
-                    placeholder="Provide your location (service location)"
+                    placeholder="Provide your location (job location)"
                   />
                   <div className="absolute right-1 top-1 w-6 h-6 border border-black flex items-center justify-center">
                     <MapPin className="w-4 h-4 text-[#FFA629] fill-current" />
