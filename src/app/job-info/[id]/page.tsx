@@ -16,8 +16,10 @@ import { supabase } from "@/lib/supabase";
 import { useParams } from "next/navigation";
 import { useSession } from "@/context/SessionProvider";
 import JobMedia from "@/components/JobMedia";
+import { useRouter } from "next/navigation";
 
 export default function JobInfoPage() {
+  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState(20 * 60); // 20 minutes in seconds
   const [isCountdownComplete, setIsCountdownComplete] = useState(false);
@@ -147,6 +149,14 @@ export default function JobInfoPage() {
       <AuthenticatedNavbar />
 
       <div className="bg-[#faf0df] h-[290px] overflow-hidden rounded-br-[200px] relative">
+        <div className="max-w-6xl mx-auto px-6 sm:px-12 lg:px-16 mt-2">
+          <Button
+            onClick={() => router.push("/landing-page")}
+            className="bg-white text-black border-2 border-black-500 hover:bg-gray-50 h-[40px] px-4 rounded-full text-[14px] font-bold"
+          >
+            &larr; 
+          </Button>
+        </div>
         <div className="max-w-6xl mx-auto px-6 sm:px-12 lg:px-16 h-full flex flex-col lg:flex-row items-center justify-between">
           <div className="flex-1 text-center lg:text-left">
             <h1 className="text-[28px] sm:text-[36px] lg:text-[46px] font-bold text-black tracking-[-1.1px] leading-tight mb-4 lg:mb-8">
