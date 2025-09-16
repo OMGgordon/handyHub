@@ -48,7 +48,21 @@ export default function HandyHiveOnboarding() {
   const [showDialog, setShowDialog] = useState(false);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  type FormDataType = {
+    fullName: string;
+    emailAddress: string;
+    phoneNumber: string;
+    password: string;
+    confirmPassword: string;
+    serviceCategory: string[];
+    workLocation: string;
+    experience: string;
+    uploadedFiles: File[];
+    price: string;
+    bio: string;
+  };
+
+  const [formData, setFormData] = useState<FormDataType>({
     fullName: "",
     emailAddress: "",
     phoneNumber: "",
@@ -60,7 +74,6 @@ export default function HandyHiveOnboarding() {
     uploadedFiles: [],
     price: "",
     bio: "",
-    
   });
 
   //   const handleSubmit = async () => {

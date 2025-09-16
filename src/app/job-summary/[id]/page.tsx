@@ -233,9 +233,8 @@ export default function PreviewPage() {
                 <div className="text-xs sm:text-sm font-medium text-black mb-2 text-left pr-8">
                   Job Description
                 </div>
-                <p className="text-xs sm:text-sm text-gray-500 pr-6 sm:pr-8 text-left leading-relaxed">
-                  {job.description}
-                </p>
+                <p className="text-xs sm:text-sm font-bold text-black pr-6 sm:pr-8 text-left leading-relaxed">{job.description}</p>
+      
               </div>
 
               {/* Job Media */}
