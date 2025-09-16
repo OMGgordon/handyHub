@@ -233,9 +233,8 @@ export default function PreviewPage() {
                 <div className="text-xs sm:text-sm font-medium text-black mb-2 text-left pr-8">
                   Job Description
                 </div>
-                <p className="text-xs sm:text-sm text-gray-500 pr-6 sm:pr-8 text-left leading-relaxed">
-                  {job.description}
-                </p>
+                <p className="text-xs sm:text-sm font-bold text-black pr-6 sm:pr-8 text-left leading-relaxed">{job.description}</p>
+      
               </div>
 
               {/* Job Media */}
@@ -285,13 +284,14 @@ export default function PreviewPage() {
                 onClick={() =>
                   router.push(`/job-details/${job.provider_id}?jobId=${job.id}`)
                 }
-                className="bg-[#fe9f2b] hover:bg-[#e8912a] text-white h-10 px-8 rounded border-2 border-[#c26e09] text-[12.6px] font-black"
+                variant="outline"
+                className="bg-white text-[#fe9f2b] border-2 border-[#fe9f2b] hover:bg-[#fe9f2b] hover:text-white h-10 w-full sm:w-40 rounded text-[12.6px] font-black"
               >
                 Edit
               </Button>
               <Button
                 onClick={handleConfirm}
-                className="bg-[#fe9f2b] hover:bg-[#e8912a] text-white h-10 px-8 rounded border-2 border-[#c26e09] text-[12.6px] font-black"
+                className="bg-[#fe9f2b] hover:bg-[#e8912a] text-white h-10 w-full sm:w-40 rounded border-2 border-[#c26e09] text-[12.6px] font-black"
               >
                 Confirm and Book
               </Button>

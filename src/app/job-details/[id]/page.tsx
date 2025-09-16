@@ -42,7 +42,17 @@ interface FormData {
 
 export function BookServicePage() {
   const router = useRouter();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    serviceCategory: string;
+    serviceType: string;
+    dateTime: string[] | null;
+    address: string;
+    jobTitle: string;
+    minBudget: string;
+    maxBudget: string;
+    description: string;
+    uploadedFiles: File[];
+  }>({
     serviceCategory: "",
     serviceType: "",
     dateTime: null,
@@ -51,7 +61,7 @@ export function BookServicePage() {
     minBudget: "",
     maxBudget: "",
     description: "",
-    uploadedFiles: [] as File[],
+    uploadedFiles: [],
   });
 
   const searchParams = useSearchParams();
@@ -535,11 +545,5 @@ export function BookServicePage() {
 
 // Default export for Next.js page component
 export default function JobDetailsPage() {
-  return (
-    <BookServicePage
-      onNavigateHome={() => {}}
-      onNavigateToSignIn={() => {}}
-      onContinueToConfirmation={() => {}}
-    />
-  );
+  return <BookServicePage />;
 }
