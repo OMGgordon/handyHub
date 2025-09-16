@@ -16,6 +16,7 @@ import { AuthenticatedNavbar } from "@/components/AuthenticatedNavbar";
 import { useParams } from "next/navigation";
 import { useProvider } from "@/context/ProviderContext";
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 interface BookServicePageProps {
   onNavigateHome: () => void;
@@ -26,6 +27,7 @@ interface BookServicePageProps {
 }
 
 export function BookServicePage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     serviceCategory: "",
     serviceType: "",
@@ -74,9 +76,8 @@ export function BookServicePage() {
         if (uploadError) {
           console.error(uploadError);
         } else if (data) {
-          const url = supabase.storage
-            .from("uploads")
-            .getPublicUrl(data.path).data.publicUrl;
+          const url = supabase.storage.from("uploads").getPublicUrl(data.path)
+            .data.publicUrl;
           uploadedUrls.push(url);
         }
       }
@@ -103,7 +104,8 @@ export function BookServicePage() {
         alert("Failed to create project.");
       } else {
         console.log("Project created:", data);
-        alert("Project submitted successfully!");
+        // alert("Project submitted successfully!");
+        router.push("/job-summary");
       }
     } catch (err) {
       console.error(err);
