@@ -107,10 +107,11 @@ export function BookServicePage() {
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
-      setUploadedFiles((prev) => [...prev, ...Array.from(files)]);
+      const newFiles = Array.from(files);
+      setUploadedFiles((prev) => [...prev, ...newFiles]);
       setFormData((prev) => ({
         ...prev,
-        uploadedFiles: [...prev.uploadedFiles, ...files],
+        uploadedFiles: [...prev.uploadedFiles, ...newFiles],
       }));
     }
   };
@@ -140,21 +141,41 @@ export function BookServicePage() {
 
       // ✅ Upload files to Supabase Storage (optional)
       const uploadedUrls: string[] = [];
-      for (const file of formData.uploadedFiles) {
-        const { data, error: uploadError } = await supabase.storage
-          .from("uploads") // 👈 make sure you have this bucket created
-          .upload(`${user.id}/${Date.now()}-${file.name}`, file);
+      // for (const file of formData.uploadedFiles) {
+      //   const { data, error: uploadError } = await supabase.storage
+      //     .from("uploads") // 👈 make sure you have this bucket created
+      //     .upload(`${user.id}/${Date.now()}-${file.name}`, file);
 
-        if (uploadError) {
-          console.error(uploadError);
-        } else if (data) {
-          const url = supabase.storage.from("uploads").getPublicUrl(data.path)
-            .data.publicUrl;
-          uploadedUrls.push(url);
-        }
-      }
+      //   if (uploadError) {
+      //     console.error(uploadError);
+      //   } else if (data) {
+      //     const url = supabase.storage.from("uploads").getPublicUrl(data.path)
+      //       .data.publicUrl;
+      //     uploadedUrls.push(url);
+      //   }
+      // }
 
       // ✅ Insert into projects
+      for (const file of formData.uploadedFiles) {
+        const fileName = file.name || `file-${Date.now()}`; // fallback if name undefined
+        const path = `${user.id}/${Date.now()}-${fileName}`;
+
+        const { data, error } = await supabase.storage
+          .from("uploads")
+          .upload(path, file);
+
+        if (error) {
+          console.error("Upload error:", error);
+          continue;
+        }
+
+        const { data: publicUrlData } = supabase.storage
+          .from("uploads")
+          .getPublicUrl(path);
+
+        uploadedUrls.push(publicUrlData.publicUrl);
+      }
+
       const { data, error } = await supabase
         .from("projects")
         .insert([
