@@ -4,8 +4,10 @@ import React, { useEffect, useState } from "react";
 import { useSession } from "@/context/SessionProvider";
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
 import ProjectComponent from "@/components/Project";
 
@@ -19,11 +21,24 @@ type Project = {
   created_at: string;
 };
 
+interface JobRequest {
+  id: string;
+  title: string;
+  iconImage: string;
+  clientName: string;
+  location: string;
+  date: string;
+  time: string;
+  budgetRange: string;
+}
+
 function ProjectPage() {
   const { session } = useSession();
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState<'client' | 'provider' | null>(null);
+  const [activeTab, setActiveTab] = useState("in-progress");
 
   const firstName = session?.user?.user_metadata?.fullName?.split(" ")[0];
 
@@ -31,13 +46,81 @@ function ProjectPage() {
     router.push("/Post-project");
   };
 
+  const handleViewJob = (jobId: string) => {
+    router.push(`/job-info/${jobId}`);
+  };
+
+  // Mock data for pending job requests
+  const jobRequests: JobRequest[] = [
+    {
+      id: "1",
+      title: "Installing New Heater",
+      iconImage: "/images/HVAC.png",
+      clientName: "Julia Osei",
+      location: "Cantoment, 1st Oxford Street",
+      date: "19th September, 2025",
+      time: "3:00pm",
+      budgetRange: "GHS 300 - GHS 700"
+    },
+    {
+      id: "2", 
+      title: "Electrical Rewiring",
+      iconImage: "/images/Electrical.png",
+      clientName: "Julia Osei",
+      location: "Cantoment, 1st Oxford Street", 
+      date: "19th September, 2025",
+      time: "3:00pm",
+      budgetRange: "GHS 300 - GHS 700"
+    },
+    {
+      id: "3",
+      title: "Painting 2 Rooms",
+      iconImage: "/images/Painting.png",
+      clientName: "Julia Osei",
+      location: "Cantoment, 1st Oxford Street",
+      date: "19th September, 2025", 
+      time: "3:00pm",
+      budgetRange: "GHS 300 - GHS 700"
+    }
+  ];
+
+  // Filter projects based on status and tab
+  const filterProjectsByStatus = (status: string) => {
+    return projects.filter(project => project.status === status);
+  };
+
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchUserRole = async () => {
       if (!session?.user?.id) return;
 
+      // Check if user is a service provider
+      const { data: providerData } = await supabase
+        .from("service_providers")
+        .select("id")
+        .eq("user_id", session.user.id)
+        .single();
+
+      setUserRole(providerData ? 'provider' : 'client');
+    };
+
+    fetchUserRole();
+  }, [session]);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      if (!session?.user?.id || !userRole) return;
+
       setLoading(true);
-      const { data, error } = await supabase.from("projects").select("*");
-      //.eq("client_id", session.user.id);
+      let query = supabase.from("projects").select("*");
+
+      // Filter based on user role
+      if (userRole === 'client') {
+        query = query.eq("client_id", session.user.id);
+      } else if (userRole === 'provider') {
+        query = query.eq("provider_id", session.user.id);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error("Error fetching projects:", error.message);
@@ -45,23 +128,127 @@ function ProjectPage() {
         setProjects(data || []);
       }
       setLoading(false);
-      
     };
 
     fetchProjects();
-  }, [session, supabase]);
+  }, [session, userRole]);
 
   console.log(projects, loading)
+
+  const renderProjectsForTab = (status: string) => {
+    const filteredProjects = filterProjectsByStatus(status);
+    
+    if (filteredProjects.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-[40vh] space-y-2">
+          <Image
+            src={"/noProjects.png"}
+            width={100}
+            height={100}
+            alt="no projects found"
+          />
+          <span className="font-semibold">No {status.replace('-', ' ')} jobs</span>
+          <span>Jobs with this status will appear here</span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-4 px-24">
+        {filteredProjects.map((project) => (
+          <ProjectComponent key={project.id} project={project} />
+        ))}
+      </div>
+    );
+  };
+
+  const renderPendingJobRequests = () => {
+    if (jobRequests.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-[40vh] space-y-2">
+          <Image
+            src={"/noProjects.png"}
+            width={100}
+            height={100}
+            alt="no pending job requests"
+          />
+          <span className="font-semibold">No pending job requests</span>
+          <span>New job opportunities will appear here</span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+        {jobRequests.map((job) => (
+          <Card key={job.id} className="bg-white rounded-[10px] overflow-hidden min-h-[328px]">
+            <CardContent className="px-6 py-4 h-full flex flex-col">
+              {/* Job Title with Icon */}
+              <div className="flex items-center gap-4 mb-4">
+                <Image
+                  src={job.iconImage}
+                  alt={job.title}
+                  width={48}
+                  height={48}
+                  className="object-contain"
+                />
+                <h3 className="text-[15px] font-bold text-black">
+                  {job.title}
+                </h3>
+              </div>
+
+              {/* Job Details */}
+              <div className="space-y-3 flex-1">
+                <div className="flex justify-between">
+                  <span className="text-[15px] font-bold text-black">Client Name:</span>
+                  <span className="text-[15px] text-black">{job.clientName}</span>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span className="text-[15px] font-bold text-black">Location:</span>
+                  <span className="text-[15px] text-black">{job.location}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-[15px] font-bold text-black">Date:</span>
+                  <span className="text-[15px] text-black">{job.date}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-[15px] font-bold text-black">Time:</span>
+                  <span className="text-[15px] text-black">{job.time}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-[15px] font-bold text-black">Budget Range:</span>
+                  <span className="text-[15px] text-black">{job.budgetRange}</span>
+                </div>
+              </div>
+
+              {/* View Job Button */}
+              <div className="flex justify-center mt-10">
+                <Button
+                  onClick={() => handleViewJob(job.id)}
+                  className="bg-[#fe9f2b] hover:bg-[#e8912a] text-white px-8 py-2 rounded-[10px] text-[15px] font-bold"
+                >
+                  VIEW JOB
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div>
       <Navbar />
 
-      <div className="px-16 py-6 space-y-4">
-        <h1 className="font-segoe text-3xl font-extrabold">
-          {firstName ? `${firstName}'s projects` : "Your Projects"}
+      <div className="px-24 py-6">
+        <h1 className="font-segoe text-4xl font-extrabold mb-6">
+          {firstName ? `${firstName}'s projects` : "Your Jobs"}
         </h1>
-        <Separator />
       </div>
 
       {loading ? (
@@ -76,15 +263,52 @@ function ProjectPage() {
             height={100}
             alt="no projects found"
           />
-          <span className="font-semibold">You dont have any projects yet</span>
+          <span className="font-semibold">You dont have any jobs yet</span>
           <span>When you do you will find them here</span>
-          <Button onClick={handleStartProject}>Start a project</Button>
         </div>
       ) : (
-        <div className="space-y-4">
-          {projects.map((project) => (
-            <ProjectComponent key={project.id} project={project} />
-          ))}
+        <div className="px-24">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="bg-transparent h-auto p-0 space-x-0">
+              <TabsTrigger 
+                value="in-progress" 
+                className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-0 pb-2 mr-16 text-base font-bold text-gray-600 data-[state=active]:text-black"
+              >
+                Jobs in Progress
+              </TabsTrigger>
+              <TabsTrigger 
+                value="done"
+                className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-0 pb-2 ml-8 mr-16 text-base font-bold text-gray-600 data-[state=active]:text-black"
+              >
+                Done Jobs
+              </TabsTrigger>
+              {userRole === 'provider' && (
+                <TabsTrigger 
+                  value="pending"
+                  className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-0 pb-2 mr-16 text-base font-medium text-gray-600 data-[state=active]:text-black"
+                >
+                  Pending Jobs
+                </TabsTrigger>
+              )}
+            </TabsList>
+            <Separator />
+            
+            <TabsContent value="in-progress" className="mt-6">
+              {renderProjectsForTab('in-progress')}
+            </TabsContent>
+            
+            <TabsContent value="done" className="mt-6">
+              {renderProjectsForTab('done')}
+            </TabsContent>
+            
+            {userRole === 'provider' && (
+              <TabsContent value="pending" className="mt-6">
+                <div className="px-24">
+                  {renderPendingJobRequests()}
+                </div>
+              </TabsContent>
+            )}
+          </Tabs>
         </div>
       )}
     </div>
