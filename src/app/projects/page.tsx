@@ -170,9 +170,8 @@ function ProjectPage() {
       setUserRole(role);
     };
 
-  //   fetchUserRole();
-  // }, [session]);
-
+    fetchUserRole();
+  }, [session]);
 
   const userType = session?.user?.user_metadata.userType;
 
