@@ -360,19 +360,19 @@ function ProjectPage() {
                 <TabsList className="bg-transparent h-auto p-0 space-x-0">
                   <TabsTrigger 
                     value="in-progress" 
-                    className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-0 pb-2 mr-20 text-base font-bold text-gray-600 data-[state=active]:text-black"
+                    className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-4 pb-2 mr-20 text-base font-bold text-gray-600 data-[state=active]:text-black"
                   >
                     Jobs in Progress
                   </TabsTrigger>
                   <TabsTrigger 
                     value="done"
-                    className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-0 pb-2 ml-20 mr-20 text-base font-bold text-gray-600 data-[state=active]:text-black"
+                    className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-10 pb-2 mx-20 text-base font-bold text-gray-600 data-[state=active]:text-black"
                   >
                     Done Jobs
                   </TabsTrigger>
                   <TabsTrigger 
                     value="pending"
-                    className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-0 pb-2 ml-10 text-base font-medium text-gray-600 data-[state=active]:text-black"
+                    className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-8 pb-2 ml-20 text-base font-bold text-gray-600 data-[state=active]:text-black"
                   >
                     Pending Jobs
                   </TabsTrigger>
@@ -389,9 +389,7 @@ function ProjectPage() {
                 
                 {userRole === 'provider' && (
                   <TabsContent value="pending" className="mt-6">
-                    <div className="px-24">
-                      {renderPendingJobRequests()}
-                    </div>
+                    {renderPendingJobRequests()}
                   </TabsContent>
                 )}
               </Tabs>
