@@ -37,7 +37,7 @@ function ProjectPage() {
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<'client' | 'provider' | null>(null);
+  const [userRole, setUserRole] = useState<"client" | "provider" | null>(null);
   const [activeTab, setActiveTab] = useState("in-progress");
 
   const firstName = session?.user?.user_metadata?.fullName?.split(" ")[0];
@@ -60,17 +60,17 @@ function ProjectPage() {
       location: "Cantoment, 1st Oxford Street",
       date: "19th September, 2025",
       time: "3:00pm",
-      budgetRange: "GHS 300 - GHS 700"
+      budgetRange: "GHS 300 - GHS 700",
     },
     {
-      id: "2", 
+      id: "2",
       title: "Electrical Rewiring",
       iconImage: "/images/Electrical.png",
       clientName: "Julia Osei",
-      location: "Cantoment, 1st Oxford Street", 
+      location: "Cantoment, 1st Oxford Street",
       date: "19th September, 2025",
       time: "3:00pm",
-      budgetRange: "GHS 300 - GHS 700"
+      budgetRange: "GHS 300 - GHS 700",
     },
     {
       id: "3",
@@ -78,24 +78,30 @@ function ProjectPage() {
       iconImage: "/images/Painting.png",
       clientName: "Julia Osei",
       location: "Cantoment, 1st Oxford Street",
-      date: "19th September, 2025", 
+      date: "19th September, 2025",
       time: "3:00pm",
-      budgetRange: "GHS 300 - GHS 700"
-    }
+      budgetRange: "GHS 300 - GHS 700",
+    },
   ];
 
   // Filter projects based on status and tab
   const filterProjectsByStatus = (status: string) => {
     console.log(`Filtering projects for status: "${status}"`);
-    const filtered = projects.filter(project => {
-      console.log(`Project ${project.id} status: "${project.status}" - Match: ${project.status === status}`);
+    const filtered = projects.filter((project) => {
+      console.log(
+        `Project ${project.id} status: "${project.status}" - Match: ${
+          project.status === status
+        }`
+      );
       // Handle different possible status values
-      if (status === 'in-progress') {
-        return project.status === 'in-progress' || 
-               project.status === 'in_progress' || 
-               project.status === 'accepted' || 
-               project.status === 'active' ||
-               project.status === 'ongoing';
+      if (status === "in-progress") {
+        return (
+          project.status === "pending" ||
+          project.status === "in_progress" ||
+          project.status === "declined" ||
+          project.status === "active" ||
+          project.status === "ongoing"
+        );
       }
       return project.status === status;
     });
@@ -105,13 +111,13 @@ function ProjectPage() {
 
   const refreshProjects = async () => {
     if (!session?.user?.id || !userRole) return;
-    
+
     setLoading(true);
     let query = supabase.from("projects").select("*");
 
-    if (userRole === 'client') {
+    if (userRole === "client") {
       query = query.eq("client_id", session.user.id);
-    } else if (userRole === 'provider') {
+    } else if (userRole === "provider") {
       query = query.eq("provider_id", session.user.id);
     }
 
@@ -131,7 +137,7 @@ function ProjectPage() {
       if (!session?.user?.id) return;
 
       console.log("Checking user role for ID:", session.user.id);
-      
+
       // Check if user is a service provider
       // First try querying by id (which is set to userId in signup)
       const { data: providerData, error } = await supabase
@@ -142,12 +148,12 @@ function ProjectPage() {
 
       console.log("Provider data (by id):", providerData);
       console.log("Provider query error (by id):", error);
-      
-      let role: 'client' | 'provider' = 'client';
-      
+
+      let role: "client" | "provider" = "client";
+
       if (providerData && !error) {
-        role = 'provider';
-      } else if (error && error.code !== 'PGRST116') {
+        role = "provider";
+      } else if (error && error.code !== "PGRST116") {
         // PGRST116 is "no rows returned" - try alternative query with user_id
         console.log("Trying alternative query with user_id field...");
         const { data: altProviderData, error: altError } = await supabase
@@ -155,23 +161,24 @@ function ProjectPage() {
           .select("id")
           .eq("user_id", session.user.id)
           .single();
-        
+
         console.log("Provider data (by user_id):", altProviderData);
         console.log("Provider query error (by user_id):", altError);
-        
+
         if (altProviderData && !altError) {
-          role = 'provider';
-        } else if (altError && altError.code !== 'PGRST116') {
+          role = "provider";
+        } else if (altError && altError.code !== "PGRST116") {
           console.error("Unexpected error checking provider status:", altError);
         }
       }
-      
+
       console.log("Setting user role to:", role);
       setUserRole(role);
     };
 
     fetchUserRole();
   }, [session]);
+
 
   const userType = session?.user?.user_metadata.userType;
 
@@ -183,9 +190,9 @@ function ProjectPage() {
       let query = supabase.from("projects").select("*");
 
       // Filter based on user role
-      if (userType === 'client') {
+      if (userType === "client") {
         query = query.eq("client_id", session.user.id);
-      } else if (userRole === 'provider') {
+      } else if (userRole === "provider") {
         query = query.eq("provider_id", session.user.id);
       }
 
@@ -198,7 +205,7 @@ function ProjectPage() {
         console.log("User role:", userRole);
         console.log("User ID:", session.user.id);
         // Log all statuses to see what's actually in the database
-        data?.forEach(project => {
+        data?.forEach((project) => {
           console.log(`Project ${project.id}: status = "${project.status}"`);
         });
         setProjects(data || []);
@@ -209,12 +216,11 @@ function ProjectPage() {
     fetchProjects();
   }, [session, userRole]);
 
-  console.log(projects, loading)
-  
+  console.log(projects, loading);
 
   const renderProjectsForTab = (status: string) => {
     const filteredProjects = filterProjectsByStatus(status);
-    
+
     if (filteredProjects.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center min-h-[40vh] space-y-2">
@@ -224,7 +230,9 @@ function ProjectPage() {
             height={100}
             alt="no projects found"
           />
-          <span className="font-semibold">No {status.replace('-', ' ')} jobs</span>
+          <span className="font-semibold">
+            No {status.replace("-", " ")} jobs
+          </span>
           <span>Jobs with this status will appear here</span>
         </div>
       );
@@ -258,7 +266,10 @@ function ProjectPage() {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
         {jobRequests.map((job) => (
-          <Card key={job.id} className="bg-white rounded-[10px] overflow-hidden min-h-[328px]">
+          <Card
+            key={job.id}
+            className="bg-white rounded-[10px] overflow-hidden min-h-[328px]"
+          >
             <CardContent className="px-6 py-4 h-full flex flex-col">
               {/* Job Title with Icon */}
               <div className="flex items-center gap-4 mb-4">
@@ -277,28 +288,42 @@ function ProjectPage() {
               {/* Job Details */}
               <div className="space-y-3 flex-1">
                 <div className="flex justify-between">
-                  <span className="text-[15px] font-bold text-black">Client Name:</span>
-                  <span className="text-[15px] text-black">{job.clientName}</span>
+                  <span className="text-[15px] font-bold text-black">
+                    Client Name:
+                  </span>
+                  <span className="text-[15px] text-black">
+                    {job.clientName}
+                  </span>
                 </div>
-                
+
                 <div className="flex justify-between">
-                  <span className="text-[15px] font-bold text-black">Location:</span>
+                  <span className="text-[15px] font-bold text-black">
+                    Location:
+                  </span>
                   <span className="text-[15px] text-black">{job.location}</span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="text-[15px] font-bold text-black">Date:</span>
+                  <span className="text-[15px] font-bold text-black">
+                    Date:
+                  </span>
                   <span className="text-[15px] text-black">{job.date}</span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="text-[15px] font-bold text-black">Time:</span>
+                  <span className="text-[15px] font-bold text-black">
+                    Time:
+                  </span>
                   <span className="text-[15px] text-black">{job.time}</span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="text-[15px] font-bold text-black">Budget Range:</span>
-                  <span className="text-[15px] text-black">{job.budgetRange}</span>
+                  <span className="text-[15px] font-bold text-black">
+                    Budget Range:
+                  </span>
+                  <span className="text-[15px] text-black">
+                    {job.budgetRange}
+                  </span>
                 </div>
               </div>
 
@@ -359,21 +384,25 @@ function ProjectPage() {
             </div>
           ) : (
             <div className="px-24">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <Tabs
+                value={activeTab}
+                onValueChange={setActiveTab}
+                className="w-full"
+              >
                 <TabsList className="bg-transparent h-auto p-0 space-x-0">
-                  <TabsTrigger 
-                    value="in-progress" 
+                  <TabsTrigger
+                    value="in-progress"
                     className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-4 pb-2 mr-20 text-base font-bold text-gray-600 data-[state=active]:text-black"
                   >
                     Jobs in Progress
                   </TabsTrigger>
-                  <TabsTrigger 
+                  <TabsTrigger
                     value="done"
                     className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-10 pb-2 mx-20 text-base font-bold text-gray-600 data-[state=active]:text-black"
                   >
                     Done Jobs
                   </TabsTrigger>
-                  <TabsTrigger 
+                  <TabsTrigger
                     value="pending"
                     className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-8 pb-2 ml-20 text-base font-bold text-gray-600 data-[state=active]:text-black"
                   >
@@ -381,16 +410,16 @@ function ProjectPage() {
                   </TabsTrigger>
                 </TabsList>
                 <Separator />
-                
+
                 <TabsContent value="in-progress" className="mt-6">
-                  {renderProjectsForTab('in-progress')}
+                  {renderProjectsForTab("in-progress")}
                 </TabsContent>
-                
+
                 <TabsContent value="done" className="mt-6">
-                  {renderProjectsForTab('done')}
+                  {renderProjectsForTab("done")}
                 </TabsContent>
-                
-                {userRole === 'provider' && (
+
+                {userRole === "provider" && (
                   <TabsContent value="pending" className="mt-6">
                     {renderPendingJobRequests()}
                   </TabsContent>
@@ -403,5 +432,4 @@ function ProjectPage() {
     </div>
   );
 }
-
 export default ProjectPage;

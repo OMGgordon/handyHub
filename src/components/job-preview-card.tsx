@@ -221,7 +221,7 @@ export function JobPreviewCard({ recentJob }: JobPreviewCardProps) {
                 const conversation = await startConversation(
                   recentJob.client_id, // from supabase.auth.user()?.id
                   recentJob.provider_id, // e.g. from the project/provider profile
-                  recentJob.id,
+                  recentJob.id
                   // providerName,
                   // providerAvatar
                 );
@@ -240,7 +240,7 @@ export function JobPreviewCard({ recentJob }: JobPreviewCardProps) {
 
         <div className="lg:w-48">
           <img
-            src={recentJob?.uploaded_files?.[0] || "/placeholder.svg"}
+            src={recentJob?.uploaded_files?.[0] || "/images/Handyperson.png"}
             alt="Job preview"
             className="w-full h-48 lg:h-40 object-cover rounded-lg"
           />

@@ -22,6 +22,7 @@ import { useProvider } from "@/context/ProviderContext";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import DatePickerModal from "@/components/DatePickerModal";
+import { useSession } from "@/context/SessionProvider";
 
 interface BookServicePageProps {
   onNavigateHome: () => void;
@@ -32,6 +33,7 @@ interface BookServicePageProps {
 }
 
 interface FormData {
+  id: string;
   serviceCategory: string;
   serviceType: string;
   dateTime: string[] | null;
@@ -40,12 +42,15 @@ interface FormData {
   minBudget: number;
   maxBudget: number;
   description: string;
+  providerId: string;
+  clientId: string;
   uploadedFiles: File[];
 }
 
 export function BookServicePage() {
   const router = useRouter();
   const [formData, setFormData] = useState<{
+    id: string;
     serviceCategory: string[] | null;
     serviceType: string;
     dateTime: string[] | null;
@@ -54,8 +59,12 @@ export function BookServicePage() {
     minBudget: string;
     maxBudget: string;
     description: string;
+    providerId: string;
+    clientId: string;
     uploadedFiles: File[];
+    uploadedUrls:[];
   }>({
+    id: "",
     serviceCategory: [],
     serviceType: "",
     dateTime: null,
@@ -64,13 +73,47 @@ export function BookServicePage() {
     minBudget: "",
     maxBudget: "",
     description: "",
+    providerId: "",
+    clientId: "",
     uploadedFiles: [],
+    uploadedUrls: [] as string[],
   });
 
   const searchParams = useSearchParams();
   const jobId = searchParams.get("jobId");
+  const isEditing = searchParams.get("isEditing") === "true";
+
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
+  // useEffect(() => {
+  //   const fetchJobData = async () => {
+  //     if (!jobId) return;
+
+  //     const { data, error } = await supabase
+  //       .from("projects")
+  //       .select("*")
+  //       .eq("id", jobId)
+  //       .single();
+
+  //     if (data && !error) {
+  //       setFormData({
+  //         serviceCategory: data.service_category,
+  //         serviceType: data.service_type,
+  //         dateTime: data.date,
+  //         address: data.location,
+  //         jobTitle: data.title,
+  //         minBudget: data.min_budget,
+  //         maxBudget: data.max_budget,
+  //         description: data.description,
+  //         uploadedFiles: data.uploaded_files,
+  //       });
+  //     }
+  //   };
+
+  //   fetchJobData();
+  // }, [jobId]);
+
+  const { session } = useSession();
   useEffect(() => {
     const fetchJobData = async () => {
       if (!jobId) return;
@@ -83,6 +126,7 @@ export function BookServicePage() {
 
       if (data && !error) {
         setFormData({
+          id: data.id,
           serviceCategory: data.service_category,
           serviceType: data.service_type,
           dateTime: data.date,
@@ -91,13 +135,16 @@ export function BookServicePage() {
           minBudget: data.min_budget,
           maxBudget: data.max_budget,
           description: data.description,
-          uploadedFiles: data.uploaded_files,
+          uploadedFiles: [], // start with no new files
+          uploadedUrls: data.uploaded_files || [], // optionally fetch uploaded files
+          providerId: providerId,
+          clientId: session?.user.id,
         });
       }
     };
 
-    fetchJobData();
-  }, [jobId]);
+    if (isEditing) fetchJobData();
+  }, [jobId, isEditing]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -126,17 +173,17 @@ export function BookServicePage() {
     { value: "gardening", label: "Gardening" },
   ];
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files) {
-      const newFiles = Array.from(files);
-      setUploadedFiles((prev) => [...prev, ...newFiles]);
-      setFormData((prev) => ({
-        ...prev,
-        uploadedFiles: [...prev.uploadedFiles, ...newFiles],
-      }));
-    }
-  };
+const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const files = event.target.files;
+  if (files) {
+    const newFiles = Array.from(files);
+    setFormData((prev) => ({
+      ...prev,
+      uploadedFiles: [...prev.uploadedFiles, ...newFiles], // keep File[] separate
+    }));
+  }
+};
+
 
   const removeFile = (fileName: string) => {
     setUploadedFiles((prev) => prev.filter((file) => file.name !== fileName));
@@ -148,10 +195,95 @@ export function BookServicePage() {
     }));
   };
 
+  // const handleSubmit = async () => {
+  //   setClicked(true);
+  //   try {
+  //     // ✅ Get logged in user
+  //     const {
+  //       data: { user },
+  //       error: userError,
+  //     } = await supabase.auth.getUser();
+  //     if (userError || !user) {
+  //       alert("You need to sign in first.");
+  //       return;
+  //     }
+
+  //     // ✅ Upload files to Supabase Storage (optional)
+  //     const uploadedUrls: string[] = [];
+  //     // for (const file of formData.uploadedFiles) {
+  //     //   const { data, error: uploadError } = await supabase.storage
+  //     //     .from("uploads") // 👈 make sure you have this bucket created
+  //     //     .upload(`${user.id}/${Date.now()}-${file.name}`, file);
+
+  //     //   if (uploadError) {
+  //     //     console.error(uploadError);
+  //     //   } else if (data) {
+  //     //     const url = supabase.storage.from("uploads").getPublicUrl(data.path)
+  //     //       .data.publicUrl;
+  //     //     uploadedUrls.push(url);
+  //     //   }
+  //     // }
+
+  //     // ✅ Insert into projects
+  //     for (const file of formData.uploadedFiles) {
+  //       const fileName = file.name || `file-${Date.now()}`; // fallback if name undefined
+  //       const path = `${user.id}/${Date.now()}-${fileName}`;
+
+  //       const { data, error } = await supabase.storage
+  //         .from("uploads")
+  //         .upload(path, file);
+
+  //       if (error) {
+  //         console.error("Upload error:", error);
+  //         continue;
+  //       }
+
+  //       const { data: publicUrlData } = supabase.storage
+  //         .from("uploads")
+  //         .getPublicUrl(path);
+
+  //       uploadedUrls.push(publicUrlData.publicUrl);
+  //     }
+
+  //     const { data, error } = await supabase
+  //       .from("projects")
+  //       .insert([
+  //         {
+  //           id: crypto.randomUUID(),
+  //           provider_id: providerId,
+  //           client_id: user.id,
+  //           status: "pending",
+  //           service_category: formData.serviceCategory,
+  //           service_type: formData.serviceType,
+  //           title: formData.jobTitle,
+  //           min_budget: formData.minBudget,
+  //           max_budget: formData.maxBudget,
+  //           description: formData.description,
+  //           uploaded_files: uploadedUrls, // ✅ store file URLs, not File objects
+  //           date: formData.dateTime,
+  //           location: formData.address,
+  //         },
+  //       ])
+  //       .select()
+  //       .single();
+
+  //     if (error) {
+  //       console.error(error);
+  //       alert("Failed to create project.");
+  //     } else {
+  //       console.log("Project created:", data);
+  //       // alert("Project submitted successfully!");
+  //       // const jobId = data[0].id;
+  //       router.push(`/job-summary/${data.id}`);
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // };
+
   const handleSubmit = async () => {
     setClicked(true);
     try {
-      // ✅ Get logged in user
       const {
         data: { user },
         error: userError,
@@ -161,73 +293,79 @@ export function BookServicePage() {
         return;
       }
 
-      // ✅ Upload files to Supabase Storage (optional)
-      const uploadedUrls: string[] = [];
-      // for (const file of formData.uploadedFiles) {
-      //   const { data, error: uploadError } = await supabase.storage
-      //     .from("uploads") // 👈 make sure you have this bucket created
-      //     .upload(`${user.id}/${Date.now()}-${file.name}`, file);
+      const uploadedUrls: string[] = [...formData.uploadedUrls]; // keep old URLs
 
-      //   if (uploadError) {
-      //     console.error(uploadError);
-      //   } else if (data) {
-      //     const url = supabase.storage.from("uploads").getPublicUrl(data.path)
-      //       .data.publicUrl;
-      //     uploadedUrls.push(url);
-      //   }
-      // }
-
-      // ✅ Insert into projects
       for (const file of formData.uploadedFiles) {
-        const fileName = file.name || `file-${Date.now()}`; // fallback if name undefined
+        const fileName = file.name || `file-${Date.now()}`;
         const path = `${user.id}/${Date.now()}-${fileName}`;
-
         const { data, error } = await supabase.storage
           .from("uploads")
           .upload(path, file);
 
-        if (error) {
-          console.error("Upload error:", error);
-          continue;
+        if (!error && data) {
+          const { data: publicUrlData } = supabase.storage
+            .from("uploads")
+            .getPublicUrl(path);
+          uploadedUrls.push(publicUrlData.publicUrl);
         }
-
-        const { data: publicUrlData } = supabase.storage
-          .from("uploads")
-          .getPublicUrl(path);
-
-        uploadedUrls.push(publicUrlData.publicUrl);
       }
 
-      const { data, error } = await supabase
-        .from("projects")
-        .insert([
-          {
-            id: crypto.randomUUID(),
-            provider_id: providerId,
-            client_id: user.id,
-            status: "pending",
+
+      if (isEditing && jobId) {
+        // ✅ Update existing job
+        const { data, error } = await supabase
+          .from("projects")
+          .update({
             service_category: formData.serviceCategory,
             service_type: formData.serviceType,
             title: formData.jobTitle,
             min_budget: formData.minBudget,
             max_budget: formData.maxBudget,
             description: formData.description,
-            uploaded_files: uploadedUrls, // ✅ store file URLs, not File objects
+            uploaded_files: uploadedUrls,
             date: formData.dateTime,
             location: formData.address,
-          },
-        ])
-        .select()
-        .single();
+          })
+          .eq("id", jobId)
+          .select()
+          .single();
 
-      if (error) {
-        console.error(error);
-        alert("Failed to create project.");
+        if (error) {
+          console.error(error);
+          alert("Failed to update project.");
+        } else {
+          router.push(`/job-summary/${data.id}`);
+        }
       } else {
-        console.log("Project created:", data);
-        // alert("Project submitted successfully!");
-        // const jobId = data[0].id;
-        router.push(`/job-summary/${data.id}`);
+        // ✅ Create new job
+        const { data, error } = await supabase
+          .from("projects")
+          .insert([
+            {
+              id: crypto.randomUUID(),
+              provider_id: providerId,
+              client_id: user.id,
+              status: "pending",
+              service_category: formData.serviceCategory,
+              service_type: formData.serviceType,
+              title: formData.jobTitle,
+              min_budget: formData.minBudget,
+              max_budget: formData.maxBudget,
+              description: formData.description,
+              uploaded_files: uploadedUrls,
+              date: formData.dateTime,
+              location: formData.address,
+            },
+          ])
+          .select()
+          .single();
+
+        if (error) {
+          console.error(error);
+          alert("Failed to create project.");
+        } else {
+          router.push(`/job-summary/${data.id}`);
+        }
       }
     } catch (err) {
       console.error(err);
@@ -297,7 +435,12 @@ export function BookServicePage() {
                 </label>
                 <div className="relative">
                   <Select
-                    value={Array.isArray(formData.serviceCategory) && formData.serviceCategory.length > 0 ? formData.serviceCategory[0] : undefined}
+                    value={
+                      Array.isArray(formData.serviceCategory) &&
+                      formData.serviceCategory.length > 0
+                        ? formData.serviceCategory[0]
+                        : undefined
+                    }
                     onValueChange={(value: string) =>
                       handleInputChange("serviceCategory", value)
                     }
@@ -309,9 +452,9 @@ export function BookServicePage() {
                       <SelectItem value="plumbing">Plumbing</SelectItem>
                       <SelectItem value="electrical">Electrical</SelectItem>
                       <SelectItem value="painting">Painting</SelectItem>
-                      <SelectItem value="cleaning">Tiling</SelectItem>
-                      <SelectItem value="cleaning">Gardening</SelectItem>
-                      <SelectItem value="cleaning">Carpentry</SelectItem>
+                      <SelectItem value="tiling">Tiling</SelectItem>
+                      <SelectItem value="gardening">Gardening</SelectItem>
+                      <SelectItem value="carpentry">Carpentry</SelectItem>
                       <SelectItem value="cleaning">Cleaning</SelectItem>
                     </SelectContent>
                   </Select>
@@ -528,8 +671,8 @@ export function BookServicePage() {
                         <Upload className="w-5 h-5 text-white" />
                       </div>
                       <span className="text-[11px] text-gray-600">
-                        {uploadedFiles.length > 0
-                          ? `${uploadedFiles.length} file(s) selected`
+                        {uploadedFiles?.length > 0
+                          ? `${uploadedFiles?.length} file(s) selected`
                           : "Click or drop files to upload"}
                       </span>
                     </div>
@@ -537,9 +680,9 @@ export function BookServicePage() {
 
                   {/* Display selected files */}
                 </div>
-                {formData.uploadedFiles.length > 0 && (
+                {/* {formData?.uploadedFiles?.length > 0 && (
                   <div className="mt-2 space-y-2">
-                    {formData.uploadedFiles.map((file) => (
+                    {formData?.uploadedFiles?.map((file) => (
                       <div
                         key={file.name}
                         className="flex justify-between items-center border rounded p-2 px-3"
@@ -565,7 +708,38 @@ export function BookServicePage() {
                       </div>
                     ))}
                   </div>
-                )}
+                )} */}
+
+                {formData.uploadedFiles.map((file) => (
+                  <div
+                    className="flex justify-between items-center border rounded p-2 px-3"
+                    key={file.name}
+                  >
+                    <div className="flex flex-row">
+                      {file.name} ({(file.size / 1024).toFixed(2)} KB)
+                      <div>
+                        {formData.uploadedUrls.map((url) => (
+                          <div key={url} className="w-[50%]">
+                            <a
+                              href={url}
+                              target="_blank"
+                              className="text-blue-500 underline"
+                            >
+                              image
+                            </a>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeFile(file.name)}
+                      className="text-red-500 text-sm font-bold"
+                    >
+                      X
+                    </button>
+                  </div>
+                ))}
               </div>
 
               {/* Continue Button */}
