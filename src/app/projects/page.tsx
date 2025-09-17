@@ -96,9 +96,9 @@ function ProjectPage() {
       // Handle different possible status values
       if (status === "in-progress") {
         return (
-          project.status === "in-progress" ||
+          project.status === "pending" ||
           project.status === "in_progress" ||
-          project.status === "accepted" ||
+          project.status === "declined" ||
           project.status === "active" ||
           project.status === "ongoing"
         );

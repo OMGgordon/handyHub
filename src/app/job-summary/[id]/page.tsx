@@ -280,8 +280,9 @@ export default function PreviewPage() {
                 <div className="text-xs sm:text-sm font-medium text-black mb-2 text-left pr-8">
                   Job Description
                 </div>
-                <p className="text-xs sm:text-sm font-bold text-black pr-6 sm:pr-8 text-left leading-relaxed">{job.description}</p>
-      
+                <p className="text-xs sm:text-sm font-bold text-black pr-6 sm:pr-8 text-left leading-relaxed">
+                  {job.description}
+                </p>
               </div>
 
               {/* Job Media */}
@@ -329,13 +330,16 @@ export default function PreviewPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 onClick={() =>
-                  router.push(`/job-details/${job.provider_id}?jobId=${job.id}`)
+                  router.push(
+                    `/job-details/${job.provider_id}?jobId=${job.id}&isEditing=true`
+                  )
                 }
                 variant="outline"
                 className="bg-white text-[#fe9f2b] border-2 border-[#fe9f2b] hover:bg-[#fe9f2b] hover:text-white h-10 w-full sm:w-40 rounded text-[12.6px] font-black"
               >
                 Edit
               </Button>
+
               <Button
                 onClick={handleConfirm}
                 className="bg-[#fe9f2b] hover:bg-[#e8912a] text-white h-10 w-full sm:w-40 rounded border-2 border-[#c26e09] text-[12.6px] font-black"
@@ -348,8 +352,8 @@ export default function PreviewPage() {
       </div>
 
       {/* Success Modal */}
-      <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
-        <DialogContent className="sm:max-w-sm">
+      <Dialog open={showSuccessModal}>
+        <DialogContent className="sm:max-w-sm" showCloseButton={false}>
           <DialogHeader className="text-center">
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
               <CheckCircle className="h-6 w-6 text-green-600" />
@@ -358,19 +362,22 @@ export default function PreviewPage() {
               Booking Request Sent!
             </DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-3 text-center">
             <p className="text-sm text-gray-600">
-              Your booking request has been sent to the artisan. They will review your request and respond shortly.
+              Your booking request has been sent to the handyman. They will
+              review your request and respond shortly.
             </p>
-            
+
             {/* Response countdown info */}
             <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <Timer className="h-4 w-4 text-orange-600" />
-                <span className="font-medium text-orange-800 text-sm">Response Timer</span>
+                <span className="font-medium text-orange-800 text-sm">
+                  Response Timer
+                </span>
               </div>
-              
+
               {timeRemaining !== null && timeRemaining > 0 ? (
                 <div className="text-center mb-2">
                   <div className="text-xl font-bold text-orange-800 mb-1">
@@ -390,23 +397,28 @@ export default function PreviewPage() {
                   </p>
                 </div>
               ) : null}
-              
+
               <p className="text-xs text-orange-700 text-center">
-                The artisan has <strong>20 minutes</strong> to respond. Use <strong>"Nudge Artisan"</strong> if no response.
+                The handyman has <strong>20 minutes</strong> to respond. You can{" "}
+                <strong>"Nudge Artisan"</strong> if you dont get a response
+                after {formatTime(timeRemaining)}.
               </p>
             </div>
-            
+
             {/* Job info access */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
               <div className="flex items-center justify-center gap-2 mb-1">
                 <Eye className="h-4 w-4 text-blue-600" />
-                <span className="font-medium text-blue-800 text-sm">Track Your Booking</span>
+                <span className="font-medium text-blue-800 text-sm">
+                  Manage Your Booking
+                </span>
               </div>
               <p className="text-xs text-blue-700">
-                View booking details and communicate with the artisan from your Projects page.
+                View booking details and communicate with the artisan from your
+                Projects page.
               </p>
             </div>
-            
+
             {/* Action buttons */}
             <div className="flex flex-col sm:flex-row gap-2 pt-3">
               <Button
@@ -415,7 +427,7 @@ export default function PreviewPage() {
                 className="flex-1 border-[#fe9f2b] text-[#fe9f2b] hover:bg-[#fe9f2b] hover:text-white text-sm h-9"
               >
                 <Eye className="h-3 w-3 mr-1" />
-                View Details
+                View Job Details
               </Button>
               <Button
                 onClick={handleGoToLanding}

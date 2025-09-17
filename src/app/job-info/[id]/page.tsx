@@ -113,6 +113,30 @@ export default function JobInfoPage() {
   if (error) return <p>Error: {error}</p>;
   if (!job) return <p>No job found</p>;
 
+  const updateJobStatus = async (status: "active" | "declined") => {
+    try {
+      const { data, error } = await supabase
+        .from("projects")
+        .update({ status })
+        .eq("id", jobId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error(`Error updating job to ${status}:`, error);
+        alert(`Failed to mark job as ${status}. Please try again.`);
+        return;
+      }
+
+      console.log(`Job ${status}:`, data);
+
+      // Refresh UI so status updates immediately
+      router.refresh();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   // console.log(job);
 
   const handleCancelProject = () => {
@@ -233,13 +257,13 @@ export default function JobInfoPage() {
               job.status === "pending" && (
                 <div className="space-x-2">
                   <Button
-                    // onClick={handleConfirm}
+                    onClick={() => updateJobStatus("active")}
                     className="bg-[#fe9f2b] hover:bg-[#e8912a] text-white h-10 px-8 rounded border-2 border-[#c26e09] text-[12.6px] font-black"
                   >
                     Accept Job
                   </Button>
                   <Button
-                    // onClick={handleConfirm}
+                    onClick={() => updateJobStatus("declined")}
                     className="bg-[#fe9f2b] hover:bg-[#e8912a] text-white h-10 px-8 rounded border-2 border-[#c26e09] text-[12.6px] font-black"
                   >
                     Decline Job
