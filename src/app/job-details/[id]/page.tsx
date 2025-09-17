@@ -56,7 +56,7 @@ export function BookServicePage() {
     description: string;
     uploadedFiles: File[];
   }>({
-    serviceCategory: "",
+    serviceCategory: [],
     serviceType: "",
     dateTime: null,
     address: "",
@@ -297,7 +297,7 @@ export function BookServicePage() {
                 </label>
                 <div className="relative">
                   <Select
-                    value={formData.serviceCategory}
+                    value={Array.isArray(formData.serviceCategory) && formData.serviceCategory.length > 0 ? formData.serviceCategory[0] : undefined}
                     onValueChange={(value: string) =>
                       handleInputChange("serviceCategory", value)
                     }

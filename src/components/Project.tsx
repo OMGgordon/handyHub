@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 type Project = {
   id: string;
@@ -16,11 +17,21 @@ type ProjectProps = {
 };
 
 function Project({ project }: ProjectProps) {
+  const router = useRouter();
+
+  const handleJobClick = () => {
+    router.push(`/job-info/${project.id}`);
+  };
+
   return (
-    <div key={project.id} className="border rounded-md w-[90%] mx-auto p-4">
+    <div 
+      key={project.id} 
+      className="border rounded-md w-[90%] mx-auto p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+      onClick={handleJobClick}
+    >
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-col">
-          <h2>{project.title}</h2>
+          <h2 className="font-medium text-gray-900">{project.title}</h2>
           <div className="flex flex-row items-center gap-2 mt-1">
             <Image
               src="/calenderCheck.png"
@@ -28,7 +39,7 @@ function Project({ project }: ProjectProps) {
               height={10}
               alt="calender"
             />
-            <p className="text-sm">
+            <p className="text-sm text-gray-600">
               Started on{" "}
               <span>
                 {new Date(project.created_at).toLocaleDateString("en-US", {
@@ -42,7 +53,7 @@ function Project({ project }: ProjectProps) {
           </div>
         </div>
         <div>
-          <Image src="/right.png" width={20} height={20} alt="calender" />
+          <Image src="/right.png" width={20} height={20} alt="arrow right" />
         </div>
       </div>
     </div>
