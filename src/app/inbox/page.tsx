@@ -36,6 +36,7 @@ interface Message {
   timestamp: string;
   is_from_user: boolean;
   avatar: string;
+  sender_id: string;
 }
 
 interface Conversation {
@@ -119,6 +120,7 @@ const MessagingPage = () => {
             media_type: m.media_type,
             timestamp: m.timestamp,
             is_from_user: m.is_from_user,
+            sender_id: m.sender_id,
             avatar: conv.provider_avatar || "",
           })),
         }));
@@ -212,6 +214,7 @@ const MessagingPage = () => {
         content: newMessage,
         media_type: "text",
         is_from_user: true,
+        sender_id: session?.user?.id,
       });
       if (error) console.error(error);
     }
@@ -253,6 +256,7 @@ const MessagingPage = () => {
             ? "video"
             : "file",
           is_from_user: true,
+          sender_id: session.user.id,
         });
 
         if (error) {
@@ -287,19 +291,39 @@ const MessagingPage = () => {
   };
 
   useEffect(() => {
-    if (selectedConversation?.client_id) {
-      getClientById(selectedConversation.client_id).then(setClient);
-    }
+    // if (selectedConversation?.client_id) {
+    //   getClientById(selectedConversation.client_id).then(setClient);
+    // }
 
     if (selectedConversation?.provider_id) {
       getProviderById(selectedConversation.provider_id).then(setProvider);
     }
   }, [
-    selectedConversation?.client_id,
+    // selectedConversation?.client_id,
     selectedConversation?.provider_id,
-    getClientById,
+    // getClientById,
     getProviderById,
   ]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (!selectedConversation) return;
+
+      const { data: clientData, error: clientError } = await supabase
+        .from("profiles") // replace with your actual table name if different
+        .select("id, full_name, avatar")
+        .eq("id", selectedConversation.client_id)
+        .single();
+
+      if (clientError) {
+        console.error("Error fetching client:", clientError);
+      } else {
+        setClient(clientData);
+      }
+    };
+
+    fetchUsers();
+  }, [selectedConversation]);
 
   useEffect(() => {
     // Subscribe to realtime inserts on messages
@@ -322,6 +346,7 @@ const MessagingPage = () => {
             media_type: payload.new.media_type,
             timestamp: payload.new.timestamp,
             is_from_user: payload.new.is_from_user,
+            sender_id: payload.new.sender_id,
             avatar: "", // you can attach provider avatar if needed
           };
 
@@ -374,6 +399,13 @@ const MessagingPage = () => {
   }, [selectedConversation?.project_id]);
 
   console.log(conversations);
+  console.log(
+    client,
+    "client",
+    provider,
+    "provider",
+    selectedConversation?.client_id
+  );
 
   return (
     <div className="flex flex-col h-screen bg-gray-50 overflow-hidden">
@@ -521,7 +553,7 @@ const MessagingPage = () => {
                     <h2 className="text-lg font-semibold text-gray-900">
                       {userId === selectedConversation?.client_id
                         ? provider?.full_name
-                        : client?.full_name || "User"}
+                        : client?.full_name}
                     </h2>
                     {userId === selectedConversation?.client_id && (
                       <div className="flex items-center space-x-2">
@@ -543,7 +575,11 @@ const MessagingPage = () => {
                   <div className="text-right">
                     <span
                       className="text-sm font-semibold text-primary cursor-pointer"
-                      onClick={() => router.push("/ServiceProviderProfile")}
+                      onClick={() => {
+                        router.push(
+                          `/ServiceProviderProfile/${selectedConversation?.provider_id}`
+                        );
+                      }}
                     >
                       Show Profile
                     </span>
@@ -575,13 +611,15 @@ const MessagingPage = () => {
                   <div
                     key={message.id}
                     className={`flex  ${
-                      message.is_from_user ? "justify-end" : "justify-start"
+                      message.sender_id === session.user.id
+                        ? "justify-end"
+                        : "justify-start"
                     }`}
                   >
                     <div
                       className={`flex items-end space-x-2 max-w-xs lg:max-w-md flex-row space-x `}
                     >
-                      {!message.is_from_user && (
+                      {message.sender_id !== session.user.id && (
                         <Avatar className="w-8 h-8">
                           <AvatarImage src={message.avatar} alt="provider" />
                           <AvatarFallback className="bg-orange-500 text-white text-xs">
@@ -635,7 +673,7 @@ const MessagingPage = () => {
                         </span>
                       </div>
 
-                      {message.is_from_user && (
+                      {message.sender_id === session.user.id && (
                         <Avatar className="w-8 h-8">
                           <AvatarFallback className="bg-orange-500 text-white text-xs">
                             You

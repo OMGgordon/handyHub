@@ -89,22 +89,25 @@ function ProjectPage() {
     return projects.filter(project => project.status === status);
   };
 
-  useEffect(() => {
-    const fetchUserRole = async () => {
-      if (!session?.user?.id) return;
+  // useEffect(() => {
+  //   const fetchUserRole = async () => {
+  //     if (!session?.user?.id) return;
 
-      // Check if user is a service provider
-      const { data: providerData } = await supabase
-        .from("service_providers")
-        .select("id")
-        .eq("user_id", session.user.id)
-        .single();
+  //     // Check if user is a service provider
+  //     const { data: providerData } = await supabase
+  //       .from("service_providers")
+  //       .select("id")
+  //       .eq("user_id", session.user.id)
+  //       .single();
 
-      setUserRole(providerData ? 'provider' : 'client');
-    };
+  //     setUserRole(providerData ? 'provider' : 'client');
+  //   };
 
-    fetchUserRole();
-  }, [session]);
+  //   fetchUserRole();
+  // }, [session]);
+
+
+  const userType = session?.user?.user_metadata.userType;
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -114,7 +117,7 @@ function ProjectPage() {
       let query = supabase.from("projects").select("*");
 
       // Filter based on user role
-      if (userRole === 'client') {
+      if (userType === 'client') {
         query = query.eq("client_id", session.user.id);
       } else if (userRole === 'provider') {
         query = query.eq("provider_id", session.user.id);
@@ -134,6 +137,7 @@ function ProjectPage() {
   }, [session, userRole]);
 
   console.log(projects, loading)
+  
 
   const renderProjectsForTab = (status: string) => {
     const filteredProjects = filterProjectsByStatus(status);

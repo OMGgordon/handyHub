@@ -65,26 +65,6 @@ function SignUpForm() {
     setLoading(false);
   };
 
-  //   const [session, setSession] = useState<any>(null);
-
-  //   const fetchSession = async () => {
-  //     const currentSession = await supabase.auth.getSession();
-  //     setSession(currentSession.data.session);
-  //   };
-
-  //   useEffect(() => {
-  //     fetchSession();
-  //     const {
-  //       data: { subscription },
-  //     } = supabase.auth.onAuthStateChange((event, session) => {
-  //       if (session) {
-  //         router.push("/landing-page");
-  //       }
-  //     });
-
-  //     return () => subscription.unsubscribe();
-  //   }, []);
-
   const handleSignUp = async () => {
     if (password !== confirmPassword) {
       toast.error("Passwords do not match");
@@ -93,53 +73,171 @@ function SignUpForm() {
       return;
     }
 
-    // Optionally enforce password rules (length, characters, etc.)
     if (password.length < 8) {
       toast.error("Password must be at least 8 characters long");
       setMessage("Password must be at least 8 characters long");
       setShowDialog(true);
       return;
     }
+
     setLoading(true);
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { userType: "client", full_name: fullName },
-        emailRedirectTo: "http://localhost:3000/auth/callback",
-      },
-    });
 
-    console.log(data.user, "data.user");
+    try {
+      // Step 1: Sign up
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { userType, full_name: fullName },
+          emailRedirectTo: "http://localhost:3000/auth/callback",
+        },
+      });
 
-    if (error) {
-      toast.error(error.message);
-      setMessage(error.message);
-      setShowDialog(true);
+      if (error) throw error;
+      if (!data.user) throw new Error("Sign up failed.");
 
-      console.log(error.message);
-    } else if (!data.user) {
-      // This happens if email already exists or signup didn't succeed
-      console.log("user already exists");
-      toast.error("This email is already registered. Please sign in instead.");
-      setMessage("This email is already registered. Please sign in instead.");
-      setShowDialog(true);
-    } else {
-      toast.success("Check your email to confirm your account.");
+      // Step 2: Insert into profiles
+      const { error: profileError } = await supabase.from("profiles").insert([
+        {
+          id: data.user.id, // user id from auth
+          full_name: fullName,
+          email,
+          user_type: "client",
+        },
+      ]);
+
+      if (profileError) throw profileError;
+
+      // Step 3: Success
+      toast.success("Account created! Check your email to confirm.");
       setMessage("Check your email to confirm your account.");
       setShowDialog(true);
+    } catch (err: any) {
+      toast.error(err.message || "Something went wrong.");
+      setMessage(err.message || "Something went wrong.");
+      setShowDialog(true);
+      console.error(err);
+    } finally {
+      setLoading(false);
+      setFullName("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
     }
-
-    setEmail("");
-    setPassword("");
-    setConfirmPassword("");
-
-    setLoading(false);
-
-    // {
-    //   session && router.push("/dashboard");
-    // }
   };
+
+  // const handleSignUp = async () => {
+  //   if (password !== confirmPassword) {
+  //     toast.error("Passwords do not match");
+  //     setMessage("Passwords do not match");
+  //     setShowDialog(true);
+  //     return;
+  //   }
+
+  //   // Optionally enforce password rules (length, characters, etc.)
+  //   if (password.length < 8) {
+  //     toast.error("Password must be at least 8 characters long");
+  //     setMessage("Password must be at least 8 characters long");
+  //     setShowDialog(true);
+  //     return;
+  //   }
+  //   setLoading(true);
+  //   // const { data, error } = await supabase.auth.signUp({
+  //   //   email,
+  //   //   password,
+  //   //   options: {
+  //   //     data: { userType: "client", full_name: fullName },
+  //   //     emailRedirectTo: "http://localhost:3000/auth/callback",
+  //   //   },
+  //   // });
+
+  //   try {
+  //     const { data, error } = await supabase.auth.signUp({
+  //       email,
+  //       password,
+  //       options: {
+  //         data: { userType: "client", full_name: fullName },
+  //         emailRedirectTo: "http://localhost:3000/auth/callback",
+  //       },
+  //     });
+
+  //     if (error) {
+  //       toast.error(error.message);
+  //       setMessage(error.message);
+  //       setShowDialog(true);
+
+  //       console.log(error.message);
+  //     }
+
+  //     if (error) throw error;
+  //     if (!data.user) throw new Error("Sign up failed.");
+
+  //     // Insert into profiles table
+  //     const { error: profileError } = await supabase.from("profiles").insert([
+  //       {
+  //         id: data.user.id,
+  //         full_name: fullName,
+  //         email,
+  //         user_type: userType,
+  //       },
+  //     ]);
+
+  //     if (profileError) {
+  //       toast.error(profileError.message);
+  //       setMessage(profileError.message);
+  //       setShowDialog(true);
+
+  //       console.log(profileError.message);
+  //     }
+
+  //     if (profileError) throw { profileError };
+
+  //     toast.success("Account created! Check your email to confirm.");
+  //   } catch (err: any) {
+  //     toast.error(err.message || "Something went wrong.");
+  //     setMessage(err.message);
+  //     setShowDialog(true);
+
+  //     console.log(err.message);
+  //     console.error(err);
+  //   } finally {
+  //     setLoading(false);
+  //     setFullName("");
+  //     setEmail("");
+  //     setPassword("");
+  //     setConfirmPassword("");
+  //   }
+
+  //   // console.log(data.user, "data.user");
+
+  //   if (error) {
+  //     toast.error(error.message);
+  //     setMessage(error.message);
+  //     setShowDialog(true);
+
+  //     console.log(error.message);
+  //   } else if (!data.user) {
+  //     // This happens if email already exists or signup didn't succeed
+  //     console.log("user already exists");
+  //     toast.error("This email is already registered. Please sign in instead.");
+  //     setMessage("This email is already registered. Please sign in instead.");
+  //     setShowDialog(true);
+  //   } else {
+  //     toast.success("Check your email to confirm your account.");
+  //     setMessage("Check your email to confirm your account.");
+  //     setShowDialog(true);
+  //   }
+
+  //   setEmail("");
+  //   setPassword("");
+  //   setConfirmPassword("");
+
+  //   setLoading(false);
+
+  //   // {
+  //   //   session && router.push("/dashboard");
+  //   // }
+  // };
 
   const [message, setMessage] = useState("");
 

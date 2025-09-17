@@ -27,7 +27,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
     const { data, error } = await supabase
       .from("users") // 👈 your clients table
-      .select("id, name, avatar")
+      .select("*")
       .eq("id", clientId)
       .single();
 

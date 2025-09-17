@@ -135,8 +135,12 @@ export default function HandyHiveOnboarding() {
 
       if (signUpError) {
         console.error("Sign-up failed:", signUpError.message);
+        setMessage("Sign up failed");
+        setShowDialog(true);
         return;
       }
+
+      
 
       const userId = signUpData.user?.id; // <-- must use this for the FK
       if (!userId) {
@@ -186,6 +190,17 @@ export default function HandyHiveOnboarding() {
         setShowDialog(true);
         // router.replace("/dashboard");
       }
+
+      const { error: profileError } = await supabase.from("profiles").insert([
+        {
+          id: userId, // user id from auth
+          full_name: formData.fullName,
+          email: formData.emailAddress,
+          user_type: "provider",
+        },
+      ]);
+
+      if (profileError) throw profileError;
     }
   };
 
