@@ -10,8 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
 import ProjectComponent from "@/components/Project";
+import { format } from "date-fns";
+import { useUserContext } from "@/context/UserContext";
 
 type Project = {
+  date: any;
+  max_budget: any;
+  min_budget: any;
   id: string;
   title: string;
   description: string;
@@ -33,12 +38,15 @@ interface JobRequest {
 }
 
 function ProjectPage() {
-  const { session } = useSession();
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<"client" | "provider" | null>(null);
   const [activeTab, setActiveTab] = useState("in-progress");
+  const [client, setClient] = useState<any>(null)
+
+  const { session } = useSession();
+  const userType = session?.user?.user_metadata.userType;
 
   const firstName = session?.user?.user_metadata?.fullName?.split(" ")[0];
 
@@ -51,85 +59,60 @@ function ProjectPage() {
   };
 
   // Mock data for pending job requests
-  const jobRequests: JobRequest[] = [
-    {
-      id: "1",
-      title: "Installing New Heater",
-      iconImage: "/images/HVAC.png",
-      clientName: "Julia Osei",
-      location: "Cantoment, 1st Oxford Street",
-      date: "19th September, 2025",
-      time: "3:00pm",
-      budgetRange: "GHS 300 - GHS 700",
-    },
-    {
-      id: "2",
-      title: "Electrical Rewiring",
-      iconImage: "/images/Electrical.png",
-      clientName: "Julia Osei",
-      location: "Cantoment, 1st Oxford Street",
-      date: "19th September, 2025",
-      time: "3:00pm",
-      budgetRange: "GHS 300 - GHS 700",
-    },
-    {
-      id: "3",
-      title: "Painting 2 Rooms",
-      iconImage: "/images/Painting.png",
-      clientName: "Julia Osei",
-      location: "Cantoment, 1st Oxford Street",
-      date: "19th September, 2025",
-      time: "3:00pm",
-      budgetRange: "GHS 300 - GHS 700",
-    },
-  ];
+  // const jobRequests: JobRequest[] = [
+  //   {
+  //     id: "1",
+  //     title: "Installing New Heater",
+  //     iconImage: "/images/HVAC.png",
+  //     clientName: "Julia Osei",
+  //     location: "Cantoment, 1st Oxford Street",
+  //     date: "19th September, 2025",
+  //     time: "3:00pm",
+  //     budgetRange: "GHS 300 - GHS 700",
+  //   },
+  //   {
+  //     id: "2",
+  //     title: "Electrical Rewiring",
+  //     iconImage: "/images/Electrical.png",
+  //     clientName: "Julia Osei",
+  //     location: "Cantoment, 1st Oxford Street",
+  //     date: "19th September, 2025",
+  //     time: "3:00pm",
+  //     budgetRange: "GHS 300 - GHS 700",
+  //   },
+  //   {
+  //     id: "3",
+  //     title: "Painting 2 Rooms",
+  //     iconImage: "/images/Painting.png",
+  //     clientName: "Julia Osei",
+  //     location: "Cantoment, 1st Oxford Street",
+  //     date: "19th September, 2025",
+  //     time: "3:00pm",
+  //     budgetRange: "GHS 300 - GHS 700",
+  //   },
+  // ];
+
+  const jobRequests = projects.filter((p) => p.status === "pending");
 
   // Filter projects based on status and tab
-  const filterProjectsByStatus = (status: string) => {
-    console.log(`Filtering projects for status: "${status}"`);
-    const filtered = projects.filter((project) => {
-      console.log(
-        `Project ${project.id} status: "${project.status}" - Match: ${
-          project.status === status
-        }`
+  const filterProjectsByStatus = (tab: string) => {
+    if (tab === "in-progress") {
+      return projects.filter((p) =>
+        ["in_progress", "active", "ongoing"].includes(p.status)
       );
-      // Handle different possible status values
-      if (status === "in-progress") {
-        return (
-          project.status === "pending" ||
-          project.status === "in_progress" ||
-          project.status === "declined" ||
-          project.status === "active" ||
-          project.status === "ongoing"
-        );
-      }
-      return project.status === status;
-    });
-    console.log(`Filtered ${filtered.length} projects for status "${status}"`);
-    return filtered;
-  };
-
-  const refreshProjects = async () => {
-    if (!session?.user?.id || !userRole) return;
-
-    setLoading(true);
-    let query = supabase.from("projects").select("*");
-
-    if (userRole === "client") {
-      query = query.eq("client_id", session.user.id);
-    } else if (userRole === "provider") {
-      query = query.eq("provider_id", session.user.id);
     }
-
-    const { data, error } = await query;
-
-    if (error) {
-      console.error("Error refreshing projects:", error.message);
-    } else {
-      console.log("Refreshed projects:", data);
-      setProjects(data || []);
+    if (tab === "done") {
+      return projects.filter((p) =>
+        ["done", "completed", "finished"].includes(p.status)
+      );
     }
-    setLoading(false);
+    if (tab === "pending") {
+      return projects.filter((p) => p.status === "pending");
+    }
+    if (tab === "declined") {
+      return projects.filter((p) => p.status === "declined");
+    }
+    return [];
   };
 
   useEffect(() => {
@@ -160,48 +143,62 @@ function ProjectPage() {
       console.log("Setting user role to:", role);
       setUserRole(role);
     };
+  });
+  //   fetchUserRole();
+  // }, [session]);
+  const fetchProjects = async () => {
+    if (!session?.user?.id) return;
 
-    fetchUserRole();
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("projects")
+      .select("*")
+      .or(`client_id.eq.${session.user.id},provider_id.eq.${session.user.id}`);
+
+    if (error) {
+      console.error("Error fetching projects:", error.message);
+    } else {
+      setProjects(data || []);
+    }
+
+    setLoading(false);
+  };
+
+  // initial fetch
+  useEffect(() => {
+    fetchProjects();
   }, [session]);
 
 
-  const userType = session?.user?.user_metadata.userType;
+  const { getClientById, getProviderById } = useUserContext();
+  
+  
+  
 
+  // realtime subscription
   useEffect(() => {
-    const fetchProjects = async () => {
-      if (!session?.user?.id || !userRole) return;
+    if (!session?.user?.id) return;
 
-      setLoading(true);
-      let query = supabase.from("projects").select("*");
+    const channel = supabase
+      .channel("projects-changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "projects" },
+        (payload) => {
+          console.log("Realtime change:", payload);
+          fetchProjects(); // re-fetch projects on change
+        }
+      )
+      .subscribe();
 
-      // Filter based on user role
-      if (userType === "client") {
-        query = query.eq("client_id", session.user.id);
-      } else if (userRole === "provider") {
-        query = query.eq("provider_id", session.user.id);
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error("Error fetching projects:", error.message);
-      } else {
-        console.log("Fetched projects:", data);
-        console.log("User role:", userRole);
-        console.log("User ID:", session.user.id);
-        // Log all statuses to see what's actually in the database
-        data?.forEach((project) => {
-          console.log(`Project ${project.id}: status = "${project.status}"`);
-        });
-        setProjects(data || []);
-      }
-      setLoading(false);
+    return () => {
+      supabase.removeChannel(channel);
     };
-
-    fetchProjects();
-  }, [session, userRole]);
+  }, [session]);
 
   console.log(projects, loading);
+  console.log(jobRequests, "Jobrequests");
 
   const renderProjectsForTab = (status: string) => {
     const filteredProjects = filterProjectsByStatus(status);
@@ -250,81 +247,172 @@ function ProjectPage() {
 
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-        {jobRequests.map((job) => (
-          <Card
-            key={job.id}
-            className="bg-white rounded-[10px] overflow-hidden min-h-[328px]"
-          >
-            <CardContent className="px-6 py-4 h-full flex flex-col">
-              {/* Job Title with Icon */}
-              <div className="flex items-center gap-4 mb-4">
-                <Image
-                  src={job.iconImage}
-                  alt={job.title}
-                  width={48}
-                  height={48}
-                  className="object-contain"
-                />
-                <h3 className="text-[15px] font-bold text-black">
-                  {job.title}
-                </h3>
-              </div>
-
-              {/* Job Details */}
-              <div className="space-y-3 flex-1">
-                <div className="flex justify-between">
-                  <span className="text-[15px] font-bold text-black">
-                    Client Name:
-                  </span>
-                  <span className="text-[15px] text-black">
-                    {job.clientName}
-                  </span>
+        {jobRequests.map((job) => {
+          // const client = getClientById(job.client_id); // ✅ resolve client per job
+          // console.log(client)
+          return (
+            <Card
+              key={job.id}
+              className="bg-white rounded-[10px] overflow-hidden min-h-[328px]"
+            >
+              <CardContent className="px-6 py-4 h-full flex flex-col">
+                {/* Job Title with Icon */}
+                <div className="flex items-center gap-4 mb-4">
+                  <Image
+                    src={job.iconImage}
+                    alt={job.title}
+                    width={48}
+                    height={48}
+                    className="object-contain"
+                  />
+                  <h3 className="text-[15px] font-bold text-black">
+                    {job.title}
+                  </h3>
                 </div>
 
-                <div className="flex justify-between">
-                  <span className="text-[15px] font-bold text-black">
-                    Location:
-                  </span>
-                  <span className="text-[15px] text-black">{job.location}</span>
+                {/* Job Details */}
+                <div className="space-y-3 flex-1">
+                  {/* <div className="flex justify-between">
+                    <span className="text-[15px] font-bold text-black">
+                      Client Name:
+                    </span>
+                    <span className="text-[15px] text-black">
+                      {client?.full_name || "Unknown"}
+                    </span>
+                  </div> */}
+
+                  <div className="flex justify-between">
+                    <span className="text-[15px] font-bold text-black">
+                      Location:
+                    </span>
+                    <span className="text-[15px] text-black">
+                      {job.location}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span className="text-[15px] font-bold text-black">
+                      Preferred Start Date:
+                    </span>
+                    <span className="text-[15px] text-black">
+                      {format(new Date(job.date[0]), "MMM d, yyyy")}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span className="text-[15px] font-bold text-black">
+                      Preferred Start Time:
+                    </span>
+                    <span className="text-[15px] text-black">
+                      {format(new Date(job.date[0]), "h:mm a")}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span className="text-[15px] font-bold text-black">
+                      Budget Range:
+                    </span>
+                    <span className="text-[15px] text-black">
+                      {`GHC ${job.min_budget} - ${job.max_budget}`}
+                    </span>
+                  </div>
                 </div>
 
-                <div className="flex justify-between">
-                  <span className="text-[15px] font-bold text-black">
-                    Date:
-                  </span>
-                  <span className="text-[15px] text-black">{job.date}</span>
+                {/* View Job Button */}
+                <div className="flex justify-center mt-10">
+                  <Button
+                    onClick={() => handleViewJob(job.id)}
+                    className="bg-[#fe9f2b] hover:bg-[#e8912a] text-white px-8 py-2 rounded-[10px] text-[15px] font-bold"
+                  >
+                    VIEW JOB
+                  </Button>
                 </div>
-
-                <div className="flex justify-between">
-                  <span className="text-[15px] font-bold text-black">
-                    Time:
-                  </span>
-                  <span className="text-[15px] text-black">{job.time}</span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="text-[15px] font-bold text-black">
-                    Budget Range:
-                  </span>
-                  <span className="text-[15px] text-black">
-                    {job.budgetRange}
-                  </span>
-                </div>
-              </div>
-
-              {/* View Job Button */}
-              <div className="flex justify-center mt-10">
-                <Button
-                  onClick={() => handleViewJob(job.id)}
-                  className="bg-[#fe9f2b] hover:bg-[#e8912a] text-white px-8 py-2 rounded-[10px] text-[15px] font-bold"
-                >
-                  VIEW JOB
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
+
+      // <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+      //   {jobRequests.map((job) => (
+      //     <Card
+      //       key={job.id}
+      //       className="bg-white rounded-[10px] overflow-hidden min-h-[328px]"
+      //     >
+      //       <CardContent className="px-6 py-4 h-full flex flex-col">
+      //         {/* Job Title with Icon */}
+      //         <div className="flex items-center gap-4 mb-4">
+      //           <Image
+      //             src={job.iconImage}
+      //             alt={job.title}
+      //             width={48}
+      //             height={48}
+      //             className="object-contain"
+      //           />
+      //           <h3 className="text-[15px] font-bold text-black">
+      //             {job.title}
+      //           </h3>
+      //         </div>
+
+      //         {/* Job Details */}
+      //         <div className="space-y-3 flex-1">
+      //           <div className="flex justify-between">
+      //             <span className="text-[15px] font-bold text-black">
+      //               Client Name:
+      //             </span>
+      //             <span className="text-[15px] text-black">
+      //               {job.client?.full_name || "Unknown"}
+      //             </span>
+      //           </div>
+
+      //           <div className="flex justify-between">
+      //             <span className="text-[15px] font-bold text-black">
+      //               Location:
+      //             </span>
+      //             <span className="text-[15px] text-black">{job.location}</span>
+      //           </div>
+
+      //           <div className="flex justify-between">
+      //             <span className="text-[15px] font-bold text-black">
+      //               Preferred Start Date:
+      //             </span>
+      //             <span className="text-[15px] text-black">
+      //               {format(new Date(job.date[0]), "MMM d, yyyy")}
+      //             </span>
+      //           </div>
+
+      //           <div className="flex justify-between">
+      //             <span className="text-[15px] font-bold text-black">
+      //               Preffered Start Time:
+      //             </span>
+      //             <span className="text-[15px] text-black">
+      //               {format(new Date(job.date[0]), "h:mm a")}
+      //             </span>
+      //           </div>
+
+      //           <div className="flex justify-between">
+      //             <span className="text-[15px] font-bold text-black">
+      //               Budget Range:
+      //             </span>
+      //             <span className="text-[15px] text-black">
+      //               {`GHC ${job.min_budget} - ${job.max_budget}`}
+      //             </span>
+      //           </div>
+      //         </div>
+
+      //         {/* View Job Button */}
+      //         <div className="flex justify-center mt-10">
+      //           <Button
+      //             onClick={() => handleViewJob(job.id)}
+      //             className="bg-[#fe9f2b] hover:bg-[#e8912a] text-white px-8 py-2 rounded-[10px] text-[15px] font-bold"
+      //           >
+      //             VIEW JOB
+      //           </Button>
+      //         </div>
+      //       </CardContent>
+      //     </Card>
+      //   ))}
+      // </div>
     );
   };
 
@@ -339,14 +427,6 @@ function ProjectPage() {
               {firstName ? `${firstName}'s projects` : "Your Jobs"}
             </h1>
           </div>
-          <Button
-            onClick={refreshProjects}
-            variant="outline"
-            className="text-[#fe9f2b] border-[#fe9f2b] hover:bg-[#fe9f2b] hover:text-white"
-            disabled={loading}
-          >
-            {loading ? "Refreshing..." : "Refresh"}
-          </Button>
         </div>
       </div>
 
@@ -379,19 +459,25 @@ function ProjectPage() {
                     value="in-progress"
                     className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-4 pb-2 mr-20 text-base font-bold text-gray-600 data-[state=active]:text-black"
                   >
-                    Jobs in Progress
+                    Jobs In Progress
                   </TabsTrigger>
                   <TabsTrigger
                     value="done"
-                    className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-10 pb-2 mx-20 text-base font-bold text-gray-600 data-[state=active]:text-black"
+                    className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-8 pb-2 mx-10 text-base font-bold text-gray-600 data-[state=active]:text-black"
                   >
                     Done Jobs
                   </TabsTrigger>
                   <TabsTrigger
-                    value="pending"
-                    className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-8 pb-2 ml-20 text-base font-bold text-gray-600 data-[state=active]:text-black"
+                    value="declined"
+                    className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-8 pb-2 mx-10 text-base font-bold text-gray-600 data-[state=active]:text-black"
                   >
-                    Pending Jobs
+                    Declined Jobs
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="pending"
+                    className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-0 pb-2 ml-10 text-base font-bold text-gray-600 data-[state=active]:text-black"
+                  >
+                    {userType === "client" ? "Pending Jobs" : "Job Requests"}
                   </TabsTrigger>
                 </TabsList>
                 <Separator />
@@ -404,8 +490,20 @@ function ProjectPage() {
                   {renderProjectsForTab("done")}
                 </TabsContent>
 
-                {userRole === "provider" && (
+                <TabsContent value="declined" className="mt-6">
+                  {renderProjectsForTab("declined")}
+                </TabsContent>
+
+                {userType === "client" ? (
                   <TabsContent value="pending" className="mt-6">
+                    {renderProjectsForTab("pending")}
+                    {/* {userType === "client"
+                      ? renderProjectsForTab("pending")
+                      : renderPendingJobRequests()} */}
+                  </TabsContent>
+                ) : (
+                  <TabsContent value="pending" className="mt-6">
+                    {/* {renderProjectsForTab("pending")} */}
                     {renderPendingJobRequests()}
                   </TabsContent>
                 )}

@@ -338,7 +338,7 @@ const ServiceProviderSearch: React.FC = () => {
               <p className="text-sm sm:text-base text-gray-600">
                 {providers?.length > 1
                   ? `${providers.length} providers found`
-                  : "1 provider found"}{" "}
+                  : "- provider found"}{" "}
               </p>
             </div>
 

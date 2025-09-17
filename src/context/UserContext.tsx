@@ -26,7 +26,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     if (cache[clientId]) return cache[clientId];
 
     const { data, error } = await supabase
-      .from("users") // 👈 your clients table
+      .from("profiles") // 👈 your clients table
       .select("*")
       .eq("id", clientId)
       .single();

@@ -13,7 +13,6 @@ import {
   Clock,
   MapPin,
   ArrowLeft,
-
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
@@ -27,7 +26,6 @@ export default function ServiceProviderProfile() {
   const router = useRouter();
   const params = useParams();
   const providerId = params.id as string;
-  
 
   const [provider, setProvider] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -148,12 +146,12 @@ export default function ServiceProviderProfile() {
               <CardContent>
                 <p className="text-gray-700 leading-relaxed">
                   {showFullAbout
-                    ? provider.bio
-                    : provider.bio?.length > 180
-                    ? provider.bio.slice(0, 180) + "…"
-                    : provider.bio}
+                    ? provider?.bio
+                    : provider?.bio?.length > 180
+                    ? provider?.bio?.slice(0, 180) + "…"
+                    : provider?.bio}
                 </p>
-                {provider.bio && provider.bio.length > 180 && (
+                {provider?.bio && provider?.bio?.length > 180 && (
                   <Button
                     variant="link"
                     className="px-0 text-gray-700 underline"
@@ -190,16 +188,16 @@ export default function ServiceProviderProfile() {
 
             {/* Services */}
             <div className=" gap-6">
-              {provider.services && provider.services.length !== 0 && (
+              {provider?.services && provider?.services?.length !== 0 && (
                 <Card>
                   <CardHeader>
                     <CardTitle>Services offered</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-700">
-                      {provider.services.join(", ")}
+                      {provider?.services.join(", ")}
                     </p>
-                    {provider.services.length > 50 && (
+                    {provider?.services?.length > 50 && (
                       <Button
                         variant="link"
                         className="px-0 text-gray-700 underline"
@@ -253,13 +251,13 @@ export default function ServiceProviderProfile() {
 
             {/* Amenities & Payment Methods */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {provider.amenities && (
+              {provider?.amenities && (
                 <Card>
                   <CardHeader>
                     <CardTitle>Amenities Provided</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {Object.entries(provider.amenities).map(([key, value]) => (
+                    {Object.entries(provider?.amenities).map(([key, value]) => (
                       <div key={key} className="">
                         <h4 className="font-medium capitalize">
                           {key.replace("_", " ")}
@@ -277,23 +275,19 @@ export default function ServiceProviderProfile() {
                 </Card>
               )}
 
-              <Card>
+              {provider?.payment_methods && <Card>
                 <CardHeader>
                   <CardTitle>Accepted payment methods</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {provider.payment_methods && provider.payment_methods.length > 0 ? (
-                    provider.payment_methods.map((method: string) => (
-                      <div key={method} className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-gray-700">{method}</span>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-gray-500">No payment methods specified.</p>
-                  )}
+                  {provider.payment_methods.map((method: string) => (
+                    <div key={method} className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-gray-700">{method}</span>
+                    </div>
+                  ))}
                 </CardContent>
-              </Card>
+              </Card>}
             </div>
           </div>
         );
