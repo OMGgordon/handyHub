@@ -154,22 +154,7 @@ function ProjectPage() {
       if (providerData && !error) {
         role = "provider";
       } else if (error && error.code !== "PGRST116") {
-        // PGRST116 is "no rows returned" - try alternative query with user_id
-        console.log("Trying alternative query with user_id field...");
-        const { data: altProviderData, error: altError } = await supabase
-          .from("service_providers")
-          .select("id")
-          .eq("user_id", session.user.id)
-          .single();
-
-        console.log("Provider data (by user_id):", altProviderData);
-        console.log("Provider query error (by user_id):", altError);
-
-        if (altProviderData && !altError) {
-          role = "provider";
-        } else if (altError && altError.code !== "PGRST116") {
-          console.error("Unexpected error checking provider status:", altError);
-        }
+        console.error("Unexpected error checking provider status:", error);
       }
 
       console.log("Setting user role to:", role);
