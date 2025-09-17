@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useSession } from "@/context/SessionProvider";
 
@@ -33,7 +33,7 @@ export default function AuthCallbackPage() {
       // 👀 Debug log
       // console.log("user_metadata:", session.user.user_metadata);
 
-      // const userType = session.user.user_metadata.userType;
+      const userType = session.user.user_metadata.userType;
       // const firstLogin = session.user.user_metadata.firstLogin;
 
       // if (userType === "provider") {
@@ -47,7 +47,13 @@ export default function AuthCallbackPage() {
       //   return;
       // }
 
-      router.replace("/landing-page");
+      if (userType === "client") {
+        router.replace("/landing-page");
+      } else if (userType === "provider") {
+        router.replace("/dashboard");
+      } else {
+        notFound();
+      }
 
       // fallback
       // router.replace("/");

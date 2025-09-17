@@ -33,6 +33,7 @@ import { supabase } from "@/lib/supabase";
 import { Toaster } from "./ui/sonner";
 
 function SignUpForm() {
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [userType, setUserType] = useState<"client" | "provider">("client");
@@ -104,7 +105,7 @@ function SignUpForm() {
       email,
       password,
       options: {
-        data: { userType: "client" },
+        data: { userType: "client", full_name: fullName },
         emailRedirectTo: "http://localhost:3000/auth/callback",
       },
     });
@@ -163,6 +164,12 @@ function SignUpForm() {
         <CardContent className="space-y-6">
           <div className="space-y-3">
             <div className="space-y-1">
+              <Input
+                type="name"
+                placeholder="Full name*"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+              />
               <Input
                 type="email"
                 placeholder="Email Adress*"
@@ -252,7 +259,7 @@ function SignUpForm() {
             </p>
             <p
               className=" text-primary text-sm font-bold cursor-pointer hover:underline"
-              onClick={()=>router.push("/signup-sp")}
+              onClick={() => router.push("/signup-sp")}
             >
               Sign up as a handyman
             </p>

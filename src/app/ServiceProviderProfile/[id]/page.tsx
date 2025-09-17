@@ -13,7 +13,9 @@ import {
   Clock,
   MapPin,
   ArrowLeft,
+
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useParams } from "next/navigation";
@@ -454,9 +456,17 @@ export default function ServiceProviderProfile() {
                     {/* Approved Pro */}
                   </div>
                 </div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
                   {provider.full_name}
                 </h1>
+                {provider.online && (
+                  <Badge
+                    variant="secondary"
+                    className="text-xs px-2 bg-green-400 mb-2"
+                  >
+                    Online
+                  </Badge>
+                )}
                 <div className="flex items-center gap-2 mb-3">
                   {renderStars(provider.rating)}
                   <span className="font-medium text-gray-800">
@@ -477,7 +487,7 @@ export default function ServiceProviderProfile() {
                   View phone number
                 </Button> */}
               </div>
-              <div className="relative w-full sm:w-auto flex justify-center sm:justify-end sm:-ml-16 sm:pr-25">
+              <div className="relative w-full flex-col sm:w-auto flex justify-center sm:justify-end sm:-ml-16 sm:pr-25">
                 {provider.avatar ? (
                   <Image
                     src={provider.avatar}

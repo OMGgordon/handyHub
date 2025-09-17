@@ -155,8 +155,8 @@ export default function HandyHiveOnboarding() {
         .from("service_providers")
         .insert([
           {
-            id: crypto.randomUUID(), // or use user.id if you want 1-to-1 mapping
-            user_id: userId, // link to auth user
+            // id: crypto.randomUUID(), // or use user.id if you want 1-to-1 mapping
+            id: userId, // link to auth user
             full_name: formData.fullName,
             service_category: formData.serviceCategory,
             price: formData.price || 0,
@@ -171,7 +171,7 @@ export default function HandyHiveOnboarding() {
             timeslots: [],
             phone_number: formData.phoneNumber,
             experience: formData.experience,
-            uploaded_files: formData.uploadedFiles
+            uploaded_files: formData.uploadedFiles,
           },
         ]);
 
@@ -184,6 +184,7 @@ export default function HandyHiveOnboarding() {
         console.log("Provider inserted:", providerData);
         setMessage("Check your email to confirm your account.");
         setShowDialog(true);
+        // router.replace("/dashboard");
       }
     }
   };
@@ -340,8 +341,9 @@ export default function HandyHiveOnboarding() {
       <Button
         onClick={handleNext}
         disabled={
-          !getStepContent().fields.every((field) => formData[field.key as keyof typeof formData]) ||
-          loading
+          !getStepContent().fields.every(
+            (field) => formData[field.key as keyof typeof formData]
+          ) || loading
         }
         className="w-full bg-orange-400 hover:bg-orange-500 text-white py-3 rounded-md"
       >
@@ -412,7 +414,7 @@ export default function HandyHiveOnboarding() {
 
       <div>
         <Label htmlFor="pricing" className="text-sm font-medium text-gray-700">
-          Pricing
+          Average Pricing
         </Label>
         <Input
           id="location"
@@ -452,7 +454,9 @@ export default function HandyHiveOnboarding() {
         <Button
           onClick={handleNext}
           disabled={
-            !getStepContent().fields.every((field) => formData[field.key as keyof typeof formData])
+            !getStepContent().fields.every(
+              (field) => formData[field.key as keyof typeof formData]
+            )
           }
           className="flex-1 bg-orange-400 hover:bg-orange-500 text-white py-3"
         >
@@ -478,10 +482,10 @@ export default function HandyHiveOnboarding() {
             <CardContent className="p-6 text-center w-full">
               {/* <UploadDropzone onFilesChange={handleFilesChange} /> */}
               <UploadDropzone
-                                onFilesChange={(files) =>
-                                  setFormData((prev) => ({ ...prev, uploadedFiles: files }))
-                                }
-                              />
+                onFilesChange={(files) =>
+                  setFormData((prev) => ({ ...prev, uploadedFiles: files }))
+                }
+              />
               {/* {files.length > 0 && (
                 <div
                   className="flex justify-end mt-4"
@@ -514,7 +518,9 @@ export default function HandyHiveOnboarding() {
         <Button
           className="flex-1 bg-orange-400 hover:bg-orange-500 text-white py-3"
           disabled={
-            !getStepContent().fields.every((field) => formData[field.key as keyof typeof formData])
+            !getStepContent().fields.every(
+              (field) => formData[field.key as keyof typeof formData]
+            )
           }
           onClick={handleSubmit}
         >

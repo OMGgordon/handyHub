@@ -151,10 +151,14 @@ export default function JobInfoPage() {
       <div className="bg-[#faf0df] h-[290px] overflow-hidden rounded-br-[200px] relative">
         <div className="max-w-6xl mx-auto px-6 sm:px-12 lg:px-16 mt-2">
           <Button
-            onClick={() => router.push("/landing-page")}
+            onClick={() =>
+              router.push(
+                userType === "client" ? "/landing-page" : "/dashboard"
+              )
+            }
             className="bg-white text-black border-2 border-black-500 hover:bg-gray-50 h-[40px] px-4 rounded-full text-[14px] font-bold"
           >
-            &larr; 
+            &larr;
           </Button>
         </div>
         <div className="max-w-6xl mx-auto px-6 sm:px-12 lg:px-16 h-full flex flex-col lg:flex-row items-center justify-between">
@@ -226,20 +230,22 @@ export default function JobInfoPage() {
                 </DialogContent>
               </Dialog>
             ) : (
-              <div className="space-x-2">
-                <Button
-                  // onClick={handleConfirm}
-                  className="bg-[#fe9f2b] hover:bg-[#e8912a] text-white h-10 px-8 rounded border-2 border-[#c26e09] text-[12.6px] font-black"
-                >
-                  Accept Job
-                </Button>
-                <Button
-                  // onClick={handleConfirm}
-                  className="bg-[#fe9f2b] hover:bg-[#e8912a] text-white h-10 px-8 rounded border-2 border-[#c26e09] text-[12.6px] font-black"
-                >
-                  Decline Job
-                </Button>
-              </div>
+              job.status === "pending" && (
+                <div className="space-x-2">
+                  <Button
+                    // onClick={handleConfirm}
+                    className="bg-[#fe9f2b] hover:bg-[#e8912a] text-white h-10 px-8 rounded border-2 border-[#c26e09] text-[12.6px] font-black"
+                  >
+                    Accept Job
+                  </Button>
+                  <Button
+                    // onClick={handleConfirm}
+                    className="bg-[#fe9f2b] hover:bg-[#e8912a] text-white h-10 px-8 rounded border-2 border-[#c26e09] text-[12.6px] font-black"
+                  >
+                    Decline Job
+                  </Button>
+                </div>
+              )
             )}
           </div>
 

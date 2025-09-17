@@ -3,8 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "@/context/SessionProvider";
 import Script from "next/script";
-
-
+import { UserProvider } from "@/context/UserContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,26 +21,26 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: '/images/logoonly.png',
-        sizes: '50x50',
-        type: 'image/png',
+        url: "/images/logoonly.png",
+        sizes: "50x50",
+        type: "image/png",
       },
       {
-        url: '/images/logoonly.png',
-        sizes: '20x20',
-        type: 'image/png',
+        url: "/images/logoonly.png",
+        sizes: "20x20",
+        type: "image/png",
       },
       {
-        url: '/images/logoonly.png',
-        sizes: '70x70',
-        type: 'image/png',
+        url: "/images/logoonly.png",
+        sizes: "70x70",
+        type: "image/png",
       },
     ],
-    shortcut: '/images/logoonly.png',
+    shortcut: "/images/logoonly.png",
     apple: {
-      url: '/images/logoonly.png',
-      sizes: '200x200',
-      type: 'image/png',
+      url: "/images/logoonly.png",
+      sizes: "200x200",
+      type: "image/png",
     },
   },
 };
@@ -58,7 +57,9 @@ export default function RootLayout({
       />
 
       <body className={`font-segoe antialiased`}>
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider>
+          <UserProvider>{children}</UserProvider>
+        </SessionProvider>
       </body>
     </html>
   );

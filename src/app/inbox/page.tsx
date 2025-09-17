@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { formatDistanceToNow } from "date-fns";
+import { useSearchParams } from "next/navigation";
 import {
   Paperclip,
   Mic,
@@ -23,6 +24,8 @@ import { MoveLeft } from "lucide-react";
 import UploadDropzone from "@/components/UploadDropzone";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
+import { useSession } from "@/context/SessionProvider";
+import { useUserContext } from "@/context/UserContext";
 
 // Types
 interface Message {
@@ -46,6 +49,29 @@ interface Conversation {
   timestamp: string;
   project_title: string;
   messages: Message[];
+  client_id: string;
+  project_id: string;
+}
+
+interface Project {
+  id: string;
+  title: string;
+  description: string;
+  client_id: string;
+  provider_id: string;
+  status: string;
+  service_category: string;
+  service_type: string;
+  location: string;
+  uploaded_files: string[];
+  min_budget: number;
+  max_budget: number;
+  created_at: string;
+  date: string[]; // adjust if this is really an array of timestamps
+}
+
+interface MessageProp {
+  job?: Project;
 }
 
 const MessagingPage = () => {
@@ -55,8 +81,25 @@ const MessagingPage = () => {
   const [openUpload, setOpenUpload] = useState(false);
   //   const [mediaUpload, setMediaUpload] = useState();
   const router = useRouter();
+  const [client, setClient] = useState<any>(null);
+  const [provider, setProvider] = useState<any>(null);
+
+  const { getClientById, getProviderById } = useUserContext();
+
+  const { session } = useSession();
+  const userId = session?.user?.id;
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
+
+  const searchParams = useSearchParams();
+  const conversationId = searchParams.get("conversationId");
+
+  useEffect(() => {
+    if (conversationId && conversations.length > 0) {
+      const found = conversations.find((c) => c.id === conversationId);
+      if (found) setSelectedConversation(found);
+    }
+  }, [conversationId, conversations]);
 
   useEffect(() => {
     const fetchConversations = async () => {
@@ -243,6 +286,93 @@ const MessagingPage = () => {
     ));
   };
 
+  useEffect(() => {
+    if (selectedConversation?.client_id) {
+      getClientById(selectedConversation.client_id).then(setClient);
+    }
+
+    if (selectedConversation?.provider_id) {
+      getProviderById(selectedConversation.provider_id).then(setProvider);
+    }
+  }, [
+    selectedConversation?.client_id,
+    selectedConversation?.provider_id,
+    getClientById,
+    getProviderById,
+  ]);
+
+  useEffect(() => {
+    // Subscribe to realtime inserts on messages
+    const channel = supabase
+      .channel("messages-channel")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+        },
+        (payload) => {
+          console.log("New message received:", payload.new);
+
+          const newMessage = {
+            id: payload.new.id,
+            content: payload.new.content,
+            media_url: payload.new.media_url,
+            media_type: payload.new.media_type,
+            timestamp: payload.new.timestamp,
+            is_from_user: payload.new.is_from_user,
+            avatar: "", // you can attach provider avatar if needed
+          };
+
+          setConversations((prevConvs) =>
+            prevConvs.map((conv) =>
+              conv.id === payload.new.conversation_id
+                ? { ...conv, messages: [...conv.messages, newMessage] }
+                : conv
+            )
+          );
+
+          // If this is the currently selected conversation, scroll to bottom
+          if (selectedConversation?.id === payload.new.conversation_id) {
+            setSelectedConversation((prev) =>
+              prev
+                ? { ...prev, messages: [...prev.messages, newMessage] }
+                : prev
+            );
+            scrollToBottom();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [selectedConversation]);
+
+  const [job, setJob] = useState<Project | null>(null);
+
+  useEffect(() => {
+    const fetchJob = async () => {
+      if (!selectedConversation?.project_id) return;
+
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("id", selectedConversation.project_id)
+        .single();
+
+      if (error) {
+        console.error("Error fetching job:", error);
+      } else {
+        setJob(data);
+      }
+    };
+
+    fetchJob();
+  }, [selectedConversation?.project_id]);
+
   console.log(conversations);
 
   return (
@@ -287,8 +417,14 @@ const MessagingPage = () => {
                         alt={conversation?.provider_name}
                       />
                       <AvatarFallback className="bg-orange-500 text-white">
-                        {conversation?.provider_name
-                          ? conversation.provider_name
+                        {userId === selectedConversation?.client_id && provider
+                          ? provider.full_name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                          : userId === selectedConversation?.provider_id &&
+                            client
+                          ? client.full_name
                               .split(" ")
                               .map((n) => n[0])
                               .join("")
@@ -299,7 +435,9 @@ const MessagingPage = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <h3 className="text-sm font-medium text-gray-900 truncate">
-                          {conversation?.provider_name}
+                          {userId === selectedConversation?.client_id
+                            ? conversation?.provider_name
+                            : client?.full_name}
                         </h3>
                         <span className="text-xs text-gray-500">
                           {conversation?.timestamp
@@ -357,12 +495,21 @@ const MessagingPage = () => {
                   />
                   <Avatar className="w-10 h-10 ">
                     <AvatarImage
-                      src={selectedConversation?.provider_avatar}
+                      src={
+                        userId === selectedConversation?.client_id
+                          ? selectedConversation?.provider_avatar
+                          : undefined
+                      }
                       alt={selectedConversation?.provider_name}
                     />
                     <AvatarFallback className="bg-orange-500 text-white">
-                      {selectedConversation?.provider_name
-                        ? selectedConversation.provider_name
+                      {userId === selectedConversation?.client_id && provider
+                        ? provider.full_name
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                        : userId === selectedConversation?.provider_id && client
+                        ? client.full_name
                             .split(" ")
                             .map((n) => n[0])
                             .join("")
@@ -372,37 +519,46 @@ const MessagingPage = () => {
 
                   <div>
                     <h2 className="text-lg font-semibold text-gray-900">
-                      {selectedConversation?.provider_name}
+                      {userId === selectedConversation?.client_id
+                        ? provider?.full_name
+                        : client?.full_name || "User"}
                     </h2>
-                    <div className="flex items-center space-x-2">
-                      <div className="flex items-center">
-                        {renderStars(selectedConversation?.rating)}
+                    {userId === selectedConversation?.client_id && (
+                      <div className="flex items-center space-x-2">
+                        <div className="flex items-center">
+                          {renderStars(selectedConversation?.rating)}
+                        </div>
+                        <span className="text-sm font-medium text-gray-900">
+                          {selectedConversation?.rating}
+                        </span>
+                        <span className="text-sm text-gray-500">
+                          ({selectedConversation?.review_count})
+                        </span>
                       </div>
-                      <span className="text-sm font-medium text-gray-900">
-                        {selectedConversation?.rating}
-                      </span>
-                      <span className="text-sm text-gray-500">
-                        ({selectedConversation?.review_count})
-                      </span>
-                    </div>
+                    )}
                   </div>
                 </div>
 
-                <div className="text-right">
-                  <span
-                    className="text-sm font-semibold text-primary cursor-pointer"
-                    onClick={() => router.push("/ServiceProviderProfile")}
-                  >
-                    Show Profile
-                  </span>
-                </div>
+                {userId === selectedConversation?.client_id && (
+                  <div className="text-right">
+                    <span
+                      className="text-sm font-semibold text-primary cursor-pointer"
+                      onClick={() => router.push("/ServiceProviderProfile")}
+                    >
+                      Show Profile
+                    </span>
+                  </div>
+                )}
               </div>
               <Separator className="w-full " />
               <div className=" flex items-center bg-muted-foreground justify-between px-4 p-2">
                 <h3 className="text-sm font-semibold text-gray-900">
-                  {selectedConversation?.project_title}
+                  {job?.title}
                 </h3>
-                <span className="text-sm font-semibold text-primary cursor-pointer">
+                <span
+                  onClick={() => router.push(`/job-info/${job?.id}`)}
+                  className="text-sm font-semibold text-primary cursor-pointer"
+                >
                   View Project
                 </span>
               </div>
@@ -429,8 +585,17 @@ const MessagingPage = () => {
                         <Avatar className="w-8 h-8">
                           <AvatarImage src={message.avatar} alt="provider" />
                           <AvatarFallback className="bg-orange-500 text-white text-xs">
-                            {selectedConversation?.provider_name
-                              ? selectedConversation.provider_name
+                            {/* If it's the provider's inbox, show client initials.
+          If it's the client's inbox, show provider initials. */}
+                            {userId === selectedConversation?.client_id &&
+                            provider
+                              ? provider.full_name
+                                  .split(" ")
+                                  .map((n) => n[0])
+                                  .join("")
+                              : userId === selectedConversation?.provider_id &&
+                                client
+                              ? client.full_name
                                   .split(" ")
                                   .map((n) => n[0])
                                   .join("")

@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useSearchParams } from "next/navigation";
+import CreatableSelect from "react-select/creatable";
+
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -43,7 +46,7 @@ interface FormData {
 export function BookServicePage() {
   const router = useRouter();
   const [formData, setFormData] = useState<{
-    serviceCategory: string;
+    serviceCategory: string[] | null;
     serviceType: string;
     dateTime: string[] | null;
     address: string;
@@ -113,6 +116,15 @@ export function BookServicePage() {
       dateTime: dateRange,
     }));
   };
+
+  const serviceOptions = [
+    { value: "plumbing", label: "Plumbing" },
+    { value: "electrical", label: "Electrical" },
+    { value: "carpentry", label: "Carpentry" },
+    { value: "painting", label: "Painting" },
+    { value: "cleaning", label: "Cleaning" },
+    { value: "gardening", label: "Gardening" },
+  ];
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -254,6 +266,13 @@ export function BookServicePage() {
 
   console.log(formData);
 
+  const handleServiceChange = (newValue: any) => {
+    setFormData((prev: any) => ({
+      ...prev,
+      serviceCategory: newValue ? newValue.map((item: any) => item.value) : [],
+    }));
+  };
+
   return (
     <div className="min-h-screen bg-[#fff7e7]">
       {/* Navbar */}
@@ -290,10 +309,41 @@ export function BookServicePage() {
                       <SelectItem value="plumbing">Plumbing</SelectItem>
                       <SelectItem value="electrical">Electrical</SelectItem>
                       <SelectItem value="painting">Painting</SelectItem>
+                      <SelectItem value="cleaning">Tiling</SelectItem>
+                      <SelectItem value="cleaning">Gardening</SelectItem>
+                      <SelectItem value="cleaning">Carpentry</SelectItem>
                       <SelectItem value="cleaning">Cleaning</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* <Label className="text-sm font-medium text-gray-700">
+                  Service Category
+                </Label>
+                <CreatableSelect
+                  isMulti
+                  options={serviceOptions}
+                  onChange={handleServiceChange}
+                  value={
+                    formData?.serviceCategory?.map((value: string) => ({
+                      value,
+                      label: value.charAt(0).toUpperCase() + value.slice(1), // Capitalize for display
+                    })) || []
+                  }
+                  placeholder="Select or type to create..."
+                  className="mt-1"
+                  styles={{
+                    control: (base) => ({
+                      ...base,
+                      borderRadius: "0.5rem", // 16px ~ Tailwind rounded-2xl
+                      borderColor: "#d1d5db", // Tailwind gray-300
+                      boxShadow: "none",
+                      "&:hover": {
+                        borderColor: "#9ca3af", // Tailwind gray-400
+                      },
+                    }),
+                  }}
+                /> */}
               </div>
 
               {/* Service Type */}

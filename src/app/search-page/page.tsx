@@ -24,6 +24,7 @@ import { useRouter } from "next/navigation";
 
 // Types
 interface ServiceProvider {
+  online: boolean;
   id: string;
   user_id: string;
   full_name: string;
@@ -371,7 +372,12 @@ const ServiceProviderSearch: React.FC = () => {
                               View profile & past reviews
                             </div>
                             <div className="flex flex-col items-center gap-2">
-                              <Button onClick={()=> router.push(`/job-details/${provider.id}`)} className="bg-[#FE9F2B] text-center text-white px-4 sm:px-6 py-2 text-sm rounded-3xl">
+                              <Button
+                                onClick={() =>
+                                  router.push(`/job-details/${provider.id}`)
+                                }
+                                className="bg-[#FE9F2B] text-center text-white px-4 sm:px-6 py-2 text-sm rounded-3xl"
+                              >
                                 Select & Continue
                               </Button>
                             </div>
@@ -389,7 +395,8 @@ const ServiceProviderSearch: React.FC = () => {
                           <div className="flex flex-col sm:flex-row items-start justify-between mb-2">
                             <div className="flex-1 mb-2 sm:mb-0">
                               <h3 className="font-semibold text-base sm:text-lg">
-                                {provider.full_name}
+                                {provider.full_name} (
+                                {provider.service_category})
                               </h3>
                               <div className="flex flex-wrap items-center gap-2 mt-1">
                                 {provider.verified && (
@@ -398,6 +405,14 @@ const ServiceProviderSearch: React.FC = () => {
                                     className="text-xs"
                                   >
                                     ✓ Approved Pro
+                                  </Badge>
+                                )}
+                                {provider.online && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs bg-green-400"
+                                  >
+                                     Online
                                   </Badge>
                                 )}
                                 <div className="flex items-center gap-1">
@@ -411,7 +426,8 @@ const ServiceProviderSearch: React.FC = () => {
                                 </div>
                               </div>
                               <p className="text-xs sm:text-sm text-gray-600 mt-1">
-                                {provider.completed_projects} completed projects
+                                {provider.completed_projects}{" "}
+                                {provider.service_category} jobs completed
                               </p>
                             </div>
                             {/* <div className="text-left sm:text-right">
