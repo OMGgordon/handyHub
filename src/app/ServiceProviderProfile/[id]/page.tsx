@@ -250,7 +250,7 @@ export default function ServiceProviderProfile() {
                 </Card>
               )}
 
-              <Card>
+              {provider?.payment_methods && <Card>
                 <CardHeader>
                   <CardTitle>Accepted payment methods</CardTitle>
                 </CardHeader>
@@ -262,7 +262,7 @@ export default function ServiceProviderProfile() {
                     </div>
                   ))}
                 </CardContent>
-              </Card>
+              </Card>}
             </div>
           </div>
         );

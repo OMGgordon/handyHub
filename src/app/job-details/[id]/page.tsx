@@ -449,13 +449,21 @@ const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
                       <SelectValue placeholder="Select service category" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="plumbing">Plumbing</SelectItem>
-                      <SelectItem value="electrical">Electrical</SelectItem>
-                      <SelectItem value="painting">Painting</SelectItem>
-                      <SelectItem value="tiling">Tiling</SelectItem>
-                      <SelectItem value="gardening">Gardening</SelectItem>
-                      <SelectItem value="carpentry">Carpentry</SelectItem>
-                      <SelectItem value="cleaning">Cleaning</SelectItem>
+                      {provider?.services && provider.services.length > 0
+                        ? provider.services.map(
+                            (service: string, idx: number) => (
+                              <SelectItem key={idx} value={service}>
+                                {service}
+                              </SelectItem>
+                            )
+                          )
+                        : provider?.service_category?.map(
+                            (category: string, idx: number) => (
+                              <SelectItem key={idx} value={category}>
+                                {category}
+                              </SelectItem>
+                            )
+                          )}
                     </SelectContent>
                   </Select>
                 </div>

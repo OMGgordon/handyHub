@@ -10,8 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
 import ProjectComponent from "@/components/Project";
+import { format } from "date-fns";
+import { useUserContext } from "@/context/UserContext";
 
 type Project = {
+  date: any;
+  max_budget: any;
+  min_budget: any;
   id: string;
   title: string;
   description: string;
@@ -38,6 +43,7 @@ function ProjectPage() {
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<"client" | "provider" | null>(null);
   const [activeTab, setActiveTab] = useState("in-progress");
+  const [client, setClient] = useState<any>(null)
 
   const { session } = useSession();
   const userType = session?.user?.user_metadata.userType;
@@ -53,38 +59,40 @@ function ProjectPage() {
   };
 
   // Mock data for pending job requests
-  const jobRequests: JobRequest[] = [
-    {
-      id: "1",
-      title: "Installing New Heater",
-      iconImage: "/images/HVAC.png",
-      clientName: "Julia Osei",
-      location: "Cantoment, 1st Oxford Street",
-      date: "19th September, 2025",
-      time: "3:00pm",
-      budgetRange: "GHS 300 - GHS 700",
-    },
-    {
-      id: "2",
-      title: "Electrical Rewiring",
-      iconImage: "/images/Electrical.png",
-      clientName: "Julia Osei",
-      location: "Cantoment, 1st Oxford Street",
-      date: "19th September, 2025",
-      time: "3:00pm",
-      budgetRange: "GHS 300 - GHS 700",
-    },
-    {
-      id: "3",
-      title: "Painting 2 Rooms",
-      iconImage: "/images/Painting.png",
-      clientName: "Julia Osei",
-      location: "Cantoment, 1st Oxford Street",
-      date: "19th September, 2025",
-      time: "3:00pm",
-      budgetRange: "GHS 300 - GHS 700",
-    },
-  ];
+  // const jobRequests: JobRequest[] = [
+  //   {
+  //     id: "1",
+  //     title: "Installing New Heater",
+  //     iconImage: "/images/HVAC.png",
+  //     clientName: "Julia Osei",
+  //     location: "Cantoment, 1st Oxford Street",
+  //     date: "19th September, 2025",
+  //     time: "3:00pm",
+  //     budgetRange: "GHS 300 - GHS 700",
+  //   },
+  //   {
+  //     id: "2",
+  //     title: "Electrical Rewiring",
+  //     iconImage: "/images/Electrical.png",
+  //     clientName: "Julia Osei",
+  //     location: "Cantoment, 1st Oxford Street",
+  //     date: "19th September, 2025",
+  //     time: "3:00pm",
+  //     budgetRange: "GHS 300 - GHS 700",
+  //   },
+  //   {
+  //     id: "3",
+  //     title: "Painting 2 Rooms",
+  //     iconImage: "/images/Painting.png",
+  //     clientName: "Julia Osei",
+  //     location: "Cantoment, 1st Oxford Street",
+  //     date: "19th September, 2025",
+  //     time: "3:00pm",
+  //     budgetRange: "GHS 300 - GHS 700",
+  //   },
+  // ];
+
+  const jobRequests = projects.filter((p) => p.status === "pending");
 
   // Filter projects based on status and tab
   const filterProjectsByStatus = (tab: string) => {
@@ -177,6 +185,12 @@ function ProjectPage() {
     fetchProjects();
   }, [session]);
 
+
+  const { getClientById, getProviderById } = useUserContext();
+  
+  
+  
+
   // realtime subscription
   useEffect(() => {
     if (!session?.user?.id) return;
@@ -199,6 +213,7 @@ function ProjectPage() {
   }, [session]);
 
   console.log(projects, loading);
+  console.log(jobRequests, "Jobrequests");
 
   const renderProjectsForTab = (status: string) => {
     const filteredProjects = filterProjectsByStatus(status);
@@ -247,81 +262,172 @@ function ProjectPage() {
 
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-        {jobRequests.map((job) => (
-          <Card
-            key={job.id}
-            className="bg-white rounded-[10px] overflow-hidden min-h-[328px]"
-          >
-            <CardContent className="px-6 py-4 h-full flex flex-col">
-              {/* Job Title with Icon */}
-              <div className="flex items-center gap-4 mb-4">
-                <Image
-                  src={job.iconImage}
-                  alt={job.title}
-                  width={48}
-                  height={48}
-                  className="object-contain"
-                />
-                <h3 className="text-[15px] font-bold text-black">
-                  {job.title}
-                </h3>
-              </div>
-
-              {/* Job Details */}
-              <div className="space-y-3 flex-1">
-                <div className="flex justify-between">
-                  <span className="text-[15px] font-bold text-black">
-                    Client Name:
-                  </span>
-                  <span className="text-[15px] text-black">
-                    {job.clientName}
-                  </span>
+        {jobRequests.map((job) => {
+          // const client = getClientById(job.client_id); // ✅ resolve client per job
+          // console.log(client)
+          return (
+            <Card
+              key={job.id}
+              className="bg-white rounded-[10px] overflow-hidden min-h-[328px]"
+            >
+              <CardContent className="px-6 py-4 h-full flex flex-col">
+                {/* Job Title with Icon */}
+                <div className="flex items-center gap-4 mb-4">
+                  <Image
+                    src={job.iconImage}
+                    alt={job.title}
+                    width={48}
+                    height={48}
+                    className="object-contain"
+                  />
+                  <h3 className="text-[15px] font-bold text-black">
+                    {job.title}
+                  </h3>
                 </div>
 
-                <div className="flex justify-between">
-                  <span className="text-[15px] font-bold text-black">
-                    Location:
-                  </span>
-                  <span className="text-[15px] text-black">{job.location}</span>
+                {/* Job Details */}
+                <div className="space-y-3 flex-1">
+                  {/* <div className="flex justify-between">
+                    <span className="text-[15px] font-bold text-black">
+                      Client Name:
+                    </span>
+                    <span className="text-[15px] text-black">
+                      {client?.full_name || "Unknown"}
+                    </span>
+                  </div> */}
+
+                  <div className="flex justify-between">
+                    <span className="text-[15px] font-bold text-black">
+                      Location:
+                    </span>
+                    <span className="text-[15px] text-black">
+                      {job.location}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span className="text-[15px] font-bold text-black">
+                      Preferred Start Date:
+                    </span>
+                    <span className="text-[15px] text-black">
+                      {format(new Date(job.date[0]), "MMM d, yyyy")}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span className="text-[15px] font-bold text-black">
+                      Preferred Start Time:
+                    </span>
+                    <span className="text-[15px] text-black">
+                      {format(new Date(job.date[0]), "h:mm a")}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span className="text-[15px] font-bold text-black">
+                      Budget Range:
+                    </span>
+                    <span className="text-[15px] text-black">
+                      {`GHC ${job.min_budget} - ${job.max_budget}`}
+                    </span>
+                  </div>
                 </div>
 
-                <div className="flex justify-between">
-                  <span className="text-[15px] font-bold text-black">
-                    Date:
-                  </span>
-                  <span className="text-[15px] text-black">{job.date}</span>
+                {/* View Job Button */}
+                <div className="flex justify-center mt-10">
+                  <Button
+                    onClick={() => handleViewJob(job.id)}
+                    className="bg-[#fe9f2b] hover:bg-[#e8912a] text-white px-8 py-2 rounded-[10px] text-[15px] font-bold"
+                  >
+                    VIEW JOB
+                  </Button>
                 </div>
-
-                <div className="flex justify-between">
-                  <span className="text-[15px] font-bold text-black">
-                    Time:
-                  </span>
-                  <span className="text-[15px] text-black">{job.time}</span>
-                </div>
-
-                <div className="flex justify-between">
-                  <span className="text-[15px] font-bold text-black">
-                    Budget Range:
-                  </span>
-                  <span className="text-[15px] text-black">
-                    {job.budgetRange}
-                  </span>
-                </div>
-              </div>
-
-              {/* View Job Button */}
-              <div className="flex justify-center mt-10">
-                <Button
-                  onClick={() => handleViewJob(job.id)}
-                  className="bg-[#fe9f2b] hover:bg-[#e8912a] text-white px-8 py-2 rounded-[10px] text-[15px] font-bold"
-                >
-                  VIEW JOB
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
+
+      // <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+      //   {jobRequests.map((job) => (
+      //     <Card
+      //       key={job.id}
+      //       className="bg-white rounded-[10px] overflow-hidden min-h-[328px]"
+      //     >
+      //       <CardContent className="px-6 py-4 h-full flex flex-col">
+      //         {/* Job Title with Icon */}
+      //         <div className="flex items-center gap-4 mb-4">
+      //           <Image
+      //             src={job.iconImage}
+      //             alt={job.title}
+      //             width={48}
+      //             height={48}
+      //             className="object-contain"
+      //           />
+      //           <h3 className="text-[15px] font-bold text-black">
+      //             {job.title}
+      //           </h3>
+      //         </div>
+
+      //         {/* Job Details */}
+      //         <div className="space-y-3 flex-1">
+      //           <div className="flex justify-between">
+      //             <span className="text-[15px] font-bold text-black">
+      //               Client Name:
+      //             </span>
+      //             <span className="text-[15px] text-black">
+      //               {job.client?.full_name || "Unknown"}
+      //             </span>
+      //           </div>
+
+      //           <div className="flex justify-between">
+      //             <span className="text-[15px] font-bold text-black">
+      //               Location:
+      //             </span>
+      //             <span className="text-[15px] text-black">{job.location}</span>
+      //           </div>
+
+      //           <div className="flex justify-between">
+      //             <span className="text-[15px] font-bold text-black">
+      //               Preferred Start Date:
+      //             </span>
+      //             <span className="text-[15px] text-black">
+      //               {format(new Date(job.date[0]), "MMM d, yyyy")}
+      //             </span>
+      //           </div>
+
+      //           <div className="flex justify-between">
+      //             <span className="text-[15px] font-bold text-black">
+      //               Preffered Start Time:
+      //             </span>
+      //             <span className="text-[15px] text-black">
+      //               {format(new Date(job.date[0]), "h:mm a")}
+      //             </span>
+      //           </div>
+
+      //           <div className="flex justify-between">
+      //             <span className="text-[15px] font-bold text-black">
+      //               Budget Range:
+      //             </span>
+      //             <span className="text-[15px] text-black">
+      //               {`GHC ${job.min_budget} - ${job.max_budget}`}
+      //             </span>
+      //           </div>
+      //         </div>
+
+      //         {/* View Job Button */}
+      //         <div className="flex justify-center mt-10">
+      //           <Button
+      //             onClick={() => handleViewJob(job.id)}
+      //             className="bg-[#fe9f2b] hover:bg-[#e8912a] text-white px-8 py-2 rounded-[10px] text-[15px] font-bold"
+      //           >
+      //             VIEW JOB
+      //           </Button>
+      //         </div>
+      //       </CardContent>
+      //     </Card>
+      //   ))}
+      // </div>
     );
   };
 
@@ -368,7 +474,7 @@ function ProjectPage() {
                     value="in-progress"
                     className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-4 pb-2 mr-20 text-base font-bold text-gray-600 data-[state=active]:text-black"
                   >
-                     Jobs In Progress
+                    Jobs In Progress
                   </TabsTrigger>
                   <TabsTrigger
                     value="done"

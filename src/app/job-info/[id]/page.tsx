@@ -51,6 +51,7 @@ export default function JobInfoPage() {
   const [user, setUser] = useState<any>(null);
   const [provider, setProvider] = useState<any>(null);
   const [showAlertDialog, setShowAlertDialog] = useState(false);
+  // const [stat, setStat] = useState("");
 
   useEffect(() => {
     if (!job) return;
@@ -58,7 +59,7 @@ export default function JobInfoPage() {
     const fetchUserAndProvider = async () => {
       try {
         const { data: userData, error: userError } = await supabase
-          .from("users")
+          .from("profiles")
           .select("*")
           .eq("id", job.client_id)
           .single();
@@ -102,30 +103,79 @@ export default function JobInfoPage() {
     return () => clearInterval(timer); // cleanup on unmount
   }, [job]);
 
-  useEffect(() => {
-    const fetchJobAndClient = async () => {
-      setLoading(true);
+  // useEffect(() => {
+  //   const fetchJobAndClient = async () => {
+  //     setLoading(true);
 
-      // Fetch the job
-      const { data: jobData, error: jobError } = await supabase
+  //     // Fetch the job
+  //     const { data: jobData, error: jobError } = await supabase
+  //       .from("projects")
+  //       .select("*")
+  //       .eq("id", jobId)
+  //       .single();
+
+  //     if (jobError) {
+  //       setError(jobError.message);
+  //       setLoading(false);
+  //       return;
+  //     }
+
+  //     setJob(jobData);
+  //     // setStat(job.status)
+
+  //     setLoading(false);
+  //   };
+
+  //   if (jobId) fetchJobAndClient();
+  // }, [jobId]);
+
+  useEffect(() => {
+    if (!jobId) return;
+
+    // initial fetch
+    const fetchJob = async () => {
+      const { data, error } = await supabase
         .from("projects")
         .select("*")
         .eq("id", jobId)
         .single();
 
-      if (jobError) {
-        setError(jobError.message);
-        setLoading(false);
-        return;
+      if (error) {
+        console.error("Error fetching job:", error.message);
+      } else {
+        setJob(data);
       }
-
-      setJob(jobData);
-
       setLoading(false);
     };
 
-    if (jobId) fetchJobAndClient();
-  }, [jobId]);
+    fetchJob();
+
+    // ✅ realtime subscription
+    const channel = supabase
+      .channel("job-updates") // any name you want
+      .on(
+        "postgres_changes",
+        {
+          event: "*", // could be "UPDATE" only if you want
+          schema: "public",
+          table: "projects",
+          filter: `id=eq.${jobId}`, // only listen to THIS job
+        },
+        (payload) => {
+          console.log("Realtime job change:", payload);
+          if (payload.eventType === "UPDATE") {
+            setJob(payload.new); // update local state
+          } else if (payload.eventType === "DELETE") {
+            setJob(null); // job was deleted
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [jobId, supabase]);
 
   if (loading) return <p>Loading ...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -140,6 +190,7 @@ export default function JobInfoPage() {
         .select()
         .single();
 
+      // setStat(data.status)
       if (error) {
         console.error(`Error updating job to ${status}:`, error);
         alert(`Failed to mark job as ${status}. Please try again.`);
@@ -174,6 +225,7 @@ export default function JobInfoPage() {
       .eq("id", job?.id);
 
     setLoading(false);
+    // setStat
 
     if (error) {
       console.error("Error deleting project:", error.message);

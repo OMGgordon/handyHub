@@ -3,14 +3,20 @@ import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/context/SessionProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, Settings, LogOut, MessageSquare, FolderOpen } from "lucide-react";
+import {
+  User,
+  Settings,
+  LogOut,
+  MessageSquare,
+  FolderOpen,
+} from "lucide-react";
 
 export function AuthenticatedNavbar() {
   const { session, signOut } = useSession();
@@ -34,26 +40,23 @@ export function AuthenticatedNavbar() {
   };
 
   const handleSignOut = async () => {
-    await signOut();
     router.push("/");
+    await signOut();
   };
 
-  const fallbackLetter = user?.email
-    ? user.email.charAt(0).toUpperCase()
-    : "U";
+  const fallbackLetter = user?.email ? user.email.charAt(0).toUpperCase() : "U";
 
-  const userName = user?.user_metadata?.full_name || 
-                   user?.email?.split('@')[0] || 
-                   "User";
+  const userName =
+    user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User";
 
   return (
     <nav className="bg-white shadow-sm py-2 px-4 sm:px-6 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between h-12">
         <div className="flex items-center">
-          <img 
-            src="/images/logo.png" 
-            alt="HandyHive" 
-            className="h-16 w-auto cursor-pointer" 
+          <img
+            src="/images/logo.png"
+            alt="HandyHive"
+            className="h-16 w-auto cursor-pointer"
             onClick={() => router.push("/")}
           />
         </div>
@@ -83,7 +86,10 @@ export function AuthenticatedNavbar() {
           {/* User Profile Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-3 hover:bg-gray-100">
+              <Button
+                variant="ghost"
+                className="flex items-center gap-3 hover:bg-gray-100"
+              >
                 <span className="hidden md:block font-medium text-gray-700">
                   Good day, {userName}
                 </span>
@@ -115,17 +121,23 @@ export function AuthenticatedNavbar() {
                 </div>
               </div>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleProfile} className="flex items-center gap-2">
+              <DropdownMenuItem
+                onClick={handleProfile}
+                className="flex items-center gap-2"
+              >
                 <User className="w-4 h-4" />
                 Profile
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleSettings} className="flex items-center gap-2">
+              <DropdownMenuItem
+                onClick={handleSettings}
+                className="flex items-center gap-2"
+              >
                 <Settings className="w-4 h-4" />
                 Settings
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem 
-                onClick={handleSignOut} 
+              <DropdownMenuItem
+                onClick={handleSignOut}
                 className="flex items-center gap-2 text-red-600 focus:text-red-600"
               >
                 <LogOut className="w-4 h-4" />

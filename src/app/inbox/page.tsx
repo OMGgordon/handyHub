@@ -448,23 +448,23 @@ const MessagingPage = () => {
                         src={
                           userId === selectedConversation?.client_id
                             ? conversation?.provider_avatar
-                            : client.avatar
+                            : client?.avatar
                         }
                         alt={
                           userId === selectedConversation?.client_id
                             ? conversation?.provider_name
-                            : client.full_name
+                            : client?.full_name
                         }
                       />
                       <AvatarFallback className="bg-orange-500 text-white">
                         {userId === selectedConversation?.client_id && provider
-                          ? provider.full_name
+                          ? provider?.full_name
                               .split(" ")
                               .map((n) => n[0])
                               .join("")
                           : userId === selectedConversation?.provider_id &&
                             client
-                          ? client.full_name
+                          ? client?.full_name
                               .split(" ")
                               .map((n) => n[0])
                               .join("")
@@ -500,7 +500,7 @@ const MessagingPage = () => {
                       <p className="text-sm text-gray-600 mt-1 line-clamp-2">
                         {
                           conversation?.messages[
-                            conversation.messages.length - 1
+                            conversation?.messages.length - 1
                           ]?.content
                         }
                       </p>
@@ -627,7 +627,7 @@ const MessagingPage = () => {
                     <div
                       className={`flex items-end space-x-2 max-w-xs lg:max-w-md flex-row space-x `}
                     >
-                      {message.sender_id !== session.user.id && (
+                      {message?.sender_id !== session?.user?.id && (
                         <Avatar className="w-8 h-8">
                           <AvatarImage src={message.avatar} alt="provider" />
                           <AvatarFallback className="bg-orange-500 text-white text-xs">

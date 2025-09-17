@@ -7,6 +7,7 @@ import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AuthenticatedNavbar } from "@/components/AuthenticatedNavbar";
+import { format } from "date-fns";
 
 interface JobRequest {
   id: string;
@@ -19,7 +20,11 @@ interface JobRequest {
   budgetRange: string;
 }
 
-export default function PendingJobRequestsPage() {
+interface Props {
+  jobRequests: JobRequest;
+}
+
+export default function PendingJobRequestsPage({ jobRequests }: Props) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("bookings");
 
@@ -27,38 +32,38 @@ export default function PendingJobRequestsPage() {
     router.push(`/job-info/${jobId}`);
   };
 
-  const jobRequests: JobRequest[] = [
-    {
-      id: "1",
-      title: "Installing New Heater",
-      iconImage: "/images/HVAC.png",
-      clientName: "Julia Osei",
-      location: "Cantoment, 1st Oxford Street",
-      date: "19th September, 2025",
-      time: "3:00pm",
-      budgetRange: "GHS 300 - GHS 700"
-    },
-    {
-      id: "2", 
-      title: "Electrical Rewiring",
-      iconImage: "/images/Electrical.png",
-      clientName: "Julia Osei",
-      location: "Cantoment, 1st Oxford Street", 
-      date: "19th September, 2025",
-      time: "3:00pm",
-      budgetRange: "GHS 300 - GHS 700"
-    },
-    {
-      id: "3",
-      title: "Painting 2 Rooms",
-      iconImage: "/images/Painting.png",
-      clientName: "Julia Osei",
-      location: "Cantoment, 1st Oxford Street",
-      date: "19th September, 2025", 
-      time: "3:00pm",
-      budgetRange: "GHS 300 - GHS 700"
-    }
-  ];
+  // const jobRequests: JobRequest[] = [
+  //   {
+  //     id: "1",
+  //     title: "Installing New Heater",
+  //     iconImage: "/images/HVAC.png",
+  //     clientName: "Julia Osei",
+  //     location: "Cantoment, 1st Oxford Street",
+  //     date: "19th September, 2025",
+  //     time: "3:00pm",
+  //     budgetRange: "GHS 300 - GHS 700"
+  //   },
+  //   {
+  //     id: "2",
+  //     title: "Electrical Rewiring",
+  //     iconImage: "/images/Electrical.png",
+  //     clientName: "Julia Osei",
+  //     location: "Cantoment, 1st Oxford Street",
+  //     date: "19th September, 2025",
+  //     time: "3:00pm",
+  //     budgetRange: "GHS 300 - GHS 700"
+  //   },
+  //   {
+  //     id: "3",
+  //     title: "Painting 2 Rooms",
+  //     iconImage: "/images/Painting.png",
+  //     clientName: "Julia Osei",
+  //     location: "Cantoment, 1st Oxford Street",
+  //     date: "19th September, 2025",
+  //     time: "3:00pm",
+  //     budgetRange: "GHS 300 - GHS 700"
+  //   }
+  // ];
 
   return (
     <div className="min-h-screen bg-[#fff7e7]">
@@ -79,17 +84,24 @@ export default function PendingJobRequestsPage() {
         {/* Job Request Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
           {jobRequests.map((job) => (
-            <Card key={job.id} className="bg-white rounded-[10px] overflow-hidden min-h-[328px]">
+            <Card
+              key={job.id}
+              className="bg-white rounded-[10px] overflow-hidden min-h-[328px]"
+            >
               <CardContent className="px-6 py-4 h-full flex flex-col">
                 {/* Job Title with Icon */}
                 <div className="flex items-center gap-4 mb-4">
-                  <Image
-                    src={job.iconImage}
-                    alt={job.title}
-                    width={48}
-                    height={48}
-                    className="object-contain"
-                  />
+                  {job?.uploaded_files &&
+                    job?.uploaded_files.map((file, index) => (
+                      <Image
+                        key={index}
+                        src={file}
+                        alt={job.title}
+                        width={48}
+                        height={48}
+                        className="object-contain"
+                      />
+                    ))}
                   <h3 className="text-[15px] font-bold text-black">
                     {job.title}
                   </h3>
@@ -98,28 +110,46 @@ export default function PendingJobRequestsPage() {
                 {/* Job Details */}
                 <div className="space-y-3 flex-1">
                   <div className="flex justify-between">
-                    <span className="text-[15px] font-bold text-black">Client Name:</span>
-                    <span className="text-[15px] text-black">{job.clientName}</span>
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <span className="text-[15px] font-bold text-black">Location:</span>
-                    <span className="text-[15px] text-black">{job.location}</span>
-                  </div>
-
-                  <div className="flex justify-between">
-                    <span className="text-[15px] font-bold text-black">Date:</span>
-                    <span className="text-[15px] text-black">{job.date}</span>
+                    <span className="text-[15px] font-bold text-black">
+                      Client Name:
+                    </span>
+                    <span className="text-[15px] text-black">
+                      {job.clientName}
+                    </span>
                   </div>
 
                   <div className="flex justify-between">
-                    <span className="text-[15px] font-bold text-black">Time:</span>
+                    <span className="text-[15px] font-bold text-black">
+                      Location:
+                    </span>
+                    <span className="text-[15px] text-black">
+                      {job.location}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span className="text-[15px] font-bold text-black">
+                      Date:
+                    </span>
+                    <span className="text-[15px] text-black">
+                      {format(new Date(job.date[0]), "MMM d, yyyy")}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span className="text-[15px] font-bold text-black">
+                      Time:
+                    </span>
                     <span className="text-[15px] text-black">{job.time}</span>
                   </div>
 
                   <div className="flex justify-between">
-                    <span className="text-[15px] font-bold text-black">Budget Range:</span>
-                    <span className="text-[15px] text-black">{job.budgetRange}</span>
+                    <span className="text-[15px] font-bold text-black">
+                      Budget Range:
+                    </span>
+                    <span className="text-[15px] text-black">
+                      {`${job.min_budget} - ${job.max_budget}`}
+                    </span>
                   </div>
                 </div>
 
