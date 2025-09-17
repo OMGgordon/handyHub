@@ -401,7 +401,7 @@ export default function PreviewPage() {
               <p className="text-xs text-orange-700 text-center">
                 The handyman has <strong>20 minutes</strong> to respond. You can{" "}
                 <strong>"Nudge Artisan"</strong> if you dont get a response
-                after {formatTime(timeRemaining)}.
+                after {formatTime(timeRemaining ?? 0)}.
               </p>
             </div>
 

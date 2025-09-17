@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useSession } from "@/context/SessionProvider";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 import { AuthenticatedNavbar } from "@/components/AuthenticatedNavbar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -137,13 +138,26 @@ export default function ProfileUpdatePage() {
   };
 
   const autoSave = useCallback(async () => {
+    if (!session?.user?.id) return;
+    
     setAutoSaveStatus('saving');
     try {
-      // TODO: Implement autosave to Supabase
-      console.log("Auto-saving profile data:", profileData);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Update service_providers table for the currently authenticated user
+      const { error } = await supabase
+        .from('service_providers')
+        .update({
+          full_name: profileData.name || '',
+          phone: profileData.phone || '',
+          bio: profileData.about || '',
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', session.user.id);
+
+      if (error) {
+        throw error;
+      }
+
+      console.log("Auto-saved profile data successfully");
       
       setAutoSaveStatus('saved');
       setLastSaved(new Date());
@@ -155,7 +169,7 @@ export default function ProfileUpdatePage() {
       setAutoSaveStatus('error');
       setTimeout(() => setAutoSaveStatus('idle'), 3000);
     }
-  }, [profileData]);
+  }, [profileData, session?.user?.id]);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -245,15 +259,56 @@ export default function ProfileUpdatePage() {
   };
 
   const handleSave = async () => {
+    if (!session?.user?.id) {
+      alert("User not authenticated. Please log in again.");
+      return;
+    }
+
     setIsSaving(true);
     try {
-      // TODO: Implement save to Supabase
-      console.log("Saving profile data:", profileData);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Show success message or redirect
+      // Update service_providers table with all profile fields
+      const { error } = await supabase
+        .from('service_providers')
+        .update({
+          // Basic Info
+          full_name: profileData.name || '',
+          phone: profileData.phone || '',
+          bio: profileData.about || '',
+          avatar: profileData.photo || null,
+          
+          // Services & Categories
+          service_category: profileData.categories || [],
+          services: profileData.services || [],
+          
+          // Location & Pricing
+          location: profileData.address || '',
+          service_area: profileData.serviceArea || '',
+          price: profileData.startingRate || 0,
+          pricing_notes: profileData.pricingNotes || '',
+          
+          // Experience & Business
+          years_experience: profileData.yearsExperience || 0,
+          highlights: profileData.highlights || [],
+          service_hours: profileData.serviceHours || {},
+          payment_methods: profileData.paymentMethods || [],
+          
+          // Contact & Verification
+          email: profileData.email || '',
+          has_license: profileData.hasLicense || false,
+          
+          // Portfolio
+          portfolio_images: profileData.portfolioImages || [],
+          
+          // Timestamp
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', session.user.id);
+
+      if (error) {
+        throw error;
+      }
+
+      console.log("Complete profile saved successfully");
       alert("Profile updated successfully!");
     } catch (error) {
       console.error("Error saving profile:", error);
