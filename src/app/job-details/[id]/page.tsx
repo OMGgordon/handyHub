@@ -62,7 +62,7 @@ export function BookServicePage() {
     providerId: string;
     clientId: string;
     uploadedFiles: File[];
-    uploadedUrls:[];
+    uploadedUrls: string[];
   }>({
     id: "",
     serviceCategory: [],
