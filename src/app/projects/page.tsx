@@ -33,12 +33,14 @@ interface JobRequest {
 }
 
 function ProjectPage() {
-  const { session } = useSession();
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<"client" | "provider" | null>(null);
   const [activeTab, setActiveTab] = useState("in-progress");
+
+  const { session } = useSession();
+  const userType = session?.user?.user_metadata.userType;
 
   const firstName = session?.user?.user_metadata?.fullName?.split(" ")[0];
 
@@ -85,51 +87,24 @@ function ProjectPage() {
   ];
 
   // Filter projects based on status and tab
-  const filterProjectsByStatus = (status: string) => {
-    console.log(`Filtering projects for status: "${status}"`);
-    const filtered = projects.filter((project) => {
-      console.log(
-        `Project ${project.id} status: "${project.status}" - Match: ${
-          project.status === status
-        }`
+  const filterProjectsByStatus = (tab: string) => {
+    if (tab === "in-progress") {
+      return projects.filter((p) =>
+        ["in_progress", "active", "ongoing"].includes(p.status)
       );
-      // Handle different possible status values
-      if (status === "in-progress") {
-        return (
-          project.status === "pending" ||
-          project.status === "in_progress" ||
-          project.status === "declined" ||
-          project.status === "active" ||
-          project.status === "ongoing"
-        );
-      }
-      return project.status === status;
-    });
-    console.log(`Filtered ${filtered.length} projects for status "${status}"`);
-    return filtered;
-  };
-
-  const refreshProjects = async () => {
-    if (!session?.user?.id || !userRole) return;
-
-    setLoading(true);
-    let query = supabase.from("projects").select("*");
-
-    if (userRole === "client") {
-      query = query.eq("client_id", session.user.id);
-    } else if (userRole === "provider") {
-      query = query.eq("provider_id", session.user.id);
     }
-
-    const { data, error } = await query;
-
-    if (error) {
-      console.error("Error refreshing projects:", error.message);
-    } else {
-      console.log("Refreshed projects:", data);
-      setProjects(data || []);
+    if (tab === "done") {
+      return projects.filter((p) =>
+        ["done", "completed", "finished"].includes(p.status)
+      );
     }
-    setLoading(false);
+    if (tab === "pending") {
+      return projects.filter((p) => p.status === "pending");
+    }
+    if (tab === "declined") {
+      return projects.filter((p) => p.status === "declined");
+    }
+    return [];
   };
 
   useEffect(() => {
@@ -178,42 +153,50 @@ function ProjectPage() {
   });
   //   fetchUserRole();
   // }, [session]);
+  const fetchProjects = async () => {
+    if (!session?.user?.id) return;
 
-  const userType = session?.user?.user_metadata.userType;
+    setLoading(true);
 
+    const { data, error } = await supabase
+      .from("projects")
+      .select("*")
+      .or(`client_id.eq.${session.user.id},provider_id.eq.${session.user.id}`);
+
+    if (error) {
+      console.error("Error fetching projects:", error.message);
+    } else {
+      setProjects(data || []);
+    }
+
+    setLoading(false);
+  };
+
+  // initial fetch
   useEffect(() => {
-    const fetchProjects = async () => {
-      if (!session?.user?.id || !userRole) return;
-
-      setLoading(true);
-      let query = supabase.from("projects").select("*");
-
-      // Filter based on user role
-      if (userType === "client") {
-        query = query.eq("client_id", session.user.id);
-      } else if (userRole === "provider") {
-        query = query.eq("provider_id", session.user.id);
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error("Error fetching projects:", error.message);
-      } else {
-        console.log("Fetched projects:", data);
-        console.log("User role:", userRole);
-        console.log("User ID:", session.user.id);
-        // Log all statuses to see what's actually in the database
-        data?.forEach((project) => {
-          console.log(`Project ${project.id}: status = "${project.status}"`);
-        });
-        setProjects(data || []);
-      }
-      setLoading(false);
-    };
-
     fetchProjects();
-  }, [session, userRole]);
+  }, [session]);
+
+  // realtime subscription
+  useEffect(() => {
+    if (!session?.user?.id) return;
+
+    const channel = supabase
+      .channel("projects-changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "projects" },
+        (payload) => {
+          console.log("Realtime change:", payload);
+          fetchProjects(); // re-fetch projects on change
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [session]);
 
   console.log(projects, loading);
 
@@ -353,14 +336,6 @@ function ProjectPage() {
               {firstName ? `${firstName}'s projects` : "Your Jobs"}
             </h1>
           </div>
-          <Button
-            onClick={refreshProjects}
-            variant="outline"
-            className="text-[#fe9f2b] border-[#fe9f2b] hover:bg-[#fe9f2b] hover:text-white"
-            disabled={loading}
-          >
-            {loading ? "Refreshing..." : "Refresh"}
-          </Button>
         </div>
       </div>
 
@@ -393,19 +368,25 @@ function ProjectPage() {
                     value="in-progress"
                     className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-4 pb-2 mr-20 text-base font-bold text-gray-600 data-[state=active]:text-black"
                   >
-                    Jobs in Progress
+                     Jobs In Progress
                   </TabsTrigger>
                   <TabsTrigger
                     value="done"
-                    className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-10 pb-2 mx-20 text-base font-bold text-gray-600 data-[state=active]:text-black"
+                    className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-8 pb-2 mx-10 text-base font-bold text-gray-600 data-[state=active]:text-black"
                   >
                     Done Jobs
                   </TabsTrigger>
                   <TabsTrigger
-                    value="pending"
-                    className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-8 pb-2 ml-20 text-base font-bold text-gray-600 data-[state=active]:text-black"
+                    value="declined"
+                    className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-8 pb-2 mx-10 text-base font-bold text-gray-600 data-[state=active]:text-black"
                   >
-                    Pending Jobs
+                    Declined Jobs
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="pending"
+                    className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-0 pb-2 ml-10 text-base font-bold text-gray-600 data-[state=active]:text-black"
+                  >
+                    {userType === "client" ? "Pending Jobs" : "Job Requests"}
                   </TabsTrigger>
                 </TabsList>
                 <Separator />
@@ -418,8 +399,20 @@ function ProjectPage() {
                   {renderProjectsForTab("done")}
                 </TabsContent>
 
-                {userRole === "provider" && (
+                <TabsContent value="declined" className="mt-6">
+                  {renderProjectsForTab("declined")}
+                </TabsContent>
+
+                {userType === "client" ? (
                   <TabsContent value="pending" className="mt-6">
+                    {renderProjectsForTab("pending")}
+                    {/* {userType === "client"
+                      ? renderProjectsForTab("pending")
+                      : renderPendingJobRequests()} */}
+                  </TabsContent>
+                ) : (
+                  <TabsContent value="pending" className="mt-6">
+                    {/* {renderProjectsForTab("pending")} */}
                     {renderPendingJobRequests()}
                   </TabsContent>
                 )}

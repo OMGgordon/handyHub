@@ -2,8 +2,23 @@
 
 import { useState, useEffect } from "react";
 import { MapPin, Headphones, X, ChevronRight, CheckIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +39,8 @@ export default function JobInfoPage() {
   const [timeLeft, setTimeLeft] = useState(20 * 60); // 20 minutes in seconds
   const [isCountdownComplete, setIsCountdownComplete] = useState(false);
   const { session } = useSession();
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState("");
 
   const params = useParams();
   const jobId = params.id as string;
@@ -33,6 +50,7 @@ export default function JobInfoPage() {
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [provider, setProvider] = useState<any>(null);
+  const [showAlertDialog, setShowAlertDialog] = useState(false);
 
   useEffect(() => {
     if (!job) return;
@@ -109,7 +127,7 @@ export default function JobInfoPage() {
     if (jobId) fetchJobAndClient();
   }, [jobId]);
 
-  if (loading) return <p>Loading job profile...</p>;
+  if (loading) return <p>Loading ...</p>;
   if (error) return <p>Error: {error}</p>;
   if (!job) return <p>No job found</p>;
 
@@ -139,16 +157,123 @@ export default function JobInfoPage() {
 
   // console.log(job);
 
-  const handleCancelProject = () => {
+  const handleCancelProject = async () => {
     // Handle cancel project functionality
+    if (!job.id) return;
+
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this job?"
+    );
+    if (!confirmDelete) return;
+
+    setLoading(true);
+
+    const { error } = await supabase
+      .from("projects")
+      .delete()
+      .eq("id", job?.id);
+
+    setLoading(false);
+
+    if (error) {
+      console.error("Error deleting project:", error.message);
+      alert("Failed to delete job. Try again.");
+    } else {
+      alert("Job deleted successfully ✅");
+      router.back();
+      // Optionally refresh UI or remove job from state
+      // fetchProjects();
+    }
     console.log("Cancel job");
     setIsModalOpen(false);
   };
 
+  //  const [loading, setLoading] = useState(false);
+
+  // 👉 opens the dialog
   const handleGetHelp = () => {
-    // Handle get help functionality
-    console.log("Get help");
-    setIsModalOpen(false);
+    setOpen(true);
+  };
+
+  // 👉 inserts help request into Supabase
+  const handleSubmitHelp = async () => {
+    if (!session?.user?.id || !message.trim()) return;
+
+    setLoading(true);
+
+    const { error } = await supabase.from("help_requests").insert([
+      {
+        job_id: jobId,
+        provider_id: job?.provider_id,
+        requester_id: session.user.id,
+        message,
+      },
+    ]);
+
+    setLoading(false);
+
+    if (error) {
+      console.error("Error submitting help request:", error.message);
+      alert("Something went wrong, please try again.");
+    } else {
+      setOpen(false);
+      setIsModalOpen(false);
+      setShowAlertDialog(true);
+      //  alert("The admin has been alerted and will reach out to you.");
+      setMessage("");
+
+      // setOpen(false);
+    }
+  };
+
+  const startConversation = async (
+    clientId: string,
+    providerId: string,
+    projectId: string,
+    providerName?: string,
+    providerAvatar?: string
+  ) => {
+    // 1. Check if conversation exists
+    const { data: existing, error: checkError } = await supabase
+      .from("conversations")
+      .select("*")
+      .eq("client_id", clientId)
+      .eq("provider_id", providerId)
+      .eq("project_id", projectId)
+      .maybeSingle();
+
+    if (checkError) {
+      console.error("Error checking conversation:", checkError);
+      return null;
+    }
+
+    if (existing) {
+      return existing; // reuse existing conversation
+    }
+
+    // 2. If not, create new conversation
+    const { data, error } = await supabase
+      .from("conversations")
+      .insert({
+        client_id: clientId,
+        provider_id: providerId,
+        provider_name: providerName,
+        provider_avatar: providerAvatar || null,
+        project_id: projectId,
+        last_message: "",
+        rating: 0,
+        review_count: 0,
+        timestamp: new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error creating conversation:", error);
+      return null;
+    }
+
+    return data;
   };
 
   const handleNudgeArtisan = () => {
@@ -214,45 +339,65 @@ export default function JobInfoPage() {
             </div>
 
             {userType === "client" ? (
-              <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogTrigger asChild>
-                  <Button className="bg-white text-black border-2 border-[#757575] hover:bg-gray-50 h-[52px] px-9 rounded-[5px] text-[16px] font-bold">
-                    Manage Job
-                  </Button>
-                </DialogTrigger>
-
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle className="text-[24px] font-bold text-black">
+              <div className="flex flex-row items-center gap-2">
+                <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="bg-white text-black border-2 border-[#757575] hover:bg-gray-50 h-[52px] px-9 rounded-[5px] text-[16px] font-bold">
                       Manage Job
-                    </DialogTitle>
-                  </DialogHeader>
+                    </Button>
+                  </DialogTrigger>
 
-                  <div className="space-y-4">
-                    {/* Cancel project */}
-                    <button
-                      onClick={handleCancelProject}
-                      className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 border-b border-gray-200"
-                    >
-                      <span className="text-[16px] text-gray-700">
-                        Cancel job
-                      </span>
-                      <ChevronRight className="w-5 h-5 text-gray-400" />
-                    </button>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle className="text-[24px] font-bold text-black">
+                        Manage Job
+                      </DialogTitle>
+                    </DialogHeader>
 
-                    {/* Get help */}
-                    <button
-                      onClick={handleGetHelp}
-                      className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50"
-                    >
-                      <span className="text-[16px] text-gray-700">
-                        Get help
-                      </span>
-                      <ChevronRight className="w-5 h-5 text-gray-400" />
-                    </button>
-                  </div>
-                </DialogContent>
-              </Dialog>
+                    <div className="space-y-4">
+                      {/* Cancel project */}
+                      <button
+                        onClick={handleCancelProject}
+                        className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 border-b border-gray-200"
+                      >
+                        <span className="text-[16px] text-gray-700">
+                          Delete job
+                        </span>
+                        <ChevronRight className="w-5 h-5 text-gray-400" />
+                      </button>
+
+                      {/* Get help */}
+                      <button
+                        onClick={handleGetHelp}
+                        className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50"
+                      >
+                        <span className="text-[16px] text-gray-700">
+                          Get help
+                        </span>
+                        <ChevronRight className="w-5 h-5 text-gray-400" />
+                      </button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+                <Button
+                  onClick={async () => {
+                    const conversation = await startConversation(
+                      job.client_id, // from supabase.auth.user()?.id
+                      job.provider_id, // e.g. from the project/provider profile
+                      job.id
+                      // providerName,
+                      // providerAvatar
+                    );
+
+                    if (conversation) {
+                      router.push(`/inbox?conversationId=${conversation.id}`);
+                    }
+                  }}
+                  className="bg-[#fe9f2b] hover:bg-[#e8912a] text-white h-10 px-8 py-6 rounded border-2 border-[#c26e09] text-[16px] font-bold text-white"
+                >
+                  Chat with {provider?.full_name || "handyman"}
+                </Button>
+              </div>
             ) : (
               job.status === "pending" && (
                 <div className="space-x-2">
@@ -443,6 +588,54 @@ export default function JobInfoPage() {
                       : "Waiting for Response"}
                   </Button>
                 </CardContent>
+                <Dialog open={open} onOpenChange={setOpen}>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Need Help?</DialogTitle>
+                    </DialogHeader>
+
+                    <p className="text-sm text-gray-600 mb-4">
+                      The admin has been alerted and will reach out to you.
+                      Please describe your issue:
+                    </p>
+
+                    <Textarea
+                      placeholder="Describe your worry..."
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                    />
+
+                    <DialogFooter className="mt-4">
+                      <Button variant="outline" onClick={() => setOpen(false)}>
+                        Cancel
+                      </Button>
+                      <Button onClick={handleSubmitHelp} disabled={loading}>
+                        {loading ? "Submitting..." : "Submit"}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
+                <AlertDialog
+                  open={showAlertDialog}
+                  onOpenChange={setShowAlertDialog}
+                >
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      {/* <AlertDialogTitle></AlertDialogTitle> */}
+                      <AlertDialogDescription className="text-black">
+                        The admin has been alerted and will reach out to you.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogAction
+                        onClick={() => setShowAlertDialog(false)}
+                      >
+                        Okay
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </Card>
             </div>
           )}

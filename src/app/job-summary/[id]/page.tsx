@@ -84,7 +84,7 @@ export default function PreviewPage() {
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  if (loading) return <p>Loading job profile...</p>;
+  if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
   if (!job) return <p>No job found</p>;
 

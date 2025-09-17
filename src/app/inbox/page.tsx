@@ -445,8 +445,16 @@ const MessagingPage = () => {
                   <div className="flex items-start space-x-3">
                     <Avatar className="w-12 h-12">
                       <AvatarImage
-                        src={conversation?.provider_avatar}
-                        alt={conversation?.provider_name}
+                        src={
+                          userId === selectedConversation?.client_id
+                            ? conversation?.provider_avatar
+                            : client.avatar
+                        }
+                        alt={
+                          userId === selectedConversation?.client_id
+                            ? conversation?.provider_name
+                            : client.full_name
+                        }
                       />
                       <AvatarFallback className="bg-orange-500 text-white">
                         {userId === selectedConversation?.client_id && provider
@@ -468,7 +476,7 @@ const MessagingPage = () => {
                       <div className="flex items-center justify-between">
                         <h3 className="text-sm font-medium text-gray-900 truncate">
                           {userId === selectedConversation?.client_id
-                            ? conversation?.provider_name
+                            ? provider?.full_name
                             : client?.full_name}
                         </h3>
                         <span className="text-xs text-gray-500">
