@@ -86,21 +86,88 @@ function ProjectPage() {
 
   // Filter projects based on status and tab
   const filterProjectsByStatus = (status: string) => {
-    return projects.filter(project => project.status === status);
+    console.log(`Filtering projects for status: "${status}"`);
+    const filtered = projects.filter(project => {
+      console.log(`Project ${project.id} status: "${project.status}" - Match: ${project.status === status}`);
+      // Handle different possible status values
+      if (status === 'in-progress') {
+        return project.status === 'in-progress' || 
+               project.status === 'in_progress' || 
+               project.status === 'accepted' || 
+               project.status === 'active' ||
+               project.status === 'ongoing';
+      }
+      return project.status === status;
+    });
+    console.log(`Filtered ${filtered.length} projects for status "${status}"`);
+    return filtered;
+  };
+
+  const refreshProjects = async () => {
+    if (!session?.user?.id || !userRole) return;
+    
+    setLoading(true);
+    let query = supabase.from("projects").select("*");
+
+    if (userRole === 'client') {
+      query = query.eq("client_id", session.user.id);
+    } else if (userRole === 'provider') {
+      query = query.eq("provider_id", session.user.id);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Error refreshing projects:", error.message);
+    } else {
+      console.log("Refreshed projects:", data);
+      setProjects(data || []);
+    }
+    setLoading(false);
   };
 
   useEffect(() => {
     const fetchUserRole = async () => {
       if (!session?.user?.id) return;
 
+      console.log("Checking user role for ID:", session.user.id);
+      
       // Check if user is a service provider
-      const { data: providerData } = await supabase
+      // First try querying by id (which is set to userId in signup)
+      const { data: providerData, error } = await supabase
         .from("service_providers")
         .select("id")
-        .eq("user_id", session.user.id)
+        .eq("id", session.user.id)
         .single();
 
-      setUserRole(providerData ? 'provider' : 'client');
+      console.log("Provider data (by id):", providerData);
+      console.log("Provider query error (by id):", error);
+      
+      let role: 'client' | 'provider' = 'client';
+      
+      if (providerData && !error) {
+        role = 'provider';
+      } else if (error && error.code !== 'PGRST116') {
+        // PGRST116 is "no rows returned" - try alternative query with user_id
+        console.log("Trying alternative query with user_id field...");
+        const { data: altProviderData, error: altError } = await supabase
+          .from("service_providers")
+          .select("id")
+          .eq("user_id", session.user.id)
+          .single();
+        
+        console.log("Provider data (by user_id):", altProviderData);
+        console.log("Provider query error (by user_id):", altError);
+        
+        if (altProviderData && !altError) {
+          role = 'provider';
+        } else if (altError && altError.code !== 'PGRST116') {
+          console.error("Unexpected error checking provider status:", altError);
+        }
+      }
+      
+      console.log("Setting user role to:", role);
+      setUserRole(role);
     };
 
     fetchUserRole();
@@ -125,6 +192,13 @@ function ProjectPage() {
       if (error) {
         console.error("Error fetching projects:", error.message);
       } else {
+        console.log("Fetched projects:", data);
+        console.log("User role:", userRole);
+        console.log("User ID:", session.user.id);
+        // Log all statuses to see what's actually in the database
+        data?.forEach(project => {
+          console.log(`Project ${project.id}: status = "${project.status}"`);
+        });
         setProjects(data || []);
       }
       setLoading(false);
@@ -246,70 +320,84 @@ function ProjectPage() {
       <Navbar />
 
       <div className="px-24 py-6">
-        <h1 className="font-segoe text-4xl font-extrabold mb-6">
-          {firstName ? `${firstName}'s projects` : "Your Jobs"}
-        </h1>
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="font-segoe text-4xl font-extrabold">
+              {firstName ? `${firstName}'s projects` : "Your Jobs"}
+            </h1>
+          </div>
+          <Button
+            onClick={refreshProjects}
+            variant="outline"
+            className="text-[#fe9f2b] border-[#fe9f2b] hover:bg-[#fe9f2b] hover:text-white"
+            disabled={loading}
+          >
+            {loading ? "Refreshing..." : "Refresh"}
+          </Button>
+        </div>
       </div>
 
       {loading ? (
         <div className="flex justify-center items-center min-h-[40vh]">
           <p>Loading...</p>
         </div>
-      ) : projects.length === 0 ? (
-        <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-2">
-          <Image
-            src={"/noProjects.png"}
-            width={100}
-            height={100}
-            alt="no projects found"
-          />
-          <span className="font-semibold">You dont have any jobs yet</span>
-          <span>When you do you will find them here</span>
-        </div>
       ) : (
-        <div className="px-24">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="bg-transparent h-auto p-0 space-x-0">
-              <TabsTrigger 
-                value="in-progress" 
-                className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-0 pb-2 mr-16 text-base font-bold text-gray-600 data-[state=active]:text-black"
-              >
-                Jobs in Progress
-              </TabsTrigger>
-              <TabsTrigger 
-                value="done"
-                className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-0 pb-2 ml-8 mr-16 text-base font-bold text-gray-600 data-[state=active]:text-black"
-              >
-                Done Jobs
-              </TabsTrigger>
-              {userRole === 'provider' && (
-                <TabsTrigger 
-                  value="pending"
-                  className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-0 pb-2 mr-16 text-base font-medium text-gray-600 data-[state=active]:text-black"
-                >
-                  Pending Jobs
-                </TabsTrigger>
-              )}
-            </TabsList>
-            <Separator />
-            
-            <TabsContent value="in-progress" className="mt-6">
-              {renderProjectsForTab('in-progress')}
-            </TabsContent>
-            
-            <TabsContent value="done" className="mt-6">
-              {renderProjectsForTab('done')}
-            </TabsContent>
-            
-            {userRole === 'provider' && (
-              <TabsContent value="pending" className="mt-6">
-                <div className="px-24">
-                  {renderPendingJobRequests()}
-                </div>
-              </TabsContent>
-            )}
-          </Tabs>
-        </div>
+        <>
+          {projects.length === 0 ? (
+            <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-2">
+              <Image
+                src={"/noProjects.png"}
+                width={100}
+                height={100}
+                alt="no projects found"
+              />
+              <span className="font-semibold">You dont have any jobs yet</span>
+              <span>When you do you will find them here</span>
+            </div>
+          ) : (
+            <div className="px-24">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="bg-transparent h-auto p-0 space-x-0">
+                  <TabsTrigger 
+                    value="in-progress" 
+                    className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-0 pb-2 mr-20 text-base font-bold text-gray-600 data-[state=active]:text-black"
+                  >
+                    Jobs in Progress
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="done"
+                    className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-0 pb-2 ml-20 mr-20 text-base font-bold text-gray-600 data-[state=active]:text-black"
+                  >
+                    Done Jobs
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="pending"
+                    className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-black rounded-none px-0 pb-2 ml-10 text-base font-medium text-gray-600 data-[state=active]:text-black"
+                  >
+                    Pending Jobs
+                  </TabsTrigger>
+                </TabsList>
+                <Separator />
+                
+                <TabsContent value="in-progress" className="mt-6">
+                  {renderProjectsForTab('in-progress')}
+                </TabsContent>
+                
+                <TabsContent value="done" className="mt-6">
+                  {renderProjectsForTab('done')}
+                </TabsContent>
+                
+                {userRole === 'provider' && (
+                  <TabsContent value="pending" className="mt-6">
+                    <div className="px-24">
+                      {renderPendingJobRequests()}
+                    </div>
+                  </TabsContent>
+                )}
+              </Tabs>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

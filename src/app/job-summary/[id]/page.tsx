@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import Image from "next/image";
 import {
   Edit,
@@ -14,6 +15,10 @@ import {
   ToolCase,
   HandPlatter,
   NotebookPen,
+  CheckCircle,
+  Timer,
+  Eye,
+  Home,
 } from "lucide-react";
 import { AuthenticatedNavbar } from "@/components/AuthenticatedNavbar";
 import { useParams } from "next/navigation";
@@ -27,6 +32,9 @@ export default function PreviewPage() {
   const [job, setJob] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+  const [timerActive, setTimerActive] = useState(false);
 
   useEffect(() => {
     const fetchJob = async () => {
@@ -47,6 +55,34 @@ export default function PreviewPage() {
 
     if (jobId) fetchJob();
   }, [jobId]);
+
+  // Timer effect - countdown from 20 minutes (1200 seconds)
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (timerActive && timeRemaining !== null && timeRemaining > 0) {
+      interval = setInterval(() => {
+        setTimeRemaining(prev => {
+          if (prev === null || prev <= 1) {
+            setTimerActive(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [timerActive, timeRemaining]);
+
+  // Format time as MM:SS
+  const formatTime = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
 
   if (loading) return <p>Loading job profile...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -71,7 +107,18 @@ export default function PreviewPage() {
   };
 
   const handleConfirm = () => {
-    // Navigate back to home or projects page after confirmation
+    // Start the 20-minute countdown timer (1200 seconds)
+    setTimeRemaining(1200); // 20 minutes = 1200 seconds
+    setTimerActive(true);
+    // Show success modal
+    setShowSuccessModal(true);
+  };
+
+  const handleGoToLanding = () => {
+    router.push("/landing-page");
+  };
+
+  const handleViewJobInfo = () => {
     router.push(`/job-info/${jobId}`);
   };
 
@@ -299,6 +346,88 @@ export default function PreviewPage() {
           </div>
         </div>
       </div>
+
+      {/* Success Modal */}
+      <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader className="text-center">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+              <CheckCircle className="h-6 w-6 text-green-600" />
+            </div>
+            <DialogTitle className="text-lg font-bold text-gray-900">
+              Booking Request Sent!
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-3 text-center">
+            <p className="text-sm text-gray-600">
+              Your booking request has been sent to the artisan. They will review your request and respond shortly.
+            </p>
+            
+            {/* Response countdown info */}
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Timer className="h-4 w-4 text-orange-600" />
+                <span className="font-medium text-orange-800 text-sm">Response Timer</span>
+              </div>
+              
+              {timeRemaining !== null && timeRemaining > 0 ? (
+                <div className="text-center mb-2">
+                  <div className="text-xl font-bold text-orange-800 mb-1">
+                    {formatTime(timeRemaining)}
+                  </div>
+                  <p className="text-xs text-orange-700">
+                    Time remaining for response
+                  </p>
+                </div>
+              ) : timeRemaining === 0 ? (
+                <div className="text-center mb-2">
+                  <div className="text-base font-bold text-red-600 mb-1">
+                    Time's Up!
+                  </div>
+                  <p className="text-xs text-red-700">
+                    You can now <strong>"Nudge Artisan"</strong>
+                  </p>
+                </div>
+              ) : null}
+              
+              <p className="text-xs text-orange-700 text-center">
+                The artisan has <strong>20 minutes</strong> to respond. Use <strong>"Nudge Artisan"</strong> if no response.
+              </p>
+            </div>
+            
+            {/* Job info access */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <Eye className="h-4 w-4 text-blue-600" />
+                <span className="font-medium text-blue-800 text-sm">Track Your Booking</span>
+              </div>
+              <p className="text-xs text-blue-700">
+                View booking details and communicate with the artisan from your Projects page.
+              </p>
+            </div>
+            
+            {/* Action buttons */}
+            <div className="flex flex-col sm:flex-row gap-2 pt-3">
+              <Button
+                onClick={handleViewJobInfo}
+                variant="outline"
+                className="flex-1 border-[#fe9f2b] text-[#fe9f2b] hover:bg-[#fe9f2b] hover:text-white text-sm h-9"
+              >
+                <Eye className="h-3 w-3 mr-1" />
+                View Details
+              </Button>
+              <Button
+                onClick={handleGoToLanding}
+                className="flex-1 bg-[#fe9f2b] hover:bg-[#e8912a] text-white text-sm h-9"
+              >
+                <Home className="h-3 w-3 mr-1" />
+                Back to Home
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
