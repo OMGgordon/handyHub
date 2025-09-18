@@ -24,13 +24,15 @@ interface Props {
   jobRequests: JobRequest;
 }
 
-export default function PendingJobRequestsPage({ jobRequests }: Props) {
+export default function PendingJobRequestsPage({ jobs }: { jobs?: any[] }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("bookings");
 
   const handleViewJob = (jobId: string) => {
     router.push(`/job-info/${jobId}`);
   };
+
+  const jobRequests = jobs ?? [];
 
   // const jobRequests: JobRequest[] = [
   //   {
