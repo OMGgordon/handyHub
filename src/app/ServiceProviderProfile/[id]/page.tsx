@@ -171,14 +171,18 @@ export default function ServiceProviderProfile() {
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-3">
                   <CheckCircle className="w-5 h-5 text-gray-700" />
-                  <span>
-                    {provider?.experience} years of trusted experience
-                  </span>
+                  <span>{provider.years_experience} years of trusted experience</span>
                 </div>
-                {/* <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-gray-700" />
-                  <span>Emergency Services Offered</span>
-                </div> */}
+                {provider.highlights && provider.highlights.length > 0 && (
+                  <>
+                    {provider.highlights.map((highlight: string, index: number) => (
+                      <div key={index} className="flex items-center gap-3">
+                        <CheckCircle className="w-5 h-5 text-gray-700" />
+                        <span>{highlight}</span>
+                      </div>
+                    ))}
+                  </>
+                )}
               </CardContent>
             </Card>
 
@@ -200,6 +204,27 @@ export default function ServiceProviderProfile() {
                       >
                         Read more
                       </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Pricing Information */}
+              {(provider.price || provider.pricing_notes) && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Pricing</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {provider.price && (
+                      <p className="text-gray-700 mb-2">
+                        <span className="font-semibold">Starting Rate:</span> GH₵{provider.price}
+                      </p>
+                    )}
+                    {provider.pricing_notes && (
+                      <p className="text-gray-700">
+                        <span className="font-semibold">Notes:</span> {provider.pricing_notes}
+                      </p>
                     )}
                   </CardContent>
                 </Card>
@@ -237,7 +262,7 @@ export default function ServiceProviderProfile() {
                         <h4 className="font-medium capitalize">
                           {key.replace("_", " ")}
                         </h4>
-                        <p className="text-gray-600 font-light">{value}</p>
+                        <p className="text-gray-600 font-light">{String(value)}</p>
                       </div>
                     ))}
                     {/* {provider.amenities.map((amenity) => {
@@ -255,7 +280,7 @@ export default function ServiceProviderProfile() {
                   <CardTitle>Accepted payment methods</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {provider?.payment_methods?.map((method) => (
+                  {provider.payment_methods.map((method: string) => (
                     <div key={method} className="flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-green-600" />
                       <span className="text-gray-700">{method}</span>
@@ -274,18 +299,28 @@ export default function ServiceProviderProfile() {
               <CardTitle>Photos of past projects</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {[1, 2, 3, 4].map((i) => (
-                  <div
-                    key={i}
-                    className="aspect-square bg-gray-200 rounded-lg overflow-hidden"
-                  >
-                    <div className="w-full h-full bg-gray-300 flex items-center justify-center">
-                      <span className="text-gray-500">Photo {i}</span>
+              {provider.portfolio_images && provider.portfolio_images.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {provider.portfolio_images.map((image: any, index: number) => (
+                    <div
+                      key={index}
+                      className="aspect-square bg-gray-200 rounded-lg overflow-hidden"
+                    >
+                      <Image
+                        src={image.url}
+                        alt={image.caption || `Project ${index + 1}`}
+                        width={200}
+                        height={200}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No portfolio images available yet.</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         );
@@ -370,30 +405,21 @@ export default function ServiceProviderProfile() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                    <span>Insured</span>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                    <span>Licensed*</span>
-                    <Button
-                      variant="link"
-                      className="text-sm underline ml-auto"
-                    >
-                      Show more
-                    </Button>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                    <span>Eco-friendly Accreditations</span>
-                    <Button
-                      variant="link"
-                      className="text-sm underline ml-auto"
-                    >
-                      Show more
-                    </Button>
-                  </div>
+                  {provider.has_insurance && (
+                    <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+                      <CheckCircle className="w-5 h-5 text-green-600" />
+                      <span>Insured</span>
+                    </div>
+                  )}
+                  {provider.has_license && (
+                    <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+                      <CheckCircle className="w-5 h-5 text-green-600" />
+                      <span>Licensed</span>
+                    </div>
+                  )}
+                  {!provider.has_insurance && !provider.has_license && (
+                    <p className="text-gray-500">No licensing information provided.</p>
+                  )}
                 </div>
                 <p className="text-sm text-gray-600">
                   All statements concerning insurance, licenses, and bonds are
@@ -563,8 +589,8 @@ export default function ServiceProviderProfile() {
                   </div>
                 </div>
 
-                {provider?.availability &&
-                  provider.availability.length !== 0 && (
+                {provider?.service_hours &&
+                  Object.keys(provider.service_hours).length > 0 && (
                     <div>
                       <Separator />
 
@@ -573,13 +599,16 @@ export default function ServiceProviderProfile() {
                           Service hours
                         </h3>
                         <div className="space-y-1 text-xs">
-                          {provider.availability?.map((day) => (
-                            <span
-                              key={day}
-                              className="text-gray-700 flex font-semibold"
-                            >
-                              {day}
-                            </span>
+                          {Object.entries(provider.service_hours).map(([day, hours]: [string, any]) => (
+                            hours.available && (
+                              <div
+                                key={day}
+                                className="text-gray-700 flex justify-between font-semibold"
+                              >
+                                <span>{day}</span>
+                                <span>{hours.start} - {hours.end}</span>
+                              </div>
+                            )
                           ))}
                         </div>
                       </div>

@@ -45,6 +45,7 @@ interface FormData {
   providerId: string;
   clientId: string;
   uploadedFiles: File[];
+  uploadedUrls: string[];
 }
 
 export function BookServicePage() {

@@ -2,6 +2,8 @@
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/context/SessionProvider";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -22,6 +24,29 @@ export function AuthenticatedNavbar() {
   const { session, signOut } = useSession();
   const user = session?.user;
   const router = useRouter();
+  const [userType, setUserType] = useState<'client' | 'handyman' | null>(null);
+
+  // Determine user type
+  useEffect(() => {
+    const checkUserType = async () => {
+      if (!session?.user?.id) return;
+
+      // Check if user is a service provider (handyman)
+      const { data: providerData, error } = await supabase
+        .from("service_providers")
+        .select("id")
+        .eq("id", session.user.id)
+        .single();
+
+      if (providerData && !error) {
+        setUserType('handyman');
+      } else {
+        setUserType('client');
+      }
+    };
+
+    checkUserType();
+  }, [session?.user?.id]);
 
   const handleMyProjects = () => {
     router.push("/projects");
@@ -121,23 +146,20 @@ export function AuthenticatedNavbar() {
                 </div>
               </div>
               <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={handleProfile}
-                className="flex items-center gap-2"
-              >
-                <User className="w-4 h-4" />
-                Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={handleSettings}
-                className="flex items-center gap-2"
-              >
-                <Settings className="w-4 h-4" />
-                Settings
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={handleSignOut}
+              
+              {/* Conditional menu items based on user type */}
+              {userType === 'handyman' && (
+                <>
+                  <DropdownMenuItem onClick={handleProfile} className="flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
+              
+              <DropdownMenuItem 
+                onClick={handleSignOut} 
                 className="flex items-center gap-2 text-red-600 focus:text-red-600"
               >
                 <LogOut className="w-4 h-4" />

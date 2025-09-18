@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useSession } from "@/context/SessionProvider";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Image from "next/image";
-import { Camera, Upload, Star, Phone, Mail, MapPin, Clock, CreditCard, Shield, Award, CheckCircle, AlertCircle } from "lucide-react";
+import { Camera, Upload, Star, Phone, Mail, MapPin, Clock, CreditCard, Shield, Award, CheckCircle, AlertCircle, ArrowLeft } from "lucide-react";
 
 interface ProfileData {
   // Profile Info
@@ -59,12 +59,9 @@ export default function ProfileUpdatePage() {
   const [activeTab, setActiveTab] = useState("profile-info");
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const profilePhotoRef = useRef<HTMLInputElement>(null);
   const portfolioRef = useRef<HTMLInputElement>(null);
   const certificateRef = useRef<HTMLInputElement>(null);
-  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const [profileData, setProfileData] = useState<ProfileData>({
     photo: "/profile.png",
@@ -98,6 +95,61 @@ export default function ProfileUpdatePage() {
     certificates: [],
   });
 
+  // Load existing profile data when component mounts
+  useEffect(() => {
+    const loadExistingProfile = async () => {
+      if (!session?.user?.id) return;
+      
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('service_providers')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        if (error) {
+          console.log('No existing profile found, starting with defaults');
+          return;
+        }
+
+        if (data) {
+          console.log('Loading existing profile data:', data);
+          // Map database fields to form fields
+          setProfileData(prev => ({
+            ...prev,
+            photo: data.avatar || prev.photo,
+            name: data.full_name || prev.name,
+            jobTitle: data.service_category?.[0] || prev.jobTitle,
+            about: data.bio || prev.about,
+            yearsExperience: data.years_experience || prev.yearsExperience,
+            services: data.services || prev.services,
+            categories: data.service_category || prev.categories,
+            pricingNotes: data.pricing_notes || prev.pricingNotes,
+            startingRate: data.price || prev.startingRate,
+            highlights: data.highlights || prev.highlights,
+            serviceHours: data.service_hours || prev.serviceHours,
+            paymentMethods: data.payment_methods || prev.paymentMethods,
+            portfolioImages: data.portfolio_images || prev.portfolioImages,
+            phone: data.phone || prev.phone,
+            email: data.email || prev.email,
+            address: data.location || prev.address,
+            serviceArea: data.service_area || prev.serviceArea,
+            hasLicense: data.has_license || prev.hasLicense,
+            hasInsurance: data.has_insurance || prev.hasInsurance,
+            certificates: data.certificates || prev.certificates,
+          }));
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadExistingProfile();
+  }, [session?.user?.id]);
+
   const serviceOptions = [
     "Plumbing", "Electrical", "HVAC", "Painting", "Carpentry", "Roofing",
     "Landscaping", "Cleaning", "Handyman", "Appliance Repair", "Flooring",
@@ -126,59 +178,7 @@ export default function ProfileUpdatePage() {
       ...prev,
       [field]: value
     }));
-    
-    // Trigger autosave after 2 seconds of inactivity
-    if (autoSaveTimeoutRef.current) {
-      clearTimeout(autoSaveTimeoutRef.current);
-    }
-    
-    autoSaveTimeoutRef.current = setTimeout(() => {
-      autoSave();
-    }, 2000);
   };
-
-  const autoSave = useCallback(async () => {
-    if (!session?.user?.id) return;
-    
-    setAutoSaveStatus('saving');
-    try {
-      // Update service_providers table for the currently authenticated user
-      const { error } = await supabase
-        .from('service_providers')
-        .update({
-          full_name: profileData.name || '',
-          phone: profileData.phone || '',
-          bio: profileData.about || '',
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', session.user.id);
-
-      if (error) {
-        throw error;
-      }
-
-      console.log("Auto-saved profile data successfully");
-      
-      setAutoSaveStatus('saved');
-      setLastSaved(new Date());
-      
-      // Reset status after 3 seconds
-      setTimeout(() => setAutoSaveStatus('idle'), 3000);
-    } catch (error) {
-      console.error("Error auto-saving profile:", error);
-      setAutoSaveStatus('error');
-      setTimeout(() => setAutoSaveStatus('idle'), 3000);
-    }
-  }, [profileData, session?.user?.id]);
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (autoSaveTimeoutRef.current) {
-        clearTimeout(autoSaveTimeoutRef.current);
-      }
-    };
-  }, []);
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -302,7 +302,7 @@ export default function ProfileUpdatePage() {
           // Timestamp
           updated_at: new Date().toISOString()
         })
-        .eq('user_id', session.user.id);
+        .eq('id', session.user.id);
 
       if (error) {
         throw error;
@@ -318,6 +318,20 @@ export default function ProfileUpdatePage() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#fff7e7]">
+        <AuthenticatedNavbar />
+        <div className="flex justify-center items-center min-h-[60vh]">
+          <div className="text-center space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#fe9f2b] mx-auto"></div>
+            <p className="text-lg text-gray-600">Loading your profile...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#fff7e7]">
       <AuthenticatedNavbar />
@@ -327,39 +341,22 @@ export default function ProfileUpdatePage() {
         <div className="mb-8">
           <div className="flex justify-between items-start">
             <div>
+              <div className="flex items-center gap-4 mb-2">
+                <Button
+                  variant="outline"
+                  onClick={() => router.push('/profile')}
+                  className="flex items-center gap-2"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Back to Profile
+                </Button>
+              </div>
               <h1 className="text-3xl font-bold text-black mb-2">
                 Update Your Profile
               </h1>
               <p className="text-gray-600">
                 Keep your profile up to date to attract more clients and showcase your expertise.
               </p>
-            </div>
-            
-            {/* Auto-save Status */}
-            <div className="flex items-center gap-2 text-sm">
-              {autoSaveStatus === 'saving' && (
-                <div className="flex items-center gap-2 text-blue-600">
-                  <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
-                  Saving...
-                </div>
-              )}
-              {autoSaveStatus === 'saved' && (
-                <div className="flex items-center gap-2 text-green-600">
-                  <CheckCircle className="h-4 w-4" />
-                  Saved
-                </div>
-              )}
-              {autoSaveStatus === 'error' && (
-                <div className="flex items-center gap-2 text-red-600">
-                  <AlertCircle className="h-4 w-4" />
-                  Save failed
-                </div>
-              )}
-              {lastSaved && autoSaveStatus === 'idle' && (
-                <span className="text-gray-500">
-                  Last saved: {lastSaved.toLocaleTimeString()}
-                </span>
-              )}
             </div>
           </div>
         </div>

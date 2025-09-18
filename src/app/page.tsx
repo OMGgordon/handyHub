@@ -26,7 +26,7 @@ export default function Home() {
         const { data, error } = await supabase
           .from("service_providers")
           .select("*")
-          .eq("user_id", user.id)
+          .eq("id", user.id)
           .single();
 
         if (error) console.error(error);
