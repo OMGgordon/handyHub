@@ -10,18 +10,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
-import { 
-  Edit, 
-  Star, 
-  MapPin, 
-  Phone, 
-  Mail, 
-
-  DollarSign, 
+import {
+  Edit,
+  Star,
+  MapPin,
+  Phone,
+  Mail,
+  DollarSign,
   CheckCircle,
   Award,
   Clock,
-  User
+  User,
 } from "lucide-react";
 
 interface ServiceProvider {
@@ -66,32 +65,32 @@ export default function HandymanProfilePage() {
     const fetchProfile = async () => {
       // Wait for session to load before checking authentication
       if (sessionLoading) return;
-      
+
       if (!session?.user?.id) {
-        router.push('/auth');
+        router.push("/auth");
         return;
       }
 
-      console.log('Current user ID:', session.user.id);
+      console.log("Current user ID:", session.user.id);
       setLoading(true);
       try {
         const { data, error } = await supabase
-          .from('service_providers')
-          .select('*')
-          .eq('id', session.user.id)
+          .from("service_providers")
+          .select("*")
+          .eq("id", session.user.id)
           .single();
 
-        console.log('Profile data:', data);
-        console.log('Profile error:', error);
+        console.log("Profile data:", data);
+        console.log("Profile error:", error);
 
         if (error) {
-          console.error('Detailed error:', error);
-          if (error.code === 'PGRST116') {
+          console.error("Detailed error:", error);
+          if (error.code === "PGRST116") {
             // No record found - user is not a service provider
-            setError('You are not registered as a service provider.');
-          } else if (error.code === '42703') {
+            setError("You are not registered as a service provider.");
+          } else if (error.code === "42703") {
             // Column doesn't exist error
-            setError('Database schema error. Please contact support.');
+            setError("Database schema error. Please contact support.");
           } else {
             setError(error.message);
           }
@@ -99,8 +98,8 @@ export default function HandymanProfilePage() {
           setProfile(data);
         }
       } catch (err) {
-        setError('Failed to load profile');
-        console.error('Error fetching profile:', err);
+        setError("Failed to load profile");
+        console.error("Error fetching profile:", err);
       } finally {
         setLoading(false);
       }
@@ -110,7 +109,7 @@ export default function HandymanProfilePage() {
   }, [session?.user?.id, sessionLoading, router]);
 
   const handleEditProfile = () => {
-    router.push('/profile-update');
+    router.push("/profile-update");
   };
 
   // Show loading while session is being fetched
@@ -145,7 +144,7 @@ export default function HandymanProfilePage() {
         <AuthenticatedNavbar />
         <div className="flex flex-col justify-center items-center min-h-[60vh] space-y-4">
           <p className="text-lg text-red-600">{error}</p>
-          <Button onClick={() => router.push('/profile-update')}>
+          <Button onClick={() => router.push("/profile-update")}>
             Complete Your Profile Setup
           </Button>
         </div>
@@ -167,15 +166,17 @@ export default function HandymanProfilePage() {
   return (
     <div className="min-h-screen bg-[#fff7e7]">
       <AuthenticatedNavbar />
-      
+
       <div className="max-w-4xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="flex justify-between items-start mb-8">
           <div>
             <h1 className="text-3xl font-bold text-black mb-2">My Profile</h1>
-            <p className="text-gray-600">Manage your service provider profile</p>
+            <p className="text-gray-600">
+              Manage your service provider profile
+            </p>
           </div>
-          <Button 
+          <Button
             onClick={handleEditProfile}
             className="bg-[#fe9f2b] hover:bg-[#e8912a] text-white"
           >
@@ -190,9 +191,9 @@ export default function HandymanProfilePage() {
             <div className="flex items-start gap-6">
               {/* Profile Image */}
               <div className="flex-shrink-0">
-                {profile.avatar ? (
+                {profile?.avatar ? (
                   <Image
-                    src={profile.avatar}
+                    src={profile.avatar || "/profile.png"}
                     alt={profile.full_name}
                     width={120}
                     height={120}
@@ -216,12 +217,14 @@ export default function HandymanProfilePage() {
                     Approved
                   </Badge>
                 </div>
-                
+
                 <div className="flex items-center gap-4 mb-4">
                   <div className="flex items-center gap-1">
                     <Star className="w-5 h-5 text-yellow-500 fill-current" />
                     <span className="font-medium">{profile.rating}</span>
-                    <span className="text-gray-600">({profile.review_count} reviews)</span>
+                    <span className="text-gray-600">
+                      ({profile.review_count} reviews)
+                    </span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Award className="w-5 h-5 text-[#fe9f2b]" />
@@ -232,7 +235,11 @@ export default function HandymanProfilePage() {
                 {/* Service Categories */}
                 <div className="flex flex-wrap gap-2 mb-4">
                   {profile.service_category?.map((category, index) => (
-                    <Badge key={index} variant="secondary" className="bg-[#fe9f2b] text-white">
+                    <Badge
+                      key={index}
+                      variant="secondary"
+                      className="bg-[#fe9f2b] text-white"
+                    >
                       {category}
                     </Badge>
                   ))}
@@ -268,7 +275,6 @@ export default function HandymanProfilePage() {
 
         {/* Details Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          
           {/* About Section */}
           <Card>
             <CardHeader>
@@ -278,11 +284,13 @@ export default function HandymanProfilePage() {
               <p className="text-gray-700 leading-relaxed">
                 {profile.bio || "No bio provided yet."}
               </p>
-              
+
               {profile.years_experience && (
                 <div className="mt-4 flex items-center gap-2">
                   <Clock className="w-4 h-4 text-[#fe9f2b]" />
-                  <span className="font-medium">{profile.years_experience} years of experience</span>
+                  <span className="font-medium">
+                    {profile.years_experience} years of experience
+                  </span>
                 </div>
               )}
             </CardContent>
@@ -304,7 +312,9 @@ export default function HandymanProfilePage() {
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500">No specific services listed yet.</p>
+                <p className="text-gray-500">
+                  No specific services listed yet.
+                </p>
               )}
             </CardContent>
           </Card>
@@ -347,28 +357,33 @@ export default function HandymanProfilePage() {
           )}
 
           {/* Service Hours */}
-          {profile.service_hours && Object.keys(profile.service_hours).length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Service Hours</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {Object.entries(profile.service_hours).map(([day, hours]) => (
-                    <div key={day} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                      <span className="font-medium capitalize">{day}</span>
-                      <span className="text-sm">
-                        {hours.available 
-                          ? `${hours.start} - ${hours.end}`
-                          : 'Closed'
-                        }
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          {profile.service_hours &&
+            Object.keys(profile.service_hours).length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Service Hours</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {Object.entries(profile.service_hours).map(
+                      ([day, hours]) => (
+                        <div
+                          key={day}
+                          className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+                        >
+                          <span className="font-medium capitalize">{day}</span>
+                          <span className="text-sm">
+                            {hours.available
+                              ? `${hours.start} - ${hours.end}`
+                              : "Closed"}
+                          </span>
+                        </div>
+                      )
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
           {/* Service Area */}
           {profile.service_area && (
@@ -395,18 +410,21 @@ export default function HandymanProfilePage() {
                 <div className="flex items-start gap-2">
                   <DollarSign className="w-5 h-5 text-[#fe9f2b] mt-0.5" />
                   <div>
-                    <p className="font-medium mb-2">Starting Rate: GH₵{profile.price}</p>
+                    <p className="font-medium mb-2">
+                      Starting Rate: GH₵{profile.price}
+                    </p>
                     <p className="text-gray-700">{profile.pricing_notes}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
           )}
-
         </div>
 
         {/* Certifications & Licenses Section */}
-        {((profile.has_license || profile.has_insurance) || (profile.certificates && profile.certificates.length > 0)) && (
+        {(profile.has_license ||
+          profile.has_insurance ||
+          (profile.certificates && profile.certificates.length > 0)) && (
           <Card className="mt-8">
             <CardHeader>
               <CardTitle>Certifications & Licenses</CardTitle>
@@ -416,15 +434,39 @@ export default function HandymanProfilePage() {
                 {/* License and Insurance Status */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                    <CheckCircle className={`w-5 h-5 ${profile.has_license ? 'text-green-500' : 'text-gray-400'}`} />
-                    <span className={profile.has_license ? 'text-green-700 font-medium' : 'text-gray-500'}>
-                      Professional License {profile.has_license ? 'Verified' : 'Not Verified'}
+                    <CheckCircle
+                      className={`w-5 h-5 ${
+                        profile.has_license ? "text-green-500" : "text-gray-400"
+                      }`}
+                    />
+                    <span
+                      className={
+                        profile.has_license
+                          ? "text-green-700 font-medium"
+                          : "text-gray-500"
+                      }
+                    >
+                      Professional License{" "}
+                      {profile.has_license ? "Verified" : "Not Verified"}
                     </span>
                   </div>
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                    <CheckCircle className={`w-5 h-5 ${profile.has_insurance ? 'text-green-500' : 'text-gray-400'}`} />
-                    <span className={profile.has_insurance ? 'text-green-700 font-medium' : 'text-gray-500'}>
-                      Insurance Coverage {profile.has_insurance ? 'Active' : 'Not Active'}
+                    <CheckCircle
+                      className={`w-5 h-5 ${
+                        profile.has_insurance
+                          ? "text-green-500"
+                          : "text-gray-400"
+                      }`}
+                    />
+                    <span
+                      className={
+                        profile.has_insurance
+                          ? "text-green-700 font-medium"
+                          : "text-gray-500"
+                      }
+                    >
+                      Insurance Coverage{" "}
+                      {profile.has_insurance ? "Active" : "Not Active"}
                     </span>
                   </div>
                 </div>
@@ -432,10 +474,16 @@ export default function HandymanProfilePage() {
                 {/* Certificates */}
                 {profile.certificates && profile.certificates.length > 0 && (
                   <div>
-                    <h4 className="font-medium mb-3">Professional Certificates</h4>
+                    <h4 className="font-medium mb-3">
+                      Professional Certificates
+                    </h4>
                     <div className="flex flex-wrap gap-2">
                       {profile.certificates.map((certificate, index) => (
-                        <Badge key={index} variant="outline" className="border-[#fe9f2b] text-[#fe9f2b]">
+                        <Badge
+                          key={index}
+                          variant="outline"
+                          className="border-[#fe9f2b] text-[#fe9f2b]"
+                        >
                           <Award className="w-3 h-3 mr-1" />
                           {certificate}
                         </Badge>
@@ -457,7 +505,10 @@ export default function HandymanProfilePage() {
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {profile.portfolio_images.map((image, index) => (
-                  <div key={index} className="aspect-square rounded-lg overflow-hidden">
+                  <div
+                    key={index}
+                    className="aspect-square rounded-lg overflow-hidden"
+                  >
                     <Image
                       src={image.url}
                       alt={image.caption || `Portfolio image ${index + 1}`}
@@ -480,20 +531,26 @@ export default function HandymanProfilePage() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
               <div>
-                <div className="text-2xl font-bold text-[#fe9f2b]">{profile.rating}</div>
+                <div className="text-2xl font-bold text-[#fe9f2b]">
+                  {profile.rating}
+                </div>
                 <div className="text-sm text-gray-600">Average Rating</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-[#fe9f2b]">{profile.review_count}</div>
+                <div className="text-2xl font-bold text-[#fe9f2b]">
+                  {profile.review_count}
+                </div>
                 <div className="text-sm text-gray-600">Total Reviews</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-[#fe9f2b]">{profile.completed_projects}</div>
+                <div className="text-2xl font-bold text-[#fe9f2b]">
+                  {profile.completed_projects}
+                </div>
                 <div className="text-sm text-gray-600">Projects Completed</div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-[#fe9f2b]">
-                  {profile.verified ? 'Yes' : 'No'}
+                  {profile.verified ? "Yes" : "No"}
                 </div>
                 <div className="text-sm text-gray-600">Verified Status</div>
               </div>
@@ -505,10 +562,12 @@ export default function HandymanProfilePage() {
         <div className="text-center mt-8 text-sm text-gray-500">
           Profile created on {new Date(profile.created_at).toLocaleDateString()}
           {profile.updated_at && (
-            <span> • Last updated {new Date(profile.updated_at).toLocaleDateString()}</span>
+            <span>
+              {" "}
+              • Last updated {new Date(profile.updated_at).toLocaleDateString()}
+            </span>
           )}
         </div>
-
       </div>
     </div>
   );

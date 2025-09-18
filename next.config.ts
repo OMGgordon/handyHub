@@ -12,7 +12,13 @@ const nextConfig: NextConfig = {
 
   // turbo: false, // Turn off Turbopack
   images: {
-    domains: ["jmhfhviddckxfopvvwoe.supabase.co"], // 👈 add your Supabase project ref
+    domains: [
+      "jmhfhviddckxfopvvwoe.supabase.co",
+      "i.pravatar.cc",
+      "picsum.photos",
+      "imgbin.com",
+      "example.com",
+    ], // 👈 add your Supabase project ref
   },
 };
 

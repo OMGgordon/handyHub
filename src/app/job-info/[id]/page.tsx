@@ -527,31 +527,33 @@ export default function JobInfoPage() {
                   <p className="text-[14px] lg:text-[16px] text-black leading-[20px] lg:leading-[24px] mb-0">
                     Budget Range:
                   </p>
-                  <p className="text-[14px] lg:text-[16px] font-bold text-black leading-[20px] lg:leading-[24px]">
-                    {`GHC ${job.min_budget} - ${job.max_budget}`}
-                  </p>
-                  {userType === "provider" && (
-                    <span
-                      className="p-4 bg-green-500 rounded-full"
-                      onClick={async () => {
-                        const conversation = await startConversation(
-                          job.client_id, // from supabase.auth.user()?.id
-                          job.provider_id, // e.g. from the project/provider profile
-                          job.id
-                          // providerName,
-                          // providerAvatar
-                        );
-
-                        if (conversation) {
-                          router.push(
-                            `/inbox?conversationId=${conversation.id}`
+                  <div className="flex flex-row items-center gap-2">
+                    <p className="text-[14px] lg:text-[16px] font-bold text-black leading-[20px] lg:leading-[24px]">
+                      {`GHC ${job.min_budget} - ${job.max_budget}`}
+                    </p>
+                    {userType === "provider" && (
+                      <span
+                        className="p-1 px-3 bg-green-400 rounded text-white"
+                        onClick={async () => {
+                          const conversation = await startConversation(
+                            job.client_id, // from supabase.auth.user()?.id
+                            job.provider_id, // e.g. from the project/provider profile
+                            job.id
+                            // providerName,
+                            // providerAvatar
                           );
-                        }
-                      }}
-                    >
-                      Bid
-                    </span>
-                  )}
+
+                          if (conversation) {
+                            router.push(
+                              `/inbox?conversationId=${conversation.id}`
+                            );
+                          }
+                        }}
+                      >
+                        Bid
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div>
