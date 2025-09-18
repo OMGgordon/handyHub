@@ -2,17 +2,17 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 const categories = [
-  { name: "Handyperson", icon: "/handyperson.png" },
-  { name: "Landscaping", icon: "/landscaping.png" },
-  { name: "Plumbing", icon: "/plumbingcs.png" },
-  { name: "Electrical", icon: "/electrical.png" },
-  { name: "Remodeling", icon: "/remodeling.png" },
-  { name: "Roofing", icon: "/roofingcs.png" },
-  { name: "Painting", icon: "/painting.png" },
-  { name: "Cleaning", icon: "/cleaning.png" },
-  { name: "HVAC", icon: "/hvac.png" },
-  { name: "Windows", icon: "/windows.png" },
-  { name: "Concrete", icon: "/concrete.png" },
+  { name: "Handyperson", icon: "/Handyperson.png" },
+  { name: "Landscaping", icon: "/Landscaping.png" },
+  { name: "Plumbing", icon: "/Plumbingcs.png" },
+  { name: "Electrical", icon: "/Electrical.png" },
+  { name: "Remodeling", icon: "/Remodeling.png" },
+  { name: "Roofing", icon: "/Roofingcs.png" },
+  { name: "Painting", icon: "/Painting.png" },
+  { name: "Cleaning", icon: "/Cleaning.png" },
+  { name: "HVAC", icon: "/HVAC.png" },
+  { name: "Windows", icon: "/Windows.png" },
+  { name: "Concrete", icon: "/Concrete.png" },
 ];
 
 export function ServiceCategories() {
