@@ -20,9 +20,6 @@ interface JobRequest {
   budgetRange: string;
 }
 
-interface Props {
-  jobRequests: JobRequest;
-}
 
 export default function PendingJobRequestsPage({ jobs }: { jobs?: any[] }) {
   const router = useRouter();

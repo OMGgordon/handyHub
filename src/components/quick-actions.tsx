@@ -1,6 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Wifi, Calendar, User, CalendarIcon } from "lucide-react";
+import { Wifi, User, CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { DateRange } from "react-day-picker";
 import { useState, useEffect } from "react";
 
 import { supabase } from "@/lib/supabase";
@@ -10,7 +12,6 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-
 
 export function QuickActions({ providerId }: { providerId: string }) {
   const [online, setOnline] = useState<boolean>(false);
