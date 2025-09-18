@@ -140,8 +140,6 @@ export default function HandyHiveOnboarding() {
         return;
       }
 
-      
-
       const userId = signUpData.user?.id; // <-- must use this for the FK
       if (!userId) {
         console.error("No user.id returned from signUp");
@@ -567,7 +565,7 @@ export default function HandyHiveOnboarding() {
           <div className="flex items-center mb-12">
             <Image
               aria-hidden
-              src="/logo.png"
+              src="/Logo.png"
               alt="man smiling"
               width={150}
               height={500}

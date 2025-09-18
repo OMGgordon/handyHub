@@ -8,7 +8,7 @@ export function Footer() {
         <div className="lg:col-span-1 flex flex-row justify-between">
           <div className="flex  items-center mb-6">
             <Image
-              src="/logo.png"
+              src="/Logo.png"
               alt="HandyHive Logo"
               className="w-35 h-16"
               width={100}

@@ -82,7 +82,7 @@ export function AuthenticatedNavbar() {
           <Image
             width={50}
             height={50}
-            src="/logo.png"
+            src="/Logo.png"
             alt="HandyHive"
             className="h-16 w-auto cursor-pointer"
             onClick={() => router.push("/auth/callback")}

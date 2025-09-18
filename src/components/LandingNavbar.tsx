@@ -23,7 +23,7 @@ export function LandingNavbar() {
         {/* Logo */}
         <div className="flex items-center">
           <Image
-            src="/logo.png"
+            src="/Logo.png"
             alt="HandyHive Logo"
             width={120}
             height={32}
