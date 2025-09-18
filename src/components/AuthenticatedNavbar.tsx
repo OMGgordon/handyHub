@@ -25,7 +25,7 @@ export function AuthenticatedNavbar() {
   const { session, signOut } = useSession();
   const user = session?.user;
   const router = useRouter();
-  const [userType, setUserType] = useState<'client' | 'handyman' | null>(null);
+  const [userType, setUserType] = useState<"client" | "handyman" | null>(null);
 
   // Determine user type
   useEffect(() => {
@@ -40,9 +40,9 @@ export function AuthenticatedNavbar() {
         .single();
 
       if (providerData && !error) {
-        setUserType('handyman');
+        setUserType("handyman");
       } else {
-        setUserType('client');
+        setUserType("client");
       }
     };
 
@@ -85,7 +85,7 @@ export function AuthenticatedNavbar() {
             src="/logo.png"
             alt="HandyHive"
             className="h-16 w-auto cursor-pointer"
-            onClick={() => router.push("/")}
+            onClick={() => router.push("/auth/callback")}
           />
         </div>
 
@@ -149,20 +149,23 @@ export function AuthenticatedNavbar() {
                 </div>
               </div>
               <DropdownMenuSeparator />
-              
+
               {/* Conditional menu items based on user type */}
-              {userType === 'handyman' && (
+              {userType === "handyman" && (
                 <>
-                  <DropdownMenuItem onClick={handleProfile} className="flex items-center gap-2">
+                  <DropdownMenuItem
+                    onClick={handleProfile}
+                    className="flex items-center gap-2"
+                  >
                     <User className="w-4 h-4" />
                     Profile
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                 </>
               )}
-              
-              <DropdownMenuItem 
-                onClick={handleSignOut} 
+
+              <DropdownMenuItem
+                onClick={handleSignOut}
                 className="flex items-center gap-2 text-red-600 focus:text-red-600"
               >
                 <LogOut className="w-4 h-4" />

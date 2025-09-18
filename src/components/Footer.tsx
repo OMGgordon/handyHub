@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export function Footer() {
   return (
     <footer className="bg-[#faf0df] py-16 px-6">
@@ -5,10 +7,12 @@ export function Footer() {
         {/* Coming Soon & App Store */}
         <div className="lg:col-span-1 flex flex-row justify-between">
           <div className="flex  items-center mb-6">
-            <img
+            <Image
               src="/logo.png"
               alt="HandyHive Logo"
               className="w-35 h-16"
+              width={100}
+              height={100}
             />
           </div>
 
@@ -47,23 +51,11 @@ export function Footer() {
             </div>
 
             <div className="flex items-center gap-4">
-              <img
-                src="/twitter.png"
-                alt="Twitter"
-                className="w-8 h-8"
-              />
+              <img src="/twitter.png" alt="Twitter" className="w-8 h-8" />
               {/* <img src="/images/facebook.png" alt="Facebook" className="w-8 h-8" /> */}
               {/* <img src="/images/pinterest.png" alt="Pinterest" className="w-8 h-8" /> */}
-              <img
-                src="/YouTube.png"
-                alt="YouTube"
-                className="w-8 h-8"
-              />
-              <img
-                src="/instagram.png"
-                alt="Instagram"
-                className="w-8 h-8"
-              />
+              <img src="/YouTube.png" alt="YouTube" className="w-8 h-8" />
+              <img src="/instagram.png" alt="Instagram" className="w-8 h-8" />
             </div>
           </div>
 

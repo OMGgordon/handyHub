@@ -567,7 +567,7 @@ export default function HandyHiveOnboarding() {
           <div className="flex items-center mb-12">
             <Image
               aria-hidden
-              src="/Logo.png"
+              src="/logo.png"
               alt="man smiling"
               width={150}
               height={500}

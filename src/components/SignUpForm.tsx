@@ -249,7 +249,7 @@ function SignUpForm() {
           <CardTitle>
             <Image
               aria-hidden
-              src="/Logo.png"
+              src="/logo.png"
               alt="man smiling"
               width={150}
               height={500}
