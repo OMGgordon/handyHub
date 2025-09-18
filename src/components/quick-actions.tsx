@@ -1,12 +1,21 @@
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Wifi, Calendar, User } from "lucide-react"
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Wifi, Calendar, User, CalendarIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+
 
 export function QuickActions({ providerId }: { providerId: string }) {
   const [online, setOnline] = useState<boolean>(false);
+  const [availability, setAvailability] = useState<Date[]>([]);
+  const router = useRouter();
 
   // fetch initial online status
   useEffect(() => {
@@ -53,16 +62,37 @@ export function QuickActions({ providerId }: { providerId: string }) {
           {online ? "Go Offline" : "Go Online"}
         </Button>
 
-        <Button
+        {/* <Button
           variant="outline"
           className="w-full border-gray-300 text-gray-700 hover:bg-gray-50 py-3 flex items-center justify-center gap-2 bg-transparent"
         >
           <Calendar className="w-4 h-4" />
           Set Availability
-        </Button>
+        </Button> */}
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-full border-gray-300 text-gray-700 hover:bg-gray-50 py-3 flex items-center justify-center gap-2 bg-transparent"
+            >
+              <CalendarIcon className="w-4 h-4" />
+              Set Availability
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-2">
+            <Calendar
+              mode="multiple"
+              selected={availability}
+              onSelect={(days) => days}
+              className="rounded-md border"
+            />
+          </PopoverContent>
+        </Popover>
 
         <Button
           variant="outline"
+          onClick={() => router.push("/profile-update")}
           className="w-full border-gray-300 text-gray-700 hover:bg-gray-50 py-3 flex items-center justify-center gap-2 bg-transparent"
         >
           <User className="w-4 h-4" />

@@ -16,8 +16,8 @@ export function HeroSection() {
         <div className="max-w-2xl">
           <div className="bg-white/20 backdrop-blur-sm rounded-[8px] sm:rounded-[10px] p-4 sm:p-6 lg:p-8 xl:p-12">
             <h1 className="text-[20px] sm:text-[24px] md:text-[32px] lg:text-[40px] font-bold text-black leading-tight mb-4 sm:mb-6 lg:mb-8">
-              Find certified, <span className="text-[#fe9f2b]">reliable</span>{" "}
-              service providers in your area.
+              Find verified, <span className="text-[#fe9f2b]">skilled</span>{" "}
+              handymen in your area.
             </h1>
 
             <div className="relative">

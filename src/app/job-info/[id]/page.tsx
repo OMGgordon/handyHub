@@ -352,12 +352,13 @@ export default function JobInfoPage() {
       <div className="bg-[#faf0df] h-[290px] overflow-hidden rounded-br-[200px] relative">
         <div className="max-w-6xl mx-auto px-6 sm:px-12 lg:px-16 mt-2">
           <Button
-            onClick={() =>
-              router.push(
-                userType === "client" ? "/landing-page" : "/dashboard"
-              )
+            onClick={
+              () => router.back()
+              // router.push(
+              //   userType === "client" ? "/landing-page" : "/dashboard"
+              // )
             }
-            className="bg-white text-black border-2 border-black-500 hover:bg-gray-50 h-[40px] px-4 rounded-full text-[14px] font-bold"
+            className="bg-[#faf0df] text-black  hover:bg-gray-50 h-[40px] px-4  text-[14px] font-bold"
           >
             &larr;
           </Button>

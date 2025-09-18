@@ -9,6 +9,7 @@ import { AuthenticatedNavbar } from "@/components/AuthenticatedNavbar";
 import { useSession } from "@/context/SessionProvider";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 export type ServiceProvider = {
   id: string; // uuid
@@ -60,6 +61,7 @@ export default function Dashboard() {
   const { session, loading } = useSession();
   const userType = session?.user?.user_metadata?.userType;
   const userId = session?.user?.id;
+  const router = useRouter();
 
   const [provider, setProvider] = useState<ServiceProvider | null>(null);
   const [recentJobs, setRecentJobs] = useState<Project[]>([]);
