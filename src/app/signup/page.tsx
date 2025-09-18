@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 import SignUpForm from "@/components/SignUpForm";
 import { useRouter } from "next/navigation";

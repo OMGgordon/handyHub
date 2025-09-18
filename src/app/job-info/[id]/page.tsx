@@ -561,7 +561,8 @@ export default function JobInfoPage() {
                     </span>
                     for a response.{" "}
                     <span className=" text-center ">
-                      If they haven't responded by then, you can nudge them.
+                      If they haven&apos;t responded by then, you can nudge
+                      them.
                     </span>
                   </p>
 
@@ -620,7 +621,7 @@ export default function JobInfoPage() {
                   {isCountdownComplete && (
                     <div className="text-center mb-4">
                       <p className="text-[12px] text-red-600">
-                        Artisan hasn't responded. You can now nudge them.
+                        Artisan has&apos;t responded. You can now nudge them.
                       </p>
                     </div>
                   )}

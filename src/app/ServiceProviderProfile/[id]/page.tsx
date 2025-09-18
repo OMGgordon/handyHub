@@ -8,11 +8,11 @@ import { AuthenticatedNavbar } from "@/components/AuthenticatedNavbar";
 import { format } from "date-fns";
 import {
   Star,
-  Phone,
+
   CheckCircle,
-  Clock,
+
   MapPin,
-  ArrowLeft,
+
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";

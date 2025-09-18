@@ -16,7 +16,7 @@ import {
   MapPin, 
   Phone, 
   Mail, 
-  Calendar, 
+
   DollarSign, 
   CheckCircle,
   Award,

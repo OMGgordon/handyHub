@@ -42,27 +42,33 @@ export default function DateBudgetPage() {
           {/* Step 1 - Completed */}
           <div className="flex items-center gap-2 sm:gap-4">
             <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full flex items-center justify-center border-2 border-green-500">
-              <span className="text-white text-xs sm:text-sm font-medium">✓</span>
+              <span className="text-white text-xs sm:text-sm font-medium">
+                ✓
+              </span>
             </div>
             <div className="w-8 sm:w-16 h-1 bg-green-500"></div>
           </div>
-          
+
           {/* Step 2 - Completed */}
           <div className="flex items-center gap-2 sm:gap-4">
             <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full flex items-center justify-center border-2 border-green-500">
-              <span className="text-white text-xs sm:text-sm font-medium">✓</span>
+              <span className="text-white text-xs sm:text-sm font-medium">
+                ✓
+              </span>
             </div>
             <div className="w-8 sm:w-16 h-1 bg-green-500"></div>
           </div>
-          
+
           {/* Step 3 - Completed */}
           <div className="flex items-center gap-2 sm:gap-4">
             <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full flex items-center justify-center border-2 border-green-500">
-              <span className="text-white text-xs sm:text-sm font-medium">✓</span>
+              <span className="text-white text-xs sm:text-sm font-medium">
+                ✓
+              </span>
             </div>
             <div className="w-8 sm:w-16 h-1 bg-green-500"></div>
           </div>
-          
+
           {/* Step 4 - Active */}
           <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-500 rounded-full flex items-center justify-center border-2 border-green-500">
             <span className="text-white text-xs sm:text-sm font-medium">4</span>
@@ -73,12 +79,16 @@ export default function DateBudgetPage() {
       {/* Main Content */}
       <div className="flex items-center justify-center py-6 sm:py-8 px-4">
         <div className="text-center w-full max-w-2xl">
-          <h1 className="text-xl sm:text-2xl font-bold text-black mb-6 sm:mb-8">Share Details of Your Project</h1>
-          
+          <h1 className="text-xl sm:text-2xl font-bold text-black mb-6 sm:mb-8">
+            Share Details of Your Project
+          </h1>
+
           {/* Date & Budget Card */}
           <div className="bg-white rounded-lg p-6 sm:p-8 w-full shadow-sm">
-            <h2 className="text-lg sm:text-xl font-semibold text-black mb-8 sm:mb-12">When would you like to start and what's your budget?</h2>
-            
+            <h2 className="text-lg sm:text-xl font-semibold text-black mb-8 sm:mb-12">
+              When would you like to start and what&apos;s your budget?
+            </h2>
+
             {/* Start Date */}
             <div className="mb-6 sm:mb-8">
               <label className="block text-left text-gray-700 font-medium mb-2 sm:mb-3 text-sm sm:text-base">
@@ -93,16 +103,20 @@ export default function DateBudgetPage() {
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
                     className="absolute inset-0 opacity-0 cursor-pointer"
-                    min={new Date().toISOString().split('T')[0]}
+                    min={new Date().toISOString().split("T")[0]}
                   />
                   {/* Visible input */}
                   <Input
                     placeholder="Select start date"
-                    value={startDate ? new Date(startDate).toLocaleDateString('en-US', { 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric' 
-                    }) : ""}
+                    value={
+                      startDate
+                        ? new Date(startDate).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })
+                        : ""
+                    }
                     readOnly
                     className="bg-[#fff7e7] border border-gray-300 rounded h-12 px-4 text-gray-600 cursor-pointer w-full text-sm sm:text-base"
                     onClick={handleCalendarClick}
@@ -121,7 +135,7 @@ export default function DateBudgetPage() {
             {/* Budget */}
             <div className="mb-8 sm:mb-12">
               <label className="block text-left text-gray-700 font-medium mb-2 sm:mb-3 text-sm sm:text-base">
-                What's your budget range?
+                What&apos;s your budget range?
               </label>
               <div className="flex gap-3">
                 <div className="flex-1">
@@ -132,20 +146,19 @@ export default function DateBudgetPage() {
                     className="bg-[#fff7e7] border border-gray-300 rounded h-12 px-4 text-gray-600 placeholder:text-gray-500 w-full text-sm sm:text-base"
                   />
                 </div>
-               
               </div>
             </div>
-            
+
             {/* Navigation Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
+              <Button
                 variant="outline"
                 onClick={handleBack}
                 className="px-6 sm:px-8 py-3 w-full sm:w-auto"
               >
                 Back
               </Button>
-              <Button 
+              <Button
                 onClick={handleNext}
                 disabled={!startDate.trim() || !budget.trim()}
                 className="bg-[rgba(254,159,43,1)] hover:bg-orange-600 border-2 border-orange-700 text-white font-black px-6 sm:px-8 py-3 rounded-[8px] disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"

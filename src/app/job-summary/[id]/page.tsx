@@ -96,7 +96,7 @@ export default function PreviewPage() {
     serviceCategory: "Plumbing",
     jobTitle: "Fix leaking sink",
     description:
-      "Hi! Looking for help updating my 650 sq ft apartment. I'm on the 2nd floor up a short flight of stairs. Please bring an electric drill and ring doorbell number 3. Thanks!",
+      "Hi! Looking for help updating my 650 sq ft apartment. I&apos;m on the 2nd floor up a short flight of stairs. Please bring an electric drill and ring doorbell number 3. Thanks!",
     startDate: "August 15, 2025 | 3:00 PM",
     budget: "2,500 - 4,000",
     images: 3,
@@ -390,7 +390,7 @@ export default function PreviewPage() {
               ) : timeRemaining === 0 ? (
                 <div className="text-center mb-2">
                   <div className="text-base font-bold text-red-600 mb-1">
-                    Time's Up!
+                    Time&apos;s Up!
                   </div>
                   <p className="text-xs text-red-700">
                     You can now <strong>"Nudge Artisan"</strong>

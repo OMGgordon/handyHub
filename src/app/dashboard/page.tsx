@@ -134,7 +134,8 @@ export default function Dashboard() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
           <p className="text-gray-600">
-            Welcome back, {provider?.full_name}! Here's your business overview.
+            Welcome back, {provider?.full_name}! Here&apos;s your business
+            overview.
           </p>
         </div>
 
