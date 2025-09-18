@@ -6,7 +6,7 @@ export function Footer() {
         <div className="lg:col-span-1 flex flex-row justify-between">
           <div className="flex  items-center mb-6">
             <img
-              src="/images/logo.png"
+              src="/logo.png"
               alt="HandyHive Logo"
               className="w-35 h-16"
             />
@@ -18,12 +18,12 @@ export function Footer() {
             </h3>
             <div className="flex flex-row">
               <img
-                src="/images/appstore.png"
+                src="/appstore.png"
                 alt="Download on App Store"
                 className="h-12 w-auto"
               />
               <img
-                src="/images/googleplay.png"
+                src="/googleplay.png"
                 alt="Get it on Google Play"
                 className="h-12 w-auto"
               />
@@ -48,19 +48,19 @@ export function Footer() {
 
             <div className="flex items-center gap-4">
               <img
-                src="/images/twitter.png"
+                src="/twitter.png"
                 alt="Twitter"
                 className="w-8 h-8"
               />
               {/* <img src="/images/facebook.png" alt="Facebook" className="w-8 h-8" /> */}
               {/* <img src="/images/pinterest.png" alt="Pinterest" className="w-8 h-8" /> */}
               <img
-                src="/images/YouTube.png"
+                src="/YouTube.png"
                 alt="YouTube"
                 className="w-8 h-8"
               />
               <img
-                src="/images/instagram.png"
+                src="/instagram.png"
                 alt="Instagram"
                 className="w-8 h-8"
               />

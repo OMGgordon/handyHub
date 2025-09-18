@@ -15,7 +15,7 @@ export function ImageWithFallback({
   src, 
   alt, 
   className = '', 
-  fallbackSrc = '/images/placeholder.png',
+  fallbackSrc = '/placeholder.png',
   width,
   height,
   fill = false,

@@ -9,7 +9,7 @@ export function HeroSection() {
     <section className="relative h-[300px] sm:h-[400px] lg:h-[474px] mx-4 sm:mx-6 mt-2 rounded-[15px] sm:rounded-[20px] overflow-hidden">
       <div
         className="absolute inset-0 bg-cover sm:bg-contain bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/images/herosection.png')" }}
+        style={{ backgroundImage: "url('/herosection.png')" }}
       />
 
       <div className="relative z-10 flex flex-col justify-center h-full px-4 sm:px-8 lg:px-16">

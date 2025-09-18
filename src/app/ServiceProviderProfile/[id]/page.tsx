@@ -374,7 +374,7 @@ export default function ServiceProviderProfile() {
 
                     <div className="bg-white text-gray-700 px-2 py-0.5 rounded-full flex items-center gap-1 text-xs font-semibold border border-gray-400 mb-3 w-fit">
                       <Image
-                        src="/images/logoonly.png"
+                        src="/logoonly.png"
                         alt="HandyHive Logo"
                         width={12}
                         height={12}

@@ -20,7 +20,7 @@ export function Navbar({ onNavigateToSignIn }: NavbarProps) {
           <Image
             width={100}
             height={100}
-            src="/images/logo.png"
+            src="/logo.png"
             alt="HandyHive"
             className="h-16 w-auto cursor-pointer"
             onClick={() => router.push("/auth/callback")}

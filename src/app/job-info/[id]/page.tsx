@@ -475,7 +475,7 @@ export default function JobInfoPage() {
           <div className="w-[200px] h-[200px] lg:w-[250px] lg:h-[250px] mt-6 lg:mt-0">
             <div
               className="w-full h-full bg-center bg-cover bg-no-repeat"
-              style={{ backgroundImage: "url('/images/toolbox.png')" }}
+              style={{ backgroundImage: "url('/toolbox.png')" }}
             />
           </div>
         </div>
@@ -594,7 +594,7 @@ export default function JobInfoPage() {
                   <div className="flex justify-center gap-1 mb-3">
                     <div className="w-[50px] h-[50px] rounded-full overflow-hidden">
                       <Image
-                        src="/images/pic1.png"
+                        src="/pic1.png"
                         width={50}
                         height={50}
                         alt="Artisan"

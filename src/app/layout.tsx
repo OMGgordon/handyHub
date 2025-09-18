@@ -21,24 +21,24 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: "/images/logoonly.png",
+        url: "/logoonly.png",
         sizes: "50x50",
         type: "image/png",
       },
       {
-        url: "/images/logoonly.png",
+        url: "/logoonly.png",
         sizes: "20x20",
         type: "image/png",
       },
       {
-        url: "/images/logoonly.png",
+        url: "/logoonly.png",
         sizes: "70x70",
         type: "image/png",
       },
     ],
-    shortcut: "/images/logoonly.png",
+    shortcut: "/logoonly.png",
     apple: {
-      url: "/images/logoonly.png",
+      url: "/logoonly.png",
       sizes: "200x200",
       type: "image/png",
     },

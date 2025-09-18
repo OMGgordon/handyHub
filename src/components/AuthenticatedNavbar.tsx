@@ -82,7 +82,7 @@ export function AuthenticatedNavbar() {
           <Image
             width={50}
             height={50}
-            src="/images/logo.png"
+            src="/logo.png"
             alt="HandyHive"
             className="h-16 w-auto cursor-pointer"
             onClick={() => router.push("/")}

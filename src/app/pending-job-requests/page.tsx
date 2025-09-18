@@ -20,7 +20,6 @@ interface JobRequest {
   budgetRange: string;
 }
 
-
 export default function PendingJobRequestsPage({ jobs }: { jobs?: any[] }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("bookings");

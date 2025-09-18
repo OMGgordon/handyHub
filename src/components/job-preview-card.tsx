@@ -243,7 +243,7 @@ export function JobPreviewCard({ recentJob }: JobPreviewCardProps) {
           <Image
             width={50}
             height={50}
-            src={recentJob?.uploaded_files?.[0] || "/images/Handyperson.png"}
+            src={recentJob?.uploaded_files?.[0] || "/Handyperson.png"}
             alt="Job preview"
             className="w-full h-48 lg:h-40 object-cover rounded-lg"
           />

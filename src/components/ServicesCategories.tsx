@@ -2,17 +2,17 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 const categories = [
-  { name: "Handyperson", icon: "/images/handyperson.png" },
-  { name: "Landscaping", icon: "/images/landscaping.png" },
-  { name: "Plumbing", icon: "/images/plumbingcs.png" },
-  { name: "Electrical", icon: "/images/electrical.png" },
-  { name: "Remodeling", icon: "/images/remodeling.png" },
-  { name: "Roofing", icon: "/images/roofingcs.png" },
-  { name: "Painting", icon: "/images/painting.png" },
-  { name: "Cleaning", icon: "/images/cleaning.png" },
-  { name: "HVAC", icon: "/images/hvac.png" },
-  { name: "Windows", icon: "/images/windows.png" },
-  { name: "Concrete", icon: "/images/concrete.png" },
+  { name: "Handyperson", icon: "/handyperson.png" },
+  { name: "Landscaping", icon: "/landscaping.png" },
+  { name: "Plumbing", icon: "/plumbingcs.png" },
+  { name: "Electrical", icon: "/electrical.png" },
+  { name: "Remodeling", icon: "/remodeling.png" },
+  { name: "Roofing", icon: "/roofingcs.png" },
+  { name: "Painting", icon: "/painting.png" },
+  { name: "Cleaning", icon: "/cleaning.png" },
+  { name: "HVAC", icon: "/hvac.png" },
+  { name: "Windows", icon: "/windows.png" },
+  { name: "Concrete", icon: "/concrete.png" },
 ];
 
 export function ServiceCategories() {
