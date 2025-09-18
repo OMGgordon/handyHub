@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface Project {
   id: string;
@@ -239,7 +240,9 @@ export function JobPreviewCard({ recentJob }: JobPreviewCardProps) {
         </div>
 
         <div className="lg:w-48">
-          <img
+          <Image
+            width={50}
+            height={50}
             src={recentJob?.uploaded_files?.[0] || "/images/Handyperson.png"}
             alt="Job preview"
             className="w-full h-48 lg:h-40 object-cover rounded-lg"

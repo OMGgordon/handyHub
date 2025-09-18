@@ -91,6 +91,7 @@ export default function DatePickerModal({
                 <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-yellow-400 mr-4 overflow-hidden">
                   <img
                     src="/professional-headshot-of-a-person-in-yellow-shirt.jpg"
+                    
                     alt="Mensah"
                     className="w-full h-full object-cover"
                   />

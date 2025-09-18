@@ -6,14 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { AuthenticatedNavbar } from "@/components/AuthenticatedNavbar";
 import { format } from "date-fns";
-import {
-  Star,
-
-  CheckCircle,
-
-  MapPin,
-
-} from "lucide-react";
+import { Star, CheckCircle, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -171,16 +164,20 @@ export default function ServiceProviderProfile() {
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-3">
                   <CheckCircle className="w-5 h-5 text-gray-700" />
-                  <span>{provider.years_experience} years of trusted experience</span>
+                  <span>
+                    {provider.years_experience} years of trusted experience
+                  </span>
                 </div>
                 {provider.highlights && provider.highlights.length > 0 && (
                   <>
-                    {provider.highlights.map((highlight: string, index: number) => (
-                      <div key={index} className="flex items-center gap-3">
-                        <CheckCircle className="w-5 h-5 text-gray-700" />
-                        <span>{highlight}</span>
-                      </div>
-                    ))}
+                    {provider.highlights.map(
+                      (highlight: string, index: number) => (
+                        <div key={index} className="flex items-center gap-3">
+                          <CheckCircle className="w-5 h-5 text-gray-700" />
+                          <span>{highlight}</span>
+                        </div>
+                      )
+                    )}
                   </>
                 )}
               </CardContent>
@@ -218,12 +215,14 @@ export default function ServiceProviderProfile() {
                   <CardContent>
                     {provider.price && (
                       <p className="text-gray-700 mb-2">
-                        <span className="font-semibold">Starting Rate:</span> GH₵{provider.price}
+                        <span className="font-semibold">Starting Rate:</span>{" "}
+                        GH₵{provider.price}
                       </p>
                     )}
                     {provider.pricing_notes && (
                       <p className="text-gray-700">
-                        <span className="font-semibold">Notes:</span> {provider.pricing_notes}
+                        <span className="font-semibold">Notes:</span>{" "}
+                        {provider.pricing_notes}
                       </p>
                     )}
                   </CardContent>
@@ -262,7 +261,9 @@ export default function ServiceProviderProfile() {
                         <h4 className="font-medium capitalize">
                           {key.replace("_", " ")}
                         </h4>
-                        <p className="text-gray-600 font-light">{String(value)}</p>
+                        <p className="text-gray-600 font-light">
+                          {String(value)}
+                        </p>
                       </div>
                     ))}
                     {/* {provider.amenities.map((amenity) => {
@@ -275,19 +276,21 @@ export default function ServiceProviderProfile() {
                 </Card>
               )}
 
-              {provider?.payment_methods && <Card>
-                <CardHeader>
-                  <CardTitle>Accepted payment methods</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {provider.payment_methods.map((method: string) => (
-                    <div key={method} className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-600" />
-                      <span className="text-gray-700">{method}</span>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>}
+              {provider?.payment_methods && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Accepted payment methods</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {provider.payment_methods.map((method: string) => (
+                      <div key={method} className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <span className="text-gray-700">{method}</span>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
         );
@@ -299,22 +302,25 @@ export default function ServiceProviderProfile() {
               <CardTitle>Photos of past projects</CardTitle>
             </CardHeader>
             <CardContent>
-              {provider.portfolio_images && provider.portfolio_images.length > 0 ? (
+              {provider.portfolio_images &&
+              provider.portfolio_images.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {provider.portfolio_images.map((image: any, index: number) => (
-                    <div
-                      key={index}
-                      className="aspect-square bg-gray-200 rounded-lg overflow-hidden"
-                    >
-                      <Image
-                        src={image.url}
-                        alt={image.caption || `Project ${index + 1}`}
-                        width={200}
-                        height={200}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ))}
+                  {provider.portfolio_images.map(
+                    (image: any, index: number) => (
+                      <div
+                        key={index}
+                        className="aspect-square bg-gray-200 rounded-lg overflow-hidden"
+                      >
+                        <Image
+                          src={image.url}
+                          alt={image.caption || `Project ${index + 1}`}
+                          width={200}
+                          height={200}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )
+                  )}
                 </div>
               ) : (
                 <div className="text-center py-8 text-gray-500">
@@ -418,7 +424,9 @@ export default function ServiceProviderProfile() {
                     </div>
                   )}
                   {!provider.has_insurance && !provider.has_license && (
-                    <p className="text-gray-500">No licensing information provided.</p>
+                    <p className="text-gray-500">
+                      No licensing information provided.
+                    </p>
                   )}
                 </div>
                 <p className="text-sm text-gray-600">
@@ -514,9 +522,9 @@ export default function ServiceProviderProfile() {
                 </Button> */}
               </div>
               <div className="relative w-full flex-col sm:w-auto flex justify-center sm:justify-end sm:-ml-16 sm:pr-25">
-                {provider.avatar ? (
+                {provider?.avatar ? (
                   <Image
-                    src={provider.avatar}
+                    src={provider?.avatar || "/profile.png"}
                     alt="provider picture"
                     width={16}
                     height={16}
@@ -599,17 +607,20 @@ export default function ServiceProviderProfile() {
                           Service hours
                         </h3>
                         <div className="space-y-1 text-xs">
-                          {Object.entries(provider.service_hours).map(([day, hours]: [string, any]) => (
-                            hours.available && (
-                              <div
-                                key={day}
-                                className="text-gray-700 flex justify-between font-semibold"
-                              >
-                                <span>{day}</span>
-                                <span>{hours.start} - {hours.end}</span>
-                              </div>
-                            )
-                          ))}
+                          {Object.entries(provider.service_hours).map(
+                            ([day, hours]: [string, any]) =>
+                              hours.available && (
+                                <div
+                                  key={day}
+                                  className="text-gray-700 flex justify-between font-semibold"
+                                >
+                                  <span>{day}</span>
+                                  <span>
+                                    {hours.start} - {hours.end}
+                                  </span>
+                                </div>
+                              )
+                          )}
                         </div>
                       </div>
                     </div>

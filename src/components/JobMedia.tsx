@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { useState } from "react";
 
 const JobMedia = ({ uploaded_files }: { uploaded_files: string[] }) => {
@@ -35,10 +36,12 @@ const JobMedia = ({ uploaded_files }: { uploaded_files: string[] }) => {
           className="fixed inset-0 z-50  bg-opacity-90 flex items-center justify-center p-4"
           onClick={() => setSelectedImage(null)}
         >
-          <img
+          <Image
             src={selectedImage}
             alt="Selected job media"
             className="w-4/5 h-4/5 object-contain rounded-lg shadow-lg"
+            width={50}
+            height={50}
           />
         </div>
       )}

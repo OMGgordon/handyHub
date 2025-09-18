@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Search, Star,  Filter } from "lucide-react";
+import { Search, Star, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -333,7 +333,7 @@ const ServiceProviderSearch: React.FC = () => {
           <div className="flex-1">
             <div className="mb-4">
               <h1 className="text-xl sm:text-2xl font-bold mb-2">
-                Browse Handymen and Prices
+                Browse Handymen
               </h1>
               <p className="text-sm sm:text-base text-gray-600">
                 {providers?.length > 1
@@ -396,7 +396,10 @@ const ServiceProviderSearch: React.FC = () => {
                             <div className="flex-1 mb-2 sm:mb-0">
                               <h3 className="font-semibold text-base sm:text-lg">
                                 {provider.full_name} (
-                                {provider.service_category})
+                                {provider.service_category.length > 1
+                                  ? provider.service_category.join(", ")
+                                  : provider.service_category}
+                                )
                               </h3>
                               <div className="flex flex-wrap items-center gap-2 mt-1">
                                 {provider.verified && (
@@ -412,7 +415,7 @@ const ServiceProviderSearch: React.FC = () => {
                                     variant="secondary"
                                     className="text-xs bg-green-400"
                                   >
-                                     Online
+                                    Online
                                   </Badge>
                                 )}
                                 <div className="flex items-center gap-1">

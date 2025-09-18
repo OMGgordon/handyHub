@@ -19,6 +19,7 @@ import {
   MessageSquare,
   FolderOpen,
 } from "lucide-react";
+import Image from "next/image";
 
 export function AuthenticatedNavbar() {
   const { session, signOut } = useSession();
@@ -78,7 +79,9 @@ export function AuthenticatedNavbar() {
     <nav className="bg-white shadow-sm py-2 px-4 sm:px-6 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between h-12">
         <div className="flex items-center">
-          <img
+          <Image
+            width={50}
+            height={50}
             src="/images/logo.png"
             alt="HandyHive"
             className="h-16 w-auto cursor-pointer"

@@ -32,6 +32,7 @@ import { useParams } from "next/navigation";
 import { useSession } from "@/context/SessionProvider";
 import JobMedia from "@/components/JobMedia";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function JobInfoPage() {
   const router = useRouter();
@@ -592,8 +593,10 @@ export default function JobInfoPage() {
 
                   <div className="flex justify-center gap-1 mb-3">
                     <div className="w-[50px] h-[50px] rounded-full overflow-hidden">
-                      <img
+                      <Image
                         src="/images/pic1.png"
+                        width={50}
+                        height={50}
                         alt="Artisan"
                         className="w-full h-full object-cover"
                       />

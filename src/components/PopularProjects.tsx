@@ -12,7 +12,7 @@ const projects = [
   {
     title: "One-time Cleaning Service",
     rating: "4.5",
-    reviews: "314k+", 
+    reviews: "314k+",
     price: "from ₵300",
     image: "/images/cleaaning.png",
   },
@@ -20,7 +20,7 @@ const projects = [
     title: "Air Conditioning Service & Repair",
     rating: "4.7",
     reviews: "306k+",
-    price: "from ₵700", 
+    price: "from ₵700",
     image: "/images/ac-repair.png",
   },
   {
@@ -32,7 +32,7 @@ const projects = [
   },
   {
     title: "Roof Installation & Repair",
-    rating: "4.7", 
+    rating: "4.7",
     reviews: "325k+",
     price: "from ₵700",
     image: "/images/roofing.png",
@@ -53,11 +53,11 @@ export function PopularProjects() {
         <h2 className="text-[23.25px] font-bold text-[#282827] mb-8">
           Popular home projects
         </h2>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project, index) => (
-            <Card 
-              key={index} 
+            <Card
+              key={index}
               className="overflow-hidden border-[#dbd9d4] rounded-[3.907px] hover:shadow-lg transition-shadow cursor-pointer"
             >
               <div className="p-4 border-b border-[#dbd9d4]">
@@ -68,17 +68,19 @@ export function PopularProjects() {
                       {project.title}
                     </h3>
                     <div className="flex items-center gap-2 text-[10px] text-[#282827]">
-                      <span>{project.rating} ({project.reviews})</span>
+                      <span>
+                        {project.rating} ({project.reviews})
+                      </span>
                       <span>|</span>
                       <span>{project.price}</span>
                     </div>
                   </div>
                 </div>
               </div>
-              
+
               <CardContent className="p-0">
                 <div className="h-[316px] relative">
-                  <img 
+                  <img
                     src={project.image}
                     alt={project.title}
                     className="w-full h-full object-cover"

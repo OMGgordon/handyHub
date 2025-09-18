@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 const categories = [
@@ -26,8 +27,10 @@ export function ServiceCategories() {
             onClick={() => router.push("/search-page")}
           >
             <div className="w-12 h-12 mb-3 flex items-center justify-center">
-              <img
+              <Image
                 src={category.icon}
+                width={50}
+                height={50}
                 alt={category.name}
                 className="w-full h-full object-contain"
               />
